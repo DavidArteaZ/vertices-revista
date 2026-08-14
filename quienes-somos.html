@@ -1,0 +1,413 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Acerca de · Vértices</title>
+<meta name="description" content="Vértices es la revista de economía del Tec de Monterrey, Campus Ciudad de México: de economistas para economistas y para quien quiera entender. Conoce nuestra misión, visión y valores." />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cg fill='none' stroke='%232d232e' stroke-width='1.6'%3E%3Cpath d='M16 4 L28 26 L4 26 Z'/%3E%3Cpath d='M16 4 L17 18.5 M4 26 L17 18.5 M28 26 L17 18.5' opacity='.55'/%3E%3C/g%3E%3C/svg%3E" />
+<link rel="preload" href="fonts/NeueMontreal-Medium.woff2" as="font" type="font/woff2" crossorigin />
+<link rel="preload" href="fonts/Garet-Book.woff2" as="font" type="font/woff2" crossorigin />
+<style>
+  /* Tipografías del Manual de Identidad: Neue Montreal (logo y títulos) y Garet (subtítulos) */
+  @font-face{ font-family:"Neue Montreal"; src:url("fonts/NeueMontreal-Regular.woff2") format("woff2"); font-weight:400; font-style:normal; font-display:swap; }
+  @font-face{ font-family:"Neue Montreal"; src:url("fonts/NeueMontreal-Medium.woff2") format("woff2"); font-weight:500 600; font-style:normal; font-display:swap; }
+  @font-face{ font-family:"Neue Montreal"; src:url("fonts/NeueMontreal-Bold.woff2") format("woff2"); font-weight:700 800; font-style:normal; font-display:swap; }
+  @font-face{ font-family:"Neue Montreal"; src:url("fonts/NeueMontreal-Italic.woff2") format("woff2"); font-weight:400 600; font-style:italic; font-display:swap; }
+  @font-face{ font-family:"Garet"; src:url("fonts/Garet-Book.woff2") format("woff2"); font-weight:400 600; font-style:normal; font-display:swap; }
+  @font-face{ font-family:"Garet"; src:url("fonts/Garet-Heavy.woff2") format("woff2"); font-weight:700 900; font-style:normal; font-display:swap; }
+  :root{
+    /* paleta del Manual de Identidad (tema claro: fondo crema, tinta ciruela) */
+    --fondo:#E7DECB;
+    --beige:#f8f2ec;
+    --tinta:#2d232e;
+    --hueso:#433947;
+    --texto:#4d4252;
+    --gris:#776d80;
+    --indigo:#4d4dfa;
+    --indigo-claro:#5e5dc7;
+    --perla:#7776cf;
+    --pizarra:#3f3d5a;
+    --coral:#fd6343;
+    --ambar:#ed9126;
+    --ambar-texto:#a86300;
+    --linea:rgba(45,35,46,.18);
+    --linea-fuerte:rgba(45,35,46,.45);
+    --f-titulo:"Neue Montreal",Arial,"Helvetica Neue",sans-serif;
+    --f-ui:"Neue Montreal",Arial,"Helvetica Neue",sans-serif;
+    --f-sub:"Garet",Arial,"Helvetica Neue",sans-serif;
+  }
+  *{ box-sizing:border-box; }
+  html{ scroll-behavior:smooth; }
+  html,body{ margin:0; background:var(--fondo); }
+  body{
+    font:400 15px/1.7 var(--f-ui); color:var(--texto);
+    -webkit-font-smoothing:antialiased;
+  }
+  ::selection{ background:var(--indigo); color:var(--beige); }
+
+  .marco{
+    position:fixed; top:0; left:0; right:0; z-index:50;
+    display:flex; justify-content:space-between; align-items:center;
+    padding:20px 5vw 22px;
+    background:linear-gradient(rgba(231,222,203,.97), rgba(231,222,203,.8));
+    backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
+    box-shadow:0 1px 0 rgba(45,35,46,.08);
+  }
+  .marca{ display:flex; align-items:center; gap:12px; text-decoration:none; color:var(--tinta); }
+  .emblema{ width:26px; height:26px; color:var(--tinta); }
+  .marca span{ font:600 14px var(--f-ui); letter-spacing:.34em; text-transform:uppercase; transform:translateY(1px); }
+  .marco nav{ display:flex; align-items:center; gap:20px; }
+  .marco nav a.enlace{
+    font:500 11.5px var(--f-ui); letter-spacing:.18em; text-transform:uppercase; white-space:nowrap;
+    color:var(--hueso); text-decoration:none; opacity:.85; transition:opacity .2s, color .2s;
+  }
+  .marco nav a.enlace:hover{ opacity:1; color:var(--tinta); }
+  .boton{
+    display:inline-block; font:500 11.5px var(--f-ui); letter-spacing:.14em;
+    text-transform:uppercase; color:var(--tinta); text-decoration:none; white-space:nowrap;
+    background:transparent; border:1px solid var(--linea); border-radius:999px;
+    padding:12px 22px; cursor:pointer;
+    transition:border-color .25s, background .25s, color .25s, transform .15s;
+  }
+  .boton:hover{ border-color:var(--linea-fuerte); }
+  .boton--lleno{ background:var(--coral); color:#2d232e; border-color:var(--coral); }
+  .boton--lleno:hover{ background:#ee5333; border-color:#ee5333; }
+
+  main{ max-width:860px; margin:0 auto; padding:calc(2vh + 92px) 24px 90px; }
+  .ceja{
+    margin:0 0 14px; font:400 14px var(--f-sub); letter-spacing:.3em;
+    text-transform:uppercase; color:var(--indigo);
+  }
+  .ceja .nodo{
+    display:inline-block; width:9px; height:9px; border-radius:50%;
+    margin-right:10px; vertical-align:1px;
+  }
+  h1{
+    margin:0 0 16px; font:500 clamp(36px,6vw,64px)/1.05 var(--f-titulo);
+    color:var(--tinta); letter-spacing:-.01em;
+  }
+  .entrada{ max-width:62ch; font-size:17px; color:var(--hueso); }
+  .entrada em{ font-style:italic; }
+
+  /* hero: el campo de flujo de fondo lo pinta fondo-flujo.js en toda la página */
+  .hero-qs{ position:relative; padding:9vh 0 4vh; }
+  .hero-cont{ position:relative; }
+  .qs-lema{
+    margin:0 0 26px; font:400 13.5px var(--f-sub); letter-spacing:.22em;
+    text-transform:uppercase; color:var(--indigo);
+  }
+
+  section{ margin-top:72px; }
+  h2{
+    margin:0 0 18px; font:500 clamp(24px,3.4vw,34px)/1.15 var(--f-titulo);
+    color:var(--tinta); letter-spacing:-.005em;
+  }
+  .texto{ max-width:62ch; }
+
+
+  .valores{ display:grid; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); gap:18px; margin-top:26px; }
+  .valor{
+    border:1px solid var(--linea); border-radius:16px; padding:22px 22px 20px;
+    background:rgba(252,248,240,.55); backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px);
+    transition:transform .25s, border-color .25s;
+  }
+  .valor:hover{ transform:translateY(-3px); border-color:var(--linea-fuerte); }
+  .valor i{
+    display:block; width:9px; height:9px; border-radius:50%; margin-bottom:14px;
+  }
+  .valor h3{ margin:0 0 8px; font:600 15.5px var(--f-titulo); color:var(--tinta); }
+  .valor p{ margin:0; font-size:13.5px; line-height:1.6; color:var(--texto); }
+  .fuente-nota{ margin-top:16px; font-size:12.5px; color:var(--gris); }
+  .fuente-nota a{ color:var(--indigo-claro); }
+
+  .integridad{ margin-top:26px; border-top:1px solid var(--linea); }
+  .integridad li{
+    list-style:none; padding:18px 0 16px; border-bottom:1px solid var(--linea);
+    display:grid; grid-template-columns:170px 1fr; gap:18px;
+  }
+  .integridad{ padding-left:0; }
+  .integridad strong{
+    font:400 12px var(--f-sub); letter-spacing:.22em; text-transform:uppercase;
+    color:var(--ambar-texto); padding-top:3px;
+  }
+  .integridad p{ margin:0; max-width:58ch; }
+  @media (max-width:640px){ .integridad li{ grid-template-columns:1fr; gap:6px; } }
+
+  .cierre{
+    margin-top:80px; padding-top:36px; border-top:1px solid var(--linea);
+    display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:18px;
+  }
+  .cierre p{ margin:0; max-width:44ch; color:var(--hueso); }
+
+  /* pie de página idéntico al de la landing */
+  footer.pie{
+    margin-top:10vh; border-top:1px solid var(--linea);
+    background:rgba(224,213,191,.8); backdrop-filter:blur(18px); -webkit-backdrop-filter:blur(18px);
+  }
+  .pie-int{ width:min(1180px,92vw); margin:0 auto; padding:64px 0 34px; }
+  .pie-rejilla{ display:grid; grid-template-columns:1.5fr 1fr 1fr 1.3fr; gap:36px; margin-bottom:56px; }
+  .pie h4{ margin:0 0 16px; font:500 11px var(--f-ui); letter-spacing:.26em; text-transform:uppercase; color:var(--gris); }
+  .pie-marca p{ margin:14px 0 0; font-size:13.5px; line-height:1.65; max-width:34ch; }
+  .pie ul{ list-style:none; margin:0; padding:0; }
+  .pie ul li{ margin-bottom:10px; }
+  .pie ul a{ font-size:13.5px; color:var(--hueso); text-decoration:none; transition:color .2s; }
+  .pie ul a:hover{ color:var(--tinta); }
+  .boletin p{ margin:0 0 14px; font-size:13.5px; }
+  .boletin form{ display:flex; gap:8px; }
+  .boletin input{
+    flex:1; min-width:0; padding:11px 14px; border:1px solid var(--linea); border-radius:10px;
+    background:rgba(252,248,240,.65); color:var(--tinta); font:400 14px var(--f-ui);
+  }
+  .boletin input:focus{ outline:none; border-color:var(--indigo-claro); }
+  .pie-legal{
+    display:flex; justify-content:space-between; gap:18px; flex-wrap:wrap;
+    padding-top:22px; border-top:1px solid var(--linea);
+    font-size:11.5px; letter-spacing:.05em; color:var(--gris);
+  }
+  .pie-legal a{ color:var(--gris); }
+  .pie-legal a:hover{ color:var(--tinta); }
+  @media (max-width:980px){ .pie-rejilla{ grid-template-columns:1fr 1fr; } }
+  @media (max-width:640px){ .pie-rejilla{ grid-template-columns:1fr; } }
+
+  /* menú de tres rayas: panel de vidrio con los enlaces (evita empalmes en cualquier idioma) */
+  .marco nav{ position:relative; }
+  .menu-boton{
+    width:42px; height:42px; flex:none; cursor:pointer; background:transparent;
+    border:1px solid var(--linea); border-radius:999px;
+    display:flex; flex-direction:column; justify-content:center; align-items:center; gap:4.5px;
+    transition:border-color .25s;
+  }
+  .menu-boton:hover{ border-color:var(--linea-fuerte); }
+  .menu-boton i{ display:block; width:16px; height:1.5px; background:var(--tinta); border-radius:2px; transition:transform .3s, opacity .25s; }
+  nav.abierto .menu-boton i:nth-child(1){ transform:translateY(6px) rotate(45deg); }
+  nav.abierto .menu-boton i:nth-child(2){ opacity:0; }
+  nav.abierto .menu-boton i:nth-child(3){ transform:translateY(-6px) rotate(-45deg); }
+  .menu-panel{
+    position:absolute; top:calc(100% + 12px); right:0; min-width:250px;
+    display:flex; flex-direction:column; padding:10px 8px;
+    border:1px solid var(--linea); border-radius:16px;
+    background:rgba(252,248,240,.94); backdrop-filter:blur(18px); -webkit-backdrop-filter:blur(18px);
+    box-shadow:0 18px 44px rgba(45,35,46,.14);
+    opacity:0; transform:translateY(-8px); pointer-events:none;
+    transition:opacity .3s, transform .3s;
+  }
+  nav.abierto .menu-panel{ opacity:1; transform:none; pointer-events:auto; }
+  .menu-panel a.enlace{ padding:12px 18px; border-radius:10px; }
+  .menu-panel a.enlace:hover{ background:rgba(45,35,46,.06); }
+  @media (max-width:560px){ .marca span{ display:none; } }
+
+  /* revelado por scroll (revelar.js) */
+  .rev{ opacity:0; transform:translateY(22px);
+    transition:opacity .8s cubic-bezier(.22,.61,.36,1), transform .8s cubic-bezier(.22,.61,.36,1); }
+  .rev-on{ opacity:1; transform:none; }
+
+  /* Acerca de y Conoce al equipo viven en la barra; en pantallas angostas
+     regresan al panel del menú para no encimarse */
+  .menu-panel .solo-angosto{ display:none; }
+  @media (max-width:940px){
+    .marco nav > .enlace-bar, .marco nav > .boton-bar{ display:none; }
+    .menu-panel .solo-angosto{ display:block; }
+  }
+</style>
+</head>
+<body>
+
+<header class="marco">
+  <a class="marca" href="index.html">
+    <svg class="emblema" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
+      <path d="M16 4 L28 26 L4 26 Z"/>
+      <path d="M16 4 L17 18.5 M4 26 L17 18.5 M28 26 L17 18.5" opacity=".55"/>
+    </svg>
+    <span>Vértices</span>
+  </a>
+  <nav aria-label="Navegación principal">
+    <a class="enlace enlace-bar" href="quienes-somos.html">Acerca de</a>
+    <a class="boton boton-bar" href="equipo-ds.html">Conoce al equipo</a>
+    <a class="boton boton--lleno" href="index.html#envio">Publica tu artículo</a>
+    <button class="menu-boton" type="button" aria-label="Menú" aria-expanded="false" aria-controls="menuPanel"><i></i><i></i><i></i></button>
+    <div class="menu-panel" id="menuPanel">
+      <a class="enlace" href="index.html#temas">Temas</a>
+      <a class="enlace" href="index.html#secciones">Secciones</a>
+      <a class="enlace" href="index.html#convocatoria">Convocatoria</a>
+      <a class="enlace" href="lineamientos.html">Lineamientos</a>
+      <a class="enlace solo-angosto" href="quienes-somos.html">Acerca de</a>
+      <a class="enlace solo-angosto" href="equipo-ds.html">Conoce al equipo</a>
+    </div>
+  </nav>
+</header>
+
+<main>
+  <div class="hero-qs">
+    <div class="hero-cont">
+      <p class="ceja">Vértices · Revista académica de economía</p>
+      <h1>Acerca de</h1>
+      <p class="qs-lema">El punto donde las ideas se conectan</p>
+      <div class="entrada">
+        <p>Vértices es la revista estudiantil de economía del Tecnológico de Monterrey, Campus Ciudad de México, creada por y para la comunidad de la Licenciatura en Economía (LEC). Nace de una idea sencilla: una revista <em>de economistas para economistas</em>, rigurosa en la evidencia y amable en la lectura.</p>
+        <p>Somos un espacio de encuentro y convergencia de ideas, donde el pensamiento crítico, la pluralidad de perspectivas y la conexión entre la teoría económica y los problemas que nos rodean se expresan con claridad, sin jerga innecesaria.</p>
+      </div>
+    </div>
+  </div>
+
+
+  <section id="mision">
+    <p class="ceja"><i class="nodo" style="background:var(--indigo)"></i>Misión</p>
+    <h2>El punto de encuentro del rigor y las ideas</h2>
+    <p class="texto">Ser el punto de encuentro y convergencia de ideas y rigor académico, impulsando espacios que contribuyan a la formación de la comunidad estudiantil, en donde se transforma el conocimiento en nuevas perspectivas que cuestionan, debaten y proponen soluciones a los retos económicos del mundo actual.</p>
+  </section>
+
+
+  <section id="vision">
+    <p class="ceja"><i class="nodo" style="background:var(--perla)"></i>Visión</p>
+    <h2>La revista de economía referente a nivel universitario</h2>
+    <p class="texto">Consolidarnos como la revista estudiantil de economía referente a nivel universitario, reconocida por su pensamiento crítico, su pluralidad de ideas y su capacidad para conectar la teoría económica con los retos mundiales contemporáneos.</p>
+  </section>
+
+
+  <section id="valores">
+    <p class="ceja"><i class="nodo" style="background:var(--ambar)"></i>Valores</p>
+    <h2>Los valores que compartimos con el Tec</h2>
+    <p class="texto">Como proyecto de la comunidad del Tecnológico de Monterrey, Vértices hace suyos los valores institucionales y los lleva a la práctica editorial en cada número.</p>
+    <div class="valores">
+      <article class="valor">
+        <i style="background:var(--indigo)"></i>
+        <h3>Innovación</h3>
+        <p>Nos apasiona la disrupción que genera valor: buscamos formatos y preguntas que renueven la conversación económica.</p>
+      </article>
+      <article class="valor">
+        <i style="background:var(--perla)"></i>
+        <h3>Integridad</h3>
+        <p>Ejercemos la libertad con responsabilidad: cada afirmación publicada tiene fuente, método y autoría transparentes.</p>
+      </article>
+      <article class="valor">
+        <i style="background:var(--pizarra)"></i>
+        <h3>Colaboración</h3>
+        <p>Juntos alcanzamos la visión: la revista es obra de estudiantes, docentes y profesionales que revisan y construyen en equipo.</p>
+      </article>
+      <article class="valor">
+        <i style="background:var(--coral)"></i>
+        <h3>Empatía e inclusión</h3>
+        <p>Ponemos siempre en primer lugar a las personas: escribimos para quien quiera entender y buscamos la equidad en nuestras autorías.</p>
+      </article>
+      <article class="valor">
+        <i style="background:var(--ambar)"></i>
+        <h3>Ciudadanía global</h3>
+        <p>Trabajamos por un mundo sostenible: conectamos los fenómenos globales con sus efectos en la economía local.</p>
+      </article>
+    </div>
+    <p class="fuente-nota">Valores institucionales del <a href="https://tec.mx/es/conocenos/principios-valores-y-vision" target="_blank" rel="noopener">Tecnológico de Monterrey</a>.</p>
+  </section>
+
+
+  <section id="integridad">
+    <p class="ceja"><i class="nodo" style="background:var(--coral)"></i>Integridad académica</p>
+    <h2>Cómo cuidamos el rigor de lo que publicamos</h2>
+    <ul class="integridad">
+      <li>
+        <strong>Dictaminación</strong>
+        <p>Tres niveles de revisión según el tipo de pieza. La investigación pasa por dictamen doble ciego: dos personas evalúan el manuscrito anonimizado con una rúbrica común.</p>
+      </li>
+      <li>
+        <strong>Antiplagio</strong>
+        <p>Los trabajos de investigación pasan por una verificación antiplagio con Turnitin antes del dictamen, y toda pieza con datos, citas o imágenes atribuye correctamente sus fuentes.</p>
+      </li>
+      <li>
+        <strong>Fuentes y datos</strong>
+        <p>Todo dato lleva fuente y fecha. Las piezas con datos incluyen una nota metodológica breve y, cuando es posible, enlazan el repositorio con el código o los datos usados. Citamos en estilo Chicago.</p>
+      </li>
+      <li>
+        <strong>Uso de IA</strong>
+        <p>Las herramientas de inteligencia artificial se permiten solo como apoyo declarado (corrección de estilo, programación, revisión metodológica). En la investigación dictaminada por pares no se permite IA generativa para elaborar el contenido del manuscrito.</p>
+      </li>
+      <li>
+        <strong>Equidad de género</strong>
+        <p>Buscamos de manera activa la participación homogénea y registramos el balance de autoría en cada número.</p>
+      </li>
+    </ul>
+    <p class="fuente-nota">El detalle completo vive en los <a href="lineamientos.html">lineamientos editoriales</a>.</p>
+  </section>
+
+  <div class="cierre">
+    <p>La convocatoria está abierta: estudiantes de Economía, economistas titulados, científicos de datos y científicos sociales.</p>
+    <a class="boton boton--lleno" href="index.html#envio">Publica tu artículo</a>
+  </div>
+</main>
+
+<footer class="pie">
+  <div class="pie-int">
+    <div class="pie-rejilla">
+      <div class="pie-marca">
+        <a class="marca" href="index.html">
+          <svg class="emblema" viewBox="0 0 40 40" aria-hidden="true">
+            <path d="M20 5 L35 32 L5 32 Z" fill="none" stroke="currentColor" stroke-width="1.2"/>
+            <path d="M20 5 L21.5 22.5 M5 32 L21.5 22.5 M35 32 L21.5 22.5" fill="none" stroke="currentColor" stroke-width="1.2" opacity="0.55"/>
+          </svg>
+          <span>Vértices</span>
+        </a>
+        <p>Revista académica de economía nacida en la Licenciatura en Economía del Tecnológico de Monterrey, Campus Ciudad de México. De economistas para economistas y para quien quiera entender.</p>
+      </div>
+      <div>
+        <h4>Explora</h4>
+        <ul>
+          <li><a href="index.html#temas">Temas</a></li>
+          <li><a href="index.html#secciones">Secciones</a></li>
+          <li><a href="index.html#convocatoria">Convocatoria</a></li>
+          <li><a href="lineamientos.html">Lineamientos</a></li>
+          <li><a href="index.html#estado">Estado de tu envío</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Contacto</h4>
+        <ul>
+          <li><a href="mailto:vertices@servicios.tec.mx">vertices@servicios.tec.mx</a></li>
+          <li><a href="#" rel="noopener">Instagram · @vertices.ccm</a></li>
+          <li><a href="#" rel="noopener">LinkedIn · Vértices CCM</a></li>
+        </ul>
+      </div>
+      <div class="boletin">
+        <h4>Boletín</h4>
+        <p>Recibe cada edición y las convocatorias en tu correo.</p>
+        <form id="boletinForm">
+          <input type="email" id="boletinCorreo" placeholder="tu correo" aria-label="Tu correo" />
+          <button class="boton" type="submit">Suscribirme</button>
+        </form>
+      </div>
+    </div>
+    <div class="pie-legal">
+      <span>© 2026 Vértices · Tecnológico de Monterrey, Campus Ciudad de México</span>
+      <span>Rigurosa en evidencia, amable en lectura · <a href="#">Aviso de privacidad</a></span>
+    </div>
+  </div>
+</footer>
+
+<script>
+document.getElementById("boletinForm").addEventListener("submit", (e) => {
+  e.preventDefault();
+  const correo = document.getElementById("boletinCorreo").value.trim();
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correo)) return;
+  const TRS = (s) => (window.__dicc && window.__dicc[s]) || s;
+  e.target.outerHTML = `<p style="color:var(--tinta)">${TRS("Listo, recibirás la próxima edición en tu correo.")}</p>`;
+});
+</script>
+
+
+<script src="fondo-flujo.js?v=6" defer></script>
+
+<script>
+(() => {
+  const boton = document.querySelector(".menu-boton");
+  if (!boton) return;
+  const nav = boton.closest("nav");
+  boton.addEventListener("click", () => {
+    const abierto = nav.classList.toggle("abierto");
+    boton.setAttribute("aria-expanded", abierto);
+  });
+  document.addEventListener("click", (e) => { if (!nav.contains(e.target)) nav.classList.remove("abierto"); });
+  nav.querySelectorAll(".menu-panel a").forEach((a) => a.addEventListener("click", () => nav.classList.remove("abierto")));
+})();
+</script>
+<script src="revelar.js?v=5" defer></script>
+<script src="idiomas.js?v=5" defer></script>
+</body>
+</html>

@@ -1,0 +1,30 @@
+{
+  "_comentario": "Stub del buscador de estado. Al conectar el backend, la API devolverá esta misma forma. Los registros de ejemplo espejean las filas EJEMPLO del Excel Vertices_BaseDatos_Editorial.",
+  "actualizado": "2026-07-18",
+  "piezas": [
+    {
+      "folio": "VTX-2026-001",
+      "correo": "ejemplo@correo.mx",
+      "titulo": "Canasta básica vs. poder adquisitivo (EJEMPLO)",
+      "seccion": "2 · Datanomics",
+      "estado": "Publicable",
+      "actualizado": "2026-07-15"
+    },
+    {
+      "folio": "VTX-2026-002",
+      "correo": "ejemplo2@correo.mx",
+      "titulo": "Salario mínimo y empleo juvenil (EJEMPLO)",
+      "seccion": "4 · Miradas Económicas",
+      "estado": "Aceptado",
+      "actualizado": "2026-07-16"
+    },
+    {
+      "folio": "VTX-2026-003",
+      "correo": "ejemplo2@correo.mx",
+      "titulo": "EJEMPLO",
+      "seccion": "4 · Miradas Económicas",
+      "estado": "En revisión",
+      "actualizado": "2026-07-17"
+    }
+  ]
+}

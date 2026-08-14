@@ -1,0 +1,2403 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Vértices · Revista académica de economía · Sistema de diseño</title>
+<meta name="description" content="Vértices es la revista académica de economía creada por la comunidad estudiantil de la Licenciatura en Economía del Tec de Monterrey, Campus Ciudad de México. Rigurosa en evidencia y amable en lectura. Explora por tema y sección, y publica tu trabajo." />
+<meta property="og:title" content="Vértices · Revista académica de economía" />
+<meta property="og:description" content="El punto donde las ideas se conectan. Explora la revista y publica tu trabajo." />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cg fill='none' stroke='%232d232e' stroke-width='1.6'%3E%3Cpath d='M16 4 L28 26 L4 26 Z'/%3E%3Cpath d='M16 4 L17 18.5 M4 26 L17 18.5 M28 26 L17 18.5' opacity='.55'/%3E%3C/g%3E%3C/svg%3E" />
+<link rel="preload" href="fonts/NeueMontreal-Medium.woff2" as="font" type="font/woff2" crossorigin />
+<link rel="preload" href="fonts/NeueMontreal-Bold.woff2" as="font" type="font/woff2" crossorigin />
+<link rel="preload" href="fonts/Garet-Book.woff2" as="font" type="font/woff2" crossorigin />
+<script src="config.js"></script>
+<style>
+  /* Tipografías del Manual de Identidad: Neue Montreal (logo y títulos) y Garet (subtítulos) */
+  @font-face{ font-family:"Neue Montreal"; src:url("fonts/NeueMontreal-Regular.woff2") format("woff2"); font-weight:400; font-style:normal; font-display:swap; }
+  @font-face{ font-family:"Neue Montreal"; src:url("fonts/NeueMontreal-Medium.woff2") format("woff2"); font-weight:500 600; font-style:normal; font-display:swap; }
+  @font-face{ font-family:"Neue Montreal"; src:url("fonts/NeueMontreal-Bold.woff2") format("woff2"); font-weight:700 800; font-style:normal; font-display:swap; }
+  @font-face{ font-family:"Neue Montreal"; src:url("fonts/NeueMontreal-Italic.woff2") format("woff2"); font-weight:400 600; font-style:italic; font-display:swap; }
+  @font-face{ font-family:"Garet"; src:url("fonts/Garet-Book.woff2") format("woff2"); font-weight:400 600; font-style:normal; font-display:swap; }
+  @font-face{ font-family:"Garet"; src:url("fonts/Garet-Heavy.woff2") format("woff2"); font-weight:700 900; font-style:normal; font-display:swap; }
+  :root{
+    /* sistema de diseño Vértices, tema claro: fondo crema y tinta ciruela;
+       índigo vivo, perla azul, pizarra, coral y ámbar como acentos.
+       Ojo: --negro es el FONDO (crema) y --crema es la TINTA (oscura) */
+    --negro:#E7DECB;
+    --crema:#2d232e;
+    --hueso:#433947;
+    --texto:#4d4252;
+    --gris:#776d80;
+    --gris-osc:#938896;
+    --indigo:#4d4dfa;
+    --indigo-claro:#5e5dc7;
+    --naranja:#fd6343;
+    --ambar:#c07515;
+    --linea:rgba(45,35,46,.18);
+    --linea-fuerte:rgba(45,35,46,.45);
+    --vidrio:rgba(252,248,240,.55);
+    --f-titulo:"Neue Montreal",Arial,"Helvetica Neue",sans-serif;
+    --f-ui:"Neue Montreal",Arial,"Helvetica Neue",sans-serif;
+    --f-sub:"Garet",Arial,"Helvetica Neue",sans-serif;
+  }
+  *{ box-sizing:border-box; }
+  html{ scroll-behavior:smooth; }
+  html,body{ margin:0; background:var(--negro); }
+  body{
+    font:400 15px/1.65 var(--f-ui);
+    color:var(--texto);
+    overflow-x:hidden;
+    -webkit-font-smoothing:antialiased;
+  }
+  ::selection{ background:var(--indigo); color:#f8f2ec; }
+  a{ color:inherit; }
+  .sr-solo{
+    position:absolute; width:1px; height:1px; margin:-1px;
+    clip:rect(0 0 0 0); overflow:hidden; white-space:nowrap;
+  }
+
+  /* ------- lienzo y atmosferas fijas ------- */
+  canvas#c{
+    position:fixed; inset:0; width:100vw; height:100vh; display:block;
+    z-index:0; touch-action:pan-y;
+  }
+  .vineta{
+    position:fixed; inset:0; z-index:2; pointer-events:none;
+    background:radial-gradient(ellipse at center, transparent 55%, rgba(45,35,46,.18) 100%);
+  }
+  #velo{
+    position:fixed; inset:0; z-index:6; pointer-events:none; opacity:0;
+    background:rgba(231,222,203,.7);
+    backdrop-filter:blur(26px) saturate(1.05);
+    -webkit-backdrop-filter:blur(26px) saturate(1.05);
+  }
+  .grano{
+    position:fixed; inset:0; z-index:90; pointer-events:none; opacity:.04;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='0.6'/%3E%3C/svg%3E");
+  }
+
+  /* ------- marco fijo (navegacion en los margenes) ------- */
+  .marco{
+    position:fixed; top:0; left:0; right:0; z-index:50;
+    display:flex; align-items:center; justify-content:space-between;
+    padding:20px 5vw 22px;
+    background:linear-gradient(rgba(231,222,203,.97), rgba(231,222,203,.8));
+    backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
+    box-shadow:0 1px 0 rgba(45,35,46,.08);
+  }
+  .marca{
+    display:flex; align-items:center; gap:12px; text-decoration:none;
+    color:var(--crema);
+  }
+  .emblema{ width:26px; height:26px; color:var(--crema); }
+  .marca span{
+    font:600 14px var(--f-ui); letter-spacing:.34em; text-transform:uppercase;
+    transform:translateY(1px);
+  }
+  .marco nav{ display:flex; align-items:center; gap:20px; }
+  .marco nav a.enlace{
+    font:500 11.5px var(--f-ui); letter-spacing:.18em; text-transform:uppercase; white-space:nowrap;
+    color:var(--hueso); text-decoration:none; opacity:.85;
+    transition:opacity .2s, color .2s;
+  }
+  .marco nav a.enlace:hover{ opacity:1; color:var(--crema); }
+
+  .boton{
+    display:inline-block; font:500 11.5px var(--f-ui); letter-spacing:.14em;
+    text-transform:uppercase; color:var(--crema); text-decoration:none; white-space:nowrap;
+    background:transparent; border:1px solid var(--linea); border-radius:999px;
+    padding:12px 22px; cursor:pointer;
+    transition:border-color .25s, background .25s, color .25s, transform .15s;
+  }
+  .boton:hover{ border-color:var(--linea-fuerte); }
+  .boton:active{ transform:scale(.98); }
+  .boton--lleno{ background:var(--naranja); color:#2d232e; border-color:var(--naranja); }
+  .boton--lleno:hover{ background:#ee5333; border-color:#ee5333; }
+
+  /* riel de progreso, borde derecho */
+  .riel{
+    position:fixed; right:26px; top:50%; transform:translateY(-50%);
+    z-index:50; display:flex; flex-direction:column; align-items:flex-end;
+    gap:22px; transition:opacity .5s;
+  }
+  body.en-portal .riel{ opacity:0; pointer-events:none; }
+  .riel button{
+    display:flex; align-items:center; gap:10px; flex-direction:row-reverse;
+    background:none; border:0; padding:0; cursor:pointer; color:var(--gris);
+    font:500 10px var(--f-ui); letter-spacing:.22em; text-transform:uppercase;
+  }
+  .riel button i{
+    width:7px; height:7px; border-radius:50%;
+    border:1px solid rgba(45,35,46,.45); background:transparent;
+    transition:background .3s, transform .3s;
+  }
+  .riel button span{ opacity:0; transition:opacity .25s; }
+  .riel button:hover span{ opacity:1; }
+  .riel button.activo i{ background:var(--crema); border-color:var(--crema); transform:scale(1.25); }
+  .riel button.activo span{ opacity:1; color:var(--crema); }
+
+  /* ------- capas del recorrido (aparecen y desaparecen con el scroll) ------- */
+  .capa{
+    position:fixed; inset:0; z-index:10; opacity:0; visibility:hidden;
+    pointer-events:none;
+  }
+  .capa a, .capa button, .capa input, .capa .carrusel{ pointer-events:auto; }
+
+  /* capa 1: hero, todo en los margenes */
+  .hero-abajo{
+    position:absolute; left:5vw; right:5vw; bottom:34px;
+    display:flex; justify-content:space-between; align-items:flex-end; gap:24px;
+  }
+  .hero-etq{ margin:0; font:500 12px/1.7 var(--f-ui); letter-spacing:.06em; color:var(--hueso); }
+  .hero-etq span{ display:block; color:var(--gris); font-size:11px; letter-spacing:.1em; }
+  .hero-edicion{ text-align:right; }
+  .hero-edicion p{
+    margin:0 0 12px; font:500 11px var(--f-ui);
+    letter-spacing:.22em; text-transform:uppercase; color:var(--gris);
+  }
+  .pista{
+    position:absolute; left:50%; bottom:110px; transform:translateX(-50%);
+    display:flex; flex-direction:column; align-items:center; gap:12px;
+    font:500 10.5px var(--f-ui); letter-spacing:.3em; text-transform:uppercase;
+    color:var(--gris);
+  }
+  .pista i{
+    width:1px; height:44px; overflow:hidden; position:relative;
+    background:rgba(45,35,46,.2);
+  }
+  .pista i::after{
+    content:""; position:absolute; left:0; top:-50%; width:1px; height:50%;
+    background:var(--crema); animation:gotea 2.1s cubic-bezier(.6,.05,.3,.95) infinite;
+  }
+  @keyframes gotea{ 0%{ top:-50%; } 100%{ top:110%; } }
+
+  /* capa 2: temas */
+  .temas-bloque{
+    position:absolute; top:13vh; left:5vw; max-width:440px;
+    padding:26px 28px 24px; border:1px solid rgba(45,35,46,.12); border-radius:18px;
+    background:rgba(252,248,240,.6); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px);
+  }
+  .temas-pie{
+    position:absolute; right:5vw; bottom:44px; margin:0; text-align:right;
+    font:500 10.5px/2 var(--f-ui); letter-spacing:.22em; text-transform:uppercase;
+    color:var(--gris);
+  }
+  .ceja{
+    margin:0 0 14px; font:400 12.5px var(--f-sub); letter-spacing:.3em;
+    text-transform:uppercase; color:var(--indigo);
+  }
+  .titulo{
+    margin:0 0 16px; font:500 clamp(32px,4.6vw,58px)/1.04 var(--f-titulo);
+    color:var(--crema); letter-spacing:-.01em;
+  }
+  .titulo em{ font-style:italic; }
+  .bajada{ margin:0 0 24px; max-width:46ch; color:var(--texto); }
+
+  /* capa 3: secciones */
+  .secciones-bloque{
+    position:absolute; top:9vh; left:50%; transform:translateX(-50%);
+    text-align:center; width:min(760px,90vw);
+  }
+  .secciones-bloque .bajada{ margin-left:auto; margin-right:auto; }
+  #fichaSeccion{
+    position:fixed; left:5vw; bottom:calc(24vh + 40px); z-index:12;
+    width:min(320px,80vw); padding:20px 22px;
+    background:var(--vidrio); border:1px solid var(--linea); border-radius:14px;
+    backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
+    opacity:0; transform:translateY(8px); transition:opacity .3s, transform .3s;
+    pointer-events:none;
+  }
+  #fichaSeccion.visible{ opacity:1; transform:translateY(0); }
+  #fichaSeccion h3{ margin:0 0 6px; font:600 17px var(--f-titulo); color:var(--crema); }
+  #fichaSeccion p{ margin:0; font-size:13px; line-height:1.55; color:var(--texto); }
+
+  .carrusel-zona{
+    position:absolute; left:50%; bottom:26px; transform:translateX(-50%);
+    width:min(1240px,92vw);
+  }
+  .carrusel-cab{
+    display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;
+  }
+  .carrusel-cab .ceja{ margin:0; }
+  .flechas{ display:flex; gap:8px; }
+  .flecha{
+    width:38px; height:38px; border-radius:50%; border:1px solid var(--linea);
+    background:rgba(252,248,240,.65); color:var(--crema); font:400 15px var(--f-ui);
+    cursor:pointer; transition:border-color .2s, background .2s;
+  }
+  .flecha:hover{ border-color:var(--linea-fuerte); background:rgba(240,232,216,.9); }
+  .carrusel{
+    display:flex; gap:14px; overflow-x:auto; scroll-snap-type:x mandatory;
+    padding-bottom:4px; scrollbar-width:none;
+  }
+  .carrusel::-webkit-scrollbar{ display:none; }
+  .tarjeta{
+    flex:0 0 292px; scroll-snap-align:start; text-decoration:none;
+    padding:20px 22px 18px; border:1px solid var(--linea); border-radius:14px;
+    background:var(--vidrio); backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
+    transition:border-color .25s, transform .25s;
+  }
+  .tarjeta:hover{ border-color:var(--linea-fuerte); transform:translateY(-3px); }
+  .tarjeta-sec{
+    display:block; font:500 10px var(--f-sub); letter-spacing:.24em;
+    text-transform:uppercase; color:var(--indigo-claro); margin-bottom:10px;
+  }
+  .tarjeta h4{
+    margin:0 0 10px; font:600 16.5px/1.3 var(--f-titulo); color:var(--crema);
+  }
+  .tarjeta p{ margin:0; font-size:12px; color:var(--gris); letter-spacing:.04em; }
+
+  /* capa 4: cierre e invitacion */
+  .cierre-bloque{
+    position:absolute; left:50%; bottom:8vh; transform:translateX(-50%);
+    text-align:center; width:min(680px,90vw);
+  }
+  .cierre-bloque .titulo{ font-size:clamp(26px,3.4vw,40px); }
+  .cierre-acciones{ display:flex; gap:14px; justify-content:center; flex-wrap:wrap; }
+
+  /* ------- espaciador del recorrido ------- */
+  #recorrido{ height:680vh; }
+
+  /* ------- portal (flujo normal sobre el lienzo difuminado) ------- */
+  #portal{ position:relative; z-index:20; }
+  .portal-seccion{
+    width:min(1180px,92vw); margin:0 auto; padding:14vh 0 6vh;
+  }
+  .portal-intro{ text-align:center; padding-top:22vh; }
+  .portal-intro .bajada{ margin:0 auto 40px; max-width:58ch; }
+  .cifras{
+    display:flex; justify-content:center; gap:46px; flex-wrap:wrap; margin:0 0 56px;
+    padding:0; list-style:none;
+  }
+  .cifras strong{ display:block; font:500 34px var(--f-titulo); color:var(--crema); }
+  .cifras span{ font:500 10.5px var(--f-ui); letter-spacing:.24em; text-transform:uppercase; color:var(--gris); }
+
+  .pasos{
+    display:grid; grid-template-columns:repeat(4,1fr); gap:16px;
+    margin:0; padding:0; list-style:none; text-align:left; counter-reset:paso;
+  }
+  .pasos li{
+    padding:24px 22px; border:1px solid var(--linea); border-radius:16px;
+    background:rgba(252,248,240,.55); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px);
+  }
+  .pasos li::before{
+    counter-increment:paso; content:"0" counter(paso);
+    display:block; font:500 26px var(--f-titulo); color:var(--ambar); margin-bottom:14px;
+  }
+  .pasos h3{ margin:0 0 8px; font:600 16px var(--f-ui); letter-spacing:.02em; color:var(--crema); }
+  .pasos p{ margin:0; font-size:13px; line-height:1.55; color:var(--texto); }
+
+  /* tablero de envio */
+  .tablero{
+    display:grid; grid-template-columns:minmax(0,1fr) 350px; gap:28px; align-items:start;
+  }
+  .panel-envio, .lateral > div{
+    border:1px solid var(--linea); border-radius:18px; background:var(--vidrio);
+    backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px);
+  }
+  .panel-envio{ padding:34px 36px 30px; }
+  .panel-envio > .ceja{ margin-bottom:8px; }
+  .panel-envio h2{
+    margin:0 0 26px; font:500 clamp(24px,2.6vw,34px)/1.1 var(--f-titulo); color:var(--crema);
+  }
+
+  .wiz-pasos{
+    display:flex; gap:4px; margin:0 0 30px; padding:0 0 18px; list-style:none;
+    border-bottom:1px solid var(--linea); flex-wrap:wrap;
+  }
+  .wiz-pasos li{
+    display:flex; align-items:center; gap:9px; padding:6px 12px 6px 8px;
+    font:500 11px var(--f-ui); letter-spacing:.12em; text-transform:uppercase;
+    color:var(--gris); border-radius:999px; cursor:default;
+  }
+  .wiz-pasos li i{
+    display:grid; place-items:center; width:22px; height:22px; border-radius:50%;
+    border:1px solid var(--linea); font-style:normal; font-size:10.5px;
+  }
+  .wiz-pasos li.hecho{ color:var(--hueso); cursor:pointer; }
+  .wiz-pasos li.hecho i{ border-color:var(--linea-fuerte); }
+  .wiz-pasos li.activo{ color:var(--crema); }
+  .wiz-pasos li.activo i{ background:var(--naranja); color:#f8f2ec; border-color:var(--naranja); }
+
+  fieldset.paso{ display:none; border:0; margin:0; padding:0; }
+  fieldset.paso.activo{ display:block; }
+  fieldset.paso legend{
+    font:600 15px var(--f-ui); color:var(--crema); padding:0; margin-bottom:18px;
+  }
+  .campo{ margin-bottom:18px; }
+  .fila2{ display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+  label{
+    display:block; margin-bottom:7px; font:500 11px var(--f-ui);
+    letter-spacing:.14em; text-transform:uppercase; color:var(--gris);
+  }
+  input[type=text], input[type=email], select, textarea{
+    width:100%; padding:12px 14px; color:var(--crema);
+    font:400 14px var(--f-ui); background:rgba(45,35,46,.05);
+    border:1px solid var(--linea); border-radius:10px; outline:none;
+    transition:border-color .2s;
+  }
+  input:focus, select:focus, textarea:focus{ border-color:var(--indigo-claro); }
+  select{ appearance:none; background-image:linear-gradient(45deg, transparent 49%, var(--gris) 50%), linear-gradient(-45deg, transparent 49%, var(--gris) 50%); background-position:calc(100% - 20px) 55%, calc(100% - 15px) 55%; background-size:5px 5px; background-repeat:no-repeat; }
+  select option{ background:#F3ECDC; color:var(--crema); }
+  textarea{ resize:vertical; min-height:130px; line-height:1.6; }
+  .ayuda{ margin:6px 0 0; font-size:11.5px; color:var(--gris); letter-spacing:.03em; }
+  .contador{ text-align:right; }
+
+  .zona-archivo{
+    display:block; padding:34px 20px; text-align:center; cursor:pointer;
+    border:1px solid var(--linea); border-radius:14px;
+    background:rgba(45,35,46,.03); transition:border-color .25s, background .25s;
+  }
+  .zona-archivo.sobre, .zona-archivo:hover{
+    border-color:var(--linea-fuerte); background:rgba(45,35,46,.05);
+  }
+  .zona-archivo strong{ display:block; font:600 15px var(--f-ui); color:var(--crema); margin-bottom:6px; }
+  .zona-archivo span{ font-size:12px; color:var(--gris); }
+  #listaArchivos{ list-style:none; margin:14px 0 0; padding:0; }
+  #listaArchivos li{
+    display:flex; justify-content:space-between; align-items:center; gap:12px;
+    padding:10px 14px; margin-bottom:8px; font-size:13px; color:var(--hueso);
+    border:1px solid var(--linea); border-radius:10px; background:rgba(45,35,46,.04);
+  }
+  #listaArchivos .peso{ color:var(--gris); font-size:11.5px; margin-left:auto; }
+  #listaArchivos button{
+    background:none; border:0; color:var(--gris); cursor:pointer; font-size:14px;
+    padding:2px 4px;
+  }
+  #listaArchivos button:hover{ color:var(--crema); }
+
+  .decl{ display:flex; gap:12px; align-items:flex-start; margin-bottom:14px; cursor:pointer; }
+  .decl input{ margin-top:4px; accent-color:var(--naranja); width:15px; height:15px; flex:none; }
+  .decl span{ font-size:13.5px; line-height:1.55; color:var(--texto); letter-spacing:0; text-transform:none; }
+
+  .wiz-acciones{
+    display:flex; justify-content:space-between; align-items:center; gap:14px;
+    margin-top:28px; padding-top:22px; border-top:1px solid var(--linea);
+  }
+  #formError{ margin:14px 0 0; font-size:12.5px; color:#B33E20; min-height:18px; }
+
+  #confirmacion{ text-align:left; }
+  #confirmacion h3{ margin:0 0 14px; font:500 26px var(--f-titulo); color:var(--crema); }
+  #confirmacion dl{
+    margin:22px 0; padding:18px 20px; border:1px solid var(--linea); border-radius:12px;
+    display:grid; grid-template-columns:auto 1fr; gap:8px 18px; font-size:13.5px;
+  }
+  #confirmacion dt{ color:var(--gris); font:500 10.5px var(--f-ui); letter-spacing:.18em; text-transform:uppercase; padding-top:2px; }
+  #confirmacion dd{ margin:0; color:var(--hueso); }
+
+  /* lateral: lineamientos y preguntas */
+  .lateral > div{ padding:26px 28px; margin-bottom:22px; }
+  .lateral h3{ margin:0 0 16px; font:600 17px var(--f-titulo); color:var(--crema); }
+  .lineamientos ul{ margin:0; padding:0 0 0 18px; }
+  .lineamientos li{ margin-bottom:10px; font-size:13.5px; line-height:1.55; }
+  .lineamientos li::marker{ color:var(--gris-osc); }
+  .linea-completa{ margin:16px 0 0; font-size:13px; }
+  .linea-completa a{ color:var(--indigo-claro); }
+
+  /* buscador de estado de pieza: fila completa bajo el tablero */
+  .estado-bloque{
+    grid-column:1 / -1;
+    border:1px solid var(--linea); border-radius:18px; background:var(--vidrio);
+    backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px);
+    padding:26px 28px;
+  }
+  .estado-bloque h3{ margin:0 0 10px; font:600 17px var(--f-titulo); color:var(--crema); }
+  .estado-intro{ margin:0 0 14px; font-size:13px; color:var(--texto); }
+  .estado-form{ display:grid; grid-template-columns:1fr 1fr auto; gap:12px; align-items:center; }
+  @media (max-width:640px){ .estado-form{ grid-template-columns:1fr; } }
+  .estado-form input{
+    width:100%; padding:11px 14px; border:1px solid var(--linea);
+    border-radius:10px; background:rgba(252,248,240,.65); color:var(--crema);
+    font:400 14px var(--f-ui);
+  }
+  .estado-form input:focus{ outline:none; border-color:var(--indigo-claro); }
+  .estado-res{ margin:14px 0 0; font-size:13.5px; line-height:1.6; min-height:20px; }
+  .estado-res strong{ color:var(--crema); }
+  .estado-res.err{ color:#B33E20; }
+  .estado-res dl{ margin:10px 0 0; display:grid; grid-template-columns:auto 1fr; gap:6px 14px; }
+  .estado-res dt{
+    color:var(--gris); font:500 10.5px var(--f-sub); letter-spacing:.18em;
+    text-transform:uppercase; padding-top:2px;
+  }
+  .estado-res dd{ margin:0; color:var(--hueso); }
+  .lateral details{ border-top:1px solid var(--linea); }
+  .lateral details:last-child{ border-bottom:1px solid var(--linea); }
+  .lateral summary{
+    padding:14px 2px; cursor:pointer; list-style:none;
+    font:500 13.5px var(--f-ui); color:var(--hueso);
+    display:flex; justify-content:space-between; gap:10px;
+  }
+  .lateral summary::after{ content:"+"; color:var(--gris); }
+  .lateral details[open] summary::after{ content:"–"; }
+  .lateral details p{ margin:0 0 14px; font-size:13px; line-height:1.6; color:var(--texto); }
+
+  /* ------- pie de pagina ------- */
+  footer.pie{
+    margin-top:10vh; border-top:1px solid var(--linea);
+    background:rgba(224,213,191,.8); backdrop-filter:blur(18px); -webkit-backdrop-filter:blur(18px);
+  }
+  .pie-int{ width:min(1180px,92vw); margin:0 auto; padding:64px 0 34px; }
+  .pie-rejilla{
+    display:grid; grid-template-columns:1.5fr 1fr 1fr 1.3fr; gap:36px; margin-bottom:56px;
+  }
+  .pie h4{
+    margin:0 0 16px; font:500 11px var(--f-ui); letter-spacing:.26em;
+    text-transform:uppercase; color:var(--gris);
+  }
+  .pie-marca p{ margin:14px 0 0; font-size:13.5px; line-height:1.65; max-width:34ch; }
+  .pie ul{ list-style:none; margin:0; padding:0; }
+  .pie ul li{ margin-bottom:10px; }
+  .pie ul a{
+    font-size:13.5px; color:var(--hueso); text-decoration:none; transition:color .2s;
+  }
+  .pie ul a:hover{ color:var(--crema); }
+  .boletin p{ margin:0 0 14px; font-size:13.5px; }
+  .boletin form{ display:flex; gap:8px; }
+  .boletin input{ flex:1; min-width:0; }
+  .pie-legal{
+    display:flex; justify-content:space-between; gap:18px; flex-wrap:wrap;
+    padding-top:22px; border-top:1px solid var(--linea);
+    font-size:11.5px; letter-spacing:.05em; color:var(--gris);
+  }
+  .pie-legal a{ color:var(--gris); }
+  .pie-legal a:hover{ color:var(--crema); }
+
+  /* ------- panel lateral de articulos ------- */
+  #fondoPanel{
+    position:fixed; inset:0; z-index:70; background:rgba(58,49,40,.38);
+    backdrop-filter:blur(4px); -webkit-backdrop-filter:blur(4px);
+    opacity:0; pointer-events:none; transition:opacity .35s;
+  }
+  body.panel-abierto #fondoPanel{ opacity:1; pointer-events:auto; }
+  #panel{
+    position:fixed; top:0; right:0; bottom:0; z-index:80;
+    width:min(460px,100vw); display:flex; flex-direction:column;
+    background:rgba(252,248,240,.96); border-left:1px solid var(--linea);
+    backdrop-filter:blur(22px); -webkit-backdrop-filter:blur(22px);
+    transform:translateX(102%); transition:transform .45s cubic-bezier(.32,.72,.28,1);
+  }
+  body.panel-abierto #panel{ transform:translateX(0); }
+  .panel-cab{
+    display:flex; justify-content:space-between; align-items:flex-start; gap:14px;
+    padding:26px 28px 18px;
+  }
+  .panel-cab h3{ margin:0; font:500 24px/1.15 var(--f-titulo); color:var(--crema); }
+  .cierre{
+    flex:none; width:36px; height:36px; border-radius:50%;
+    border:1px solid var(--linea); background:none; color:var(--hueso);
+    font-size:13px; cursor:pointer; transition:border-color .2s;
+  }
+  .cierre:hover{ border-color:var(--linea-fuerte); color:var(--crema); }
+  .panel-busca{ padding:0 28px 6px; }
+  .panel-meta{ margin:10px 28px 8px; font-size:11.5px; letter-spacing:.16em; text-transform:uppercase; color:var(--gris); }
+  #panelLista{ flex:1; overflow-y:auto; padding:6px 28px 20px; }
+  .art{
+    display:block; padding:16px 0; text-decoration:none;
+    border-bottom:1px solid var(--linea);
+  }
+  .art-sec{
+    display:block; font:500 10px var(--f-sub); letter-spacing:.22em;
+    text-transform:uppercase; color:var(--indigo-claro); margin-bottom:7px;
+  }
+  .art strong{
+    display:block; font:600 15.5px/1.35 var(--f-titulo); color:var(--crema);
+    margin-bottom:6px; transition:color .2s;
+  }
+  .art:hover strong{ color:var(--indigo); }
+  .art-aut{ font-size:12px; color:var(--gris); }
+  .ind{
+    display:flex; justify-content:space-between; align-items:center; width:100%;
+    padding:13px 2px; background:none; border:0; border-bottom:1px solid var(--linea);
+    color:var(--hueso); font:500 14px var(--f-ui); cursor:pointer; text-align:left;
+    transition:color .2s;
+  }
+  .ind:hover{ color:var(--crema); }
+  .ind .cuenta{ font-size:11px; color:var(--gris); letter-spacing:.1em; }
+  .vacio{ padding:28px 0; }
+  .vacio p{ margin:0 0 10px; font-size:14px; line-height:1.6; }
+  .vacio p:first-child{ font-family:var(--f-titulo); font-size:17px; color:var(--crema); }
+  .regresa{
+    background:none; border:0; padding:0 0 14px; color:var(--gris); cursor:pointer;
+    font:500 11px var(--f-ui); letter-spacing:.18em; text-transform:uppercase;
+  }
+  .regresa:hover{ color:var(--crema); }
+  .panel-pie{ padding:18px 28px 26px; border-top:1px solid var(--linea); }
+  .panel-pie .boton{ width:100%; text-align:center; }
+
+  /* ------- responsivo ------- */
+  @media (max-width:980px){
+    .riel{ display:none; }
+    .tablero{ grid-template-columns:1fr; }
+    .pasos{ grid-template-columns:1fr 1fr; }
+    .pie-rejilla{ grid-template-columns:1fr 1fr; }
+    #fichaSeccion{ display:none; }
+    .temas-pie{ display:none; }
+  }
+  @media (max-width:640px){
+    .fila2{ grid-template-columns:1fr; }
+    .pasos{ grid-template-columns:1fr; }
+    .pie-rejilla{ grid-template-columns:1fr; }
+    .hero-abajo{ flex-direction:column; align-items:flex-start; gap:16px; }
+    .hero-edicion{ text-align:left; }
+    .panel-envio{ padding:26px 22px; }
+    .tarjeta{ flex-basis:250px; }
+    .pista{ bottom:150px; }
+  }
+  @media (prefers-reduced-motion: reduce){
+    html{ scroll-behavior:auto; }
+    .pista i::after{ animation:none; }
+  }
+
+  /* menú de tres rayas: panel de vidrio con los enlaces (evita empalmes en cualquier idioma) */
+  .marco nav{ position:relative; }
+  .menu-boton{
+    width:42px; height:42px; flex:none; cursor:pointer; background:transparent;
+    border:1px solid var(--linea); border-radius:999px;
+    display:flex; flex-direction:column; justify-content:center; align-items:center; gap:4.5px;
+    transition:border-color .25s;
+  }
+  .menu-boton:hover{ border-color:var(--linea-fuerte); }
+  .menu-boton i{ display:block; width:16px; height:1.5px; background:var(--crema); border-radius:2px; transition:transform .3s, opacity .25s; }
+  nav.abierto .menu-boton i:nth-child(1){ transform:translateY(6px) rotate(45deg); }
+  nav.abierto .menu-boton i:nth-child(2){ opacity:0; }
+  nav.abierto .menu-boton i:nth-child(3){ transform:translateY(-6px) rotate(-45deg); }
+  .menu-panel{
+    position:absolute; top:calc(100% + 12px); right:0; min-width:250px;
+    display:flex; flex-direction:column; padding:10px 8px;
+    border:1px solid var(--linea); border-radius:16px;
+    background:rgba(252,248,240,.94); backdrop-filter:blur(18px); -webkit-backdrop-filter:blur(18px);
+    box-shadow:0 18px 44px rgba(45,35,46,.14);
+    opacity:0; transform:translateY(-8px); pointer-events:none;
+    transition:opacity .3s, transform .3s;
+  }
+  nav.abierto .menu-panel{ opacity:1; transform:none; pointer-events:auto; }
+  .menu-panel a.enlace{ padding:12px 18px; border-radius:10px; }
+  .menu-panel a.enlace:hover{ background:rgba(45,35,46,.06); }
+  @media (max-width:560px){ .marca span{ display:none; } }
+
+  /* Acerca de y Conoce al equipo viven en la barra; en pantallas angostas
+     regresan al panel del menú para no encimarse */
+  .menu-panel .solo-angosto{ display:none; }
+  @media (max-width:940px){
+    .marco nav > .enlace-bar, .marco nav > .boton-bar{ display:none; }
+    .menu-panel .solo-angosto{ display:block; }
+  }
+</style>
+</head>
+<body>
+
+<h1 class="sr-solo">Vértices, revista académica de economía del Tecnológico de Monterrey, Campus Ciudad de México</h1>
+
+<canvas id="c" aria-hidden="true"></canvas>
+<div class="vineta" aria-hidden="true"></div>
+<div id="velo" aria-hidden="true"></div>
+
+<!-- marco fijo: marca y navegacion en los margenes -->
+<header class="marco">
+  <a class="marca" href="#" data-u="0">
+    <svg class="emblema" viewBox="0 0 40 40" aria-hidden="true">
+      <path d="M20 5 L35 32 L5 32 Z" fill="none" stroke="currentColor" stroke-width="1.2"/>
+      <path d="M20 5 L21.5 22.5 M5 32 L21.5 22.5 M35 32 L21.5 22.5" fill="none" stroke="currentColor" stroke-width="1.2" opacity="0.55"/>
+    </svg>
+    <span>Vértices</span>
+  </a>
+  <nav aria-label="Navegación principal">
+    <a class="enlace enlace-bar" href="quienes-somos.html">Acerca de</a>
+    <a class="boton boton-bar" href="equipo-ds.html">Conoce al equipo</a>
+    <a class="boton boton--lleno" href="#envio" data-ir="envio">Publica tu artículo</a>
+    <button class="menu-boton" type="button" aria-label="Menú" aria-expanded="false" aria-controls="menuPanel"><i></i><i></i><i></i></button>
+    <div class="menu-panel" id="menuPanel">
+      <a class="enlace" href="#temas" data-u="0.48">Temas</a>
+      <a class="enlace" href="#secciones" data-u="0.75">Secciones</a>
+      <a class="enlace" href="#convocatoria" data-ir="convocatoria">Convocatoria</a>
+      <a class="enlace" href="lineamientos.html">Lineamientos</a>
+      <a class="enlace solo-angosto" href="quienes-somos.html">Acerca de</a>
+      <a class="enlace solo-angosto" href="equipo-ds.html">Conoce al equipo</a>
+    </div>
+  </nav>
+</header>
+
+<nav class="riel" aria-label="Progreso del recorrido">
+  <button data-u="0" class="activo"><i></i><span>Vértices</span></button>
+  <button data-u="0.48"><i></i><span>Temas</span></button>
+  <button data-u="0.75"><i></i><span>Secciones</span></button>
+  <button data-ir="convocatoria"><i></i><span>Publica</span></button>
+</nav>
+
+<!-- capa 1: hero (el lienzo dibuja la palabra al centro; aqui solo margenes) -->
+<div class="capa" id="capaHero">
+  <div class="pista" aria-hidden="true"><i></i>Desplázate para explorar</div>
+  <div class="hero-abajo">
+    <p class="hero-etq">
+      Revista académica de economía
+      <span>Tecnológico de Monterrey · Campus Ciudad de México</span>
+    </p>
+    <div class="hero-edicion">
+      <p>Edición inaugural · 2026</p>
+      <a class="boton" href="#convocatoria" data-ir="convocatoria">Convocatoria abierta</a>
+    </div>
+  </div>
+</div>
+
+<!-- capa 2: constelacion de temas -->
+<div class="capa" id="capaTemas">
+  <div class="temas-bloque">
+    <p class="ceja">Constelación de conocimiento</p>
+    <h2 class="titulo">Explora por <em>tema</em></h2>
+    <p class="bajada">Veintisiete áreas de la economía, un nodo por tema. Haz clic en cualquier nodo para descubrir los artículos que orbitan a su alrededor.</p>
+    <button class="boton" id="verIndice" type="button">Ver índice completo</button>
+  </div>
+  <p class="temas-pie">Arrastra para girar la red<br />Haz clic en un nodo para abrirlo</p>
+</div>
+
+<!-- capa 3: mapa de secciones -->
+<div class="capa" id="capaSecciones">
+  <div class="secciones-bloque">
+    <p class="ceja">El mapa de la revista</p>
+    <h2 class="titulo">Ocho secciones, un solo <em>recorrido</em></h2>
+    <p class="bajada">De la carta editorial al cierre en comunidad. Pasa el cursor por un nodo para conocer su sección y haz clic para ver sus artículos.</p>
+  </div>
+  <div class="carrusel-zona">
+    <div class="carrusel-cab">
+      <p class="ceja">Artículos destacados</p>
+      <div class="flechas">
+        <button class="flecha" id="cPrev" type="button" aria-label="Anterior">←</button>
+        <button class="flecha" id="cSig" type="button" aria-label="Siguiente">→</button>
+      </div>
+    </div>
+    <div class="carrusel" id="carrusel"></div>
+  </div>
+</div>
+
+<!-- ficha flotante de la seccion bajo el cursor -->
+<div id="fichaSeccion" aria-hidden="true">
+  <h3 id="fsNombre"></h3>
+  <p id="fsDesc"></p>
+</div>
+
+<!-- capa 4: cierre del recorrido e invitacion a publicar -->
+<div class="capa" id="capaCierre">
+  <div class="cierre-bloque">
+    <h2 class="titulo">¿Tienes una idea que merece <em>publicarse</em>?</h2>
+    <div class="cierre-acciones">
+      <a class="boton boton--lleno" href="#envio" data-ir="envio">Publica tu artículo</a>
+      <a class="boton" href="#convocatoria" data-ir="convocatoria">Conoce el proceso</a>
+    </div>
+  </div>
+</div>
+
+<!-- espaciador que gobierna el recorrido cinematografico -->
+<div id="recorrido" aria-hidden="true"></div>
+
+<!-- ------- portal editorial (la palabra sigue al fondo, difuminada) ------- -->
+<main id="portal">
+
+  <section class="portal-seccion portal-intro" id="convocatoria">
+    <p class="ceja">Convocatoria abierta</p>
+    <h2 class="titulo">Publica en <em>Vértices</em></h2>
+    <p class="bajada">Vértices es la revista académica de economía creada por la comunidad estudiantil de la Licenciatura en Economía del Tec de Monterrey, Campus Ciudad de México. Una revista de economistas para economistas y para quien quiera entender: rigurosa en evidencia y amable en lectura. Publicamos abstracts de investigaciones y papers, artículos y visualizaciones con datos, entrevistas y contenido de vida académica. La convocatoria está abierta a estudiantes, economistas titulados, científicos de datos y científicos sociales.</p>
+    <ul class="cifras">
+      <li><strong>27</strong><span>temas</span></li>
+      <li><strong>8</strong><span>secciones</span></li>
+      <li><strong>4</strong><span>formatos de pieza</span></li>
+    </ul>
+    <ol class="pasos">
+      <li><h3>Prepara tu pieza</h3><p>Elige formato y sección, revisa los lineamientos y dale una última lectura a tu texto.</p></li>
+      <li><h3>Envíala por el portal</h3><p>Completa el formulario con tus datos, el resumen y el archivo de tu trabajo.</p></li>
+      <li><h3>Dictaminación doble ciego</h3><p>Dos revisores evalúan tu texto sin conocer tu identidad y recibes un dictamen formal.</p></li>
+      <li><h3>Publicación</h3><p>Tu pieza aparece en la siguiente edición, en PDF y en el sitio web, con tu nombre.</p></li>
+    </ol>
+  </section>
+
+  <section class="portal-seccion" id="envio">
+    <div class="tablero">
+
+      <div class="panel-envio">
+        <p class="ceja">Portal de envíos</p>
+        <h2>Envío de manuscritos</h2>
+
+        <form id="formulario" novalidate>
+          <ol class="wiz-pasos" id="wizPasos">
+            <li class="activo" data-paso="0"><i>1</i>Autoría</li>
+            <li data-paso="1"><i>2</i>Manuscrito</li>
+            <li data-paso="2"><i>3</i>Archivos</li>
+            <li data-paso="3"><i>4</i>Declaración</li>
+          </ol>
+
+          <fieldset class="paso activo" data-paso="0">
+            <legend>Datos de autoría</legend>
+            <div class="campo">
+              <label for="nombre">Nombre completo *</label>
+              <input type="text" id="nombre" name="nombre" autocomplete="name" />
+            </div>
+            <div class="fila2 campo">
+              <div>
+                <label for="correo">Correo de contacto *</label>
+                <input type="email" id="correo" name="correo" placeholder="tucorreo@ejemplo.com" autocomplete="email" />
+              </div>
+              <div>
+                <label for="perfil">Perfil de autor *</label>
+                <select id="perfil" name="perfil">
+                  <option value="">Elige tu perfil</option>
+                  <option value="Estudiante de licenciatura en Economía">Estudiante de licenciatura en Economía</option>
+                  <option value="Estudiante de otra licenciatura">Estudiante de otra licenciatura</option>
+                  <option value="Economista titulado (licenciatura, maestría o doctorado)">Economista titulado (licenciatura, maestría o doctorado)</option>
+                  <option value="Científico(a) de datos">Científico(a) de datos</option>
+                  <option value="Científico(a) social">Científico(a) social</option>
+                  <option value="Otro perfil interesado en la economía">Otro perfil interesado en la economía</option>
+                </select>
+              </div>
+            </div>
+            <div class="fila2 campo">
+              <div>
+                <label for="afiliacion">Institución o afiliación *</label>
+                <input type="text" id="afiliacion" name="afiliacion" placeholder="Universidad, industria, gobierno, independiente..." />
+              </div>
+              <div>
+                <label for="coautores">Coautores (opcional)</label>
+                <input type="text" id="coautores" name="coautores" placeholder="Nombres separados por comas, máximo dos" />
+              </div>
+            </div>
+            <div class="campo">
+              <label for="genero">Género (opcional, para el registro de equidad de autoría)</label>
+              <select id="genero" name="genero">
+                <option value="">Prefiero no responder aquí</option>
+                <option value="Femenino">Femenino</option>
+                <option value="Masculino">Masculino</option>
+                <option value="Otro">Otro</option>
+                <option value="Prefiere no decir">Prefiere no decir</option>
+              </select>
+            </div>
+          </fieldset>
+
+          <fieldset class="paso" data-paso="1">
+            <legend>Sobre el manuscrito</legend>
+            <div class="campo">
+              <label for="tituloArt">Título del trabajo *</label>
+              <input type="text" id="tituloArt" name="titulo" />
+            </div>
+            <div class="campo">
+              <label for="formato">Formato de la pieza *</label>
+              <select id="formato" name="formato">
+                <option value="">Elige un formato</option>
+                <option value="Paper o abstract de investigación">Paper o abstract de investigación</option>
+                <option value="Artículo con datos o visualización">Artículo con datos o visualización</option>
+                <option value="Entrevista o artículo de opinión verificado">Entrevista o artículo de opinión verificado</option>
+                <option value="Cápsula breve">Cápsula breve</option>
+                <option value="Otro formato">Otro formato</option>
+              </select>
+            </div>
+            <div class="fila2 campo">
+              <div>
+                <label for="seccion">Sección sugerida *</label>
+                <select id="seccion" name="seccion">
+                  <option value="">Elige una sección</option>
+                </select>
+              </div>
+              <div>
+                <label for="tema">Tema principal *</label>
+                <select id="tema" name="tema">
+                  <option value="">Elige un tema</option>
+                </select>
+              </div>
+            </div>
+            <div class="campo">
+              <label for="resumen">Resumen *</label>
+              <textarea id="resumen" name="resumen" rows="6" placeholder="¿Qué pregunta respondes, con qué método y qué encontraste?"></textarea>
+              <p class="ayuda contador" id="contadorResumen">0 palabras · se piden entre 100 y 300</p>
+            </div>
+            <div class="campo">
+              <label for="claves">Palabras clave *</label>
+              <input type="text" id="claves" name="claves" placeholder="inflación, política monetaria, expectativas" />
+              <p class="ayuda">De 3 a 5, separadas por comas.</p>
+            </div>
+          </fieldset>
+
+          <fieldset class="paso" data-paso="2">
+            <legend>Archivos del trabajo</legend>
+            <label class="zona-archivo" id="zonaArchivo" for="archivoInput">
+              <strong>Arrastra tu manuscrito aquí</strong>
+              <span>o haz clic para buscarlo · .docx o .pdf · máximo 20 MB</span>
+            </label>
+            <input type="file" id="archivoInput" accept=".pdf,.doc,.docx" multiple hidden />
+            <ul id="listaArchivos"></ul>
+            <p class="ayuda">Si tu trabajo incluye gráficas o tablas, adjunta también el archivo editable con los datos.</p>
+          </fieldset>
+
+          <fieldset class="paso" data-paso="3">
+            <legend>Declaración de autoría</legend>
+            <div class="campo">
+              <label for="usoIA">Uso de inteligencia artificial *</label>
+              <select id="usoIA" name="usoIA">
+                <option value="">Elige una opción</option>
+                <option value="No">No usé herramientas de IA en este trabajo</option>
+                <option value="Sí">Usé IA como apoyo (estilo, código o revisión) y lo declaro en el manuscrito</option>
+              </select>
+            </div>
+            <label class="decl"><input type="checkbox" id="d1" /><span>El trabajo es original y fue escrito por quienes aparecen como autores.</span></label>
+            <label class="decl"><input type="checkbox" id="d2" /><span>No está publicado ni en revisión en otro medio.</span></label>
+            <label class="decl"><input type="checkbox" id="d3" /><span>Acepto el proceso de dictaminación doble ciego y los ajustes editoriales que resulten.</span></label>
+            <label class="decl"><input type="checkbox" id="d4" /><span>Autorizo la publicación del texto en la edición en PDF y en el sitio web de Vértices.</span></label>
+          </fieldset>
+
+          <p id="formError" role="alert"></p>
+          <div class="wiz-acciones">
+            <button type="button" class="boton" id="atras" disabled>Regresar</button>
+            <button type="button" class="boton boton--lleno" id="continuar">Continuar</button>
+          </div>
+        </form>
+
+        <div id="confirmacion" hidden>
+          <p class="ceja">Envío registrado</p>
+          <h3>Gracias por confiar en Vértices</h3>
+          <p>Tu manuscrito quedó registrado con el folio <strong id="folio"></strong>. Guárdalo: con él y tu correo puedes consultar el avance en <a href="#estado" data-ir="estado">Estado de tu envío</a>. Tu pieza entrará al proceso de dictaminación de su sección y el comité editorial te escribirá al correo que registraste.</p>
+          <dl>
+            <dt>Título</dt><dd id="resTitulo"></dd>
+            <dt>Autoría</dt><dd id="resAutor"></dd>
+            <dt>Formato</dt><dd id="resFormato"></dd>
+            <dt>Sección</dt><dd id="resSeccion"></dd>
+          </dl>
+          <button type="button" class="boton" id="otroEnvio">Enviar otro manuscrito</button>
+        </div>
+      </div>
+
+      <aside class="lateral">
+        <div class="lineamientos" id="lineamientos">
+          <h3>Lineamientos para autores</h3>
+          <ul>
+            <li>Se reciben papers y abstracts de investigación, artículos con datos, entrevistas y cápsulas breves.</li>
+            <li>Formato .docx o .pdf, interlineado 1.5 y letra de 12 puntos.</li>
+            <li>Citación en estilo Chicago; todo dato y toda gráfica indican su fuente y fecha.</li>
+            <li>Las piezas de investigación suman resumen y de 3 a 5 palabras clave, y pasan por verificación antiplagio.</li>
+            <li>El uso de inteligencia artificial se declara; en investigación dictaminada no se permite IA generativa para el contenido.</li>
+            <li>Decisiones posibles: aceptado, revisiones menores, revisiones mayores o rechazado.</li>
+          </ul>
+          <p class="linea-completa"><a href="lineamientos.html">Consulta los lineamientos completos por sección</a></p>
+        </div>
+        <div>
+          <h3>Preguntas frecuentes</h3>
+          <details>
+            <summary>¿Quién puede publicar?</summary>
+            <p>Quien sea. La convocatoria es abierta: puede publicar cualquier persona mientras su investigación, artículo, documento o entrevista tenga una pregunta económica.</p>
+          </details>
+          <details>
+            <summary>¿Cómo se revisa mi trabajo?</summary>
+            <p>Según el tipo de pieza: la investigación pasa por dictaminación doble ciego (dos dictaminadores evalúan tu manuscrito anonimizado con la rúbrica del Dictamen Maestro), las piezas con datos por una revisión reforzada con verificación de fuentes, y el resto por edición y fact-check. Recibes un dictamen formal con fortalezas y áreas de mejora.</p>
+          </details>
+          <details>
+            <summary>¿Puedo escribir desde fuera del Tec o en otro idioma?</summary>
+            <p>Sí. La revista nace en el Tec de Monterrey CCM, pero recibe autores externos y universidades internacionales; Miradas Económicas incluye una subsección de investigaciones del extranjero, con trabajos en otro idioma.</p>
+          </details>
+          <details>
+            <summary>¿Puedo proponer un tema nuevo?</summary>
+            <p>Sí. Los 27 temas de la constelación son un mapa, no una jaula. Elige el más cercano en el formulario y cuéntanos tu propuesta en el resumen.</p>
+          </details>
+        </div>
+      </aside>
+
+      <div id="estado" class="estado-bloque">
+        <h3>Estado de tu envío</h3>
+        <p class="estado-intro">Consulta en qué etapa va tu pieza con tu folio y el correo que registraste.</p>
+        <form class="estado-form" id="estadoForm">
+          <input type="text" id="estadoFolio" placeholder="Folio (VTX-2026-001)" aria-label="Folio" autocomplete="off" />
+          <input type="email" id="estadoCorreo" placeholder="Correo registrado" aria-label="Correo registrado" />
+          <button class="boton" type="submit">Consultar</button>
+        </form>
+        <div class="estado-res" id="estadoRes" aria-live="polite"></div>
+      </div>
+
+    </div>
+  </section>
+
+  <footer class="pie">
+    <div class="pie-int">
+      <div class="pie-rejilla">
+        <div class="pie-marca">
+          <a class="marca" href="#" data-u="0">
+            <svg class="emblema" viewBox="0 0 40 40" aria-hidden="true">
+              <path d="M20 5 L35 32 L5 32 Z" fill="none" stroke="currentColor" stroke-width="1.2"/>
+              <path d="M20 5 L21.5 22.5 M5 32 L21.5 22.5 M35 32 L21.5 22.5" fill="none" stroke="currentColor" stroke-width="1.2" opacity="0.55"/>
+            </svg>
+            <span>Vértices</span>
+          </a>
+          <p>Revista académica de economía nacida en la Licenciatura en Economía del Tecnológico de Monterrey, Campus Ciudad de México. De economistas para economistas y para quien quiera entender.</p>
+        </div>
+        <div>
+          <h4>Explora</h4>
+          <ul>
+            <li><a href="#temas" data-u="0.48">Temas</a></li>
+            <li><a href="#secciones" data-u="0.75">Secciones</a></li>
+            <li><a href="#convocatoria" data-ir="convocatoria">Convocatoria</a></li>
+            <li><a href="#lineamientos" data-ir="lineamientos">Lineamientos</a></li>
+            <li><a href="#estado" data-ir="estado">Estado de tu envío</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Contacto</h4>
+          <ul>
+            <li><a href="mailto:vertices@servicios.tec.mx">vertices@servicios.tec.mx</a></li>
+            <li><a href="#" rel="noopener">Instagram · @vertices.ccm</a></li>
+            <li><a href="#" rel="noopener">LinkedIn · Vértices CCM</a></li>
+          </ul>
+        </div>
+        <div class="boletin">
+          <h4>Boletín</h4>
+          <p>Recibe cada edición y las convocatorias en tu correo.</p>
+          <form id="boletinForm">
+            <input type="email" id="boletinCorreo" placeholder="tu correo" aria-label="Tu correo" />
+            <button class="boton" type="submit">Suscribirme</button>
+          </form>
+        </div>
+      </div>
+      <div class="pie-legal">
+        <span>© 2026 Vértices · Tecnológico de Monterrey, Campus Ciudad de México</span>
+        <span>Rigurosa en evidencia, amable en lectura · <a href="#">Aviso de privacidad</a></span>
+      </div>
+    </div>
+  </footer>
+
+</main>
+
+<!-- panel lateral: articulos por tema o seccion -->
+<div id="fondoPanel" aria-hidden="true"></div>
+<aside id="panel" role="dialog" aria-modal="true" aria-labelledby="panelTitulo">
+  <header class="panel-cab">
+    <div>
+      <p class="ceja" id="panelCeja"></p>
+      <h3 id="panelTitulo"></h3>
+    </div>
+    <button class="cierre" id="cerrarPanel" type="button" aria-label="Cerrar panel">✕</button>
+  </header>
+  <div class="panel-busca">
+    <input type="text" id="panelBusqueda" placeholder="Buscar por título o autor" aria-label="Buscar artículos" />
+  </div>
+  <p class="panel-meta" id="panelMeta"></p>
+  <div id="panelLista"></div>
+  <footer class="panel-pie">
+    <button class="boton boton--lleno" data-ir="envio" type="button">Publica sobre este tema</button>
+  </footer>
+</aside>
+
+<noscript><p style="position:fixed;inset:auto 0 0;padding:16px;text-align:center;background:#342b40;color:#E7DECB;z-index:99;">Esta página necesita JavaScript para mostrar la red de partículas y el portal de envíos.</p></noscript>
+
+<script>
+"use strict";
+
+/* =====================================================================
+   Vértices · landing cinematográfica de scroll
+   Motor de partículas (canvas 2D) + capas HTML sincronizadas con el scroll
+   ===================================================================== */
+
+const WORD = "Vértices";
+
+// 27 temas de economia, un nodo por tema
+const TOPICS = [
+  "Macroeconomía", "Microeconomía", "Finanzas", "Ciencia de Datos",
+  "Teoría de Juegos", "Economía Conductual", "Econometría",
+  "Organización Industrial", "Comercio Internacional", "Política Monetaria",
+  "Economía del Desarrollo", "Economía Laboral", "Economía Pública",
+  "Economía Ambiental", "Mercados Financieros", "Fintech",
+  "Criptomonedas y Activos Digitales", "Desigualdad y Distribución",
+  "Economía Política", "Historia del Pensamiento Económico",
+  "Economía Institucional", "Economía de Redes", "IA y Economía",
+  "Economía de Plataformas", "Finanzas Sostenibles y ESG", "Banca Central",
+  "Guerras Comerciales y Geoeconomía",
+];
+
+// 8 secciones en su flujo narrativo, con descripcion para la ficha
+const SECTIONS = [
+  { label: "Apertura Editorial",       x: -1.48, y:  0.06, z:  0.12, imp: 1.35,
+    desc: "La carta que abre cada número: qué encontrarás, por qué existe la revista y el estándar de rigor que la sostiene." },
+  { label: "Datanomics",               x: -0.92, y: -0.62, z: -0.16, imp: 1.10,
+    desc: "Visualizaciones e infografías sobre fenómenos económicos, con metodología clara y herramientas replicables (Python, R, Excel, SQL)." },
+  { label: "La Voz de la Experiencia", x: -0.76, y:  0.60, z:  0.18, imp: 1.10,
+    desc: "Conversaciones con economistas en activo: cómo se piensa y se trabaja en el mundo real, con consejos de carrera accionables." },
+  { label: "Miradas Económicas",       x: -0.02, y: -0.06, z:  0.00, imp: 2.10, side: "below",
+    desc: "El núcleo académico: investigaciones y papers dictaminados a doble ciego, con acceso al documento completo." },
+  { label: "Horizonte Global",         x:  0.56, y: -0.66, z:  0.16, imp: 1.10,
+    desc: "La economía internacional en lenguaje accesible: cómo un suceso global se traduce en inflación, tipo de cambio y tasas en México." },
+  { label: "¿Sabías Qué?",             x:  0.74, y:  0.58, z: -0.18, imp: 1.00,
+    desc: "Cápsulas breves y visuales: datos curiosos sobre economía, economistas e historia económica." },
+  { label: "Capital Social",           x:  1.34, y: -0.48, z:  0.06, imp: 1.15,
+    desc: "La vida de la comunidad: foros, congresos, estancias y las historias detrás de la facultad." },
+  { label: "Excelencia en Acción",     x:  1.50, y:  0.38, z: -0.10, imp: 1.15,
+    desc: "Reconocimiento a los logros académicos y profesionales de la comunidad de Economía." },
+];
+const SEC_EDGES = [
+  [0, 1], [0, 2], [1, 2],
+  [1, 3], [2, 3],
+  [3, 4], [3, 5], [4, 5],
+  [4, 6], [5, 7], [6, 7], [4, 7],
+];
+
+// corpus de muestra; sustituir por los articulos reales de la revista
+const ARTICULOS = [
+  { t: "La transmisión de la política monetaria en México después de 2021", a: "Ana Sofía Herrera", s: "Miradas Económicas", tm: ["Política Monetaria", "Banca Central", "Macroeconomía"], min: 12, dest: true },
+  { t: "Nearshoring: ¿la oportunidad que México sí puede capturar?", a: "Diego Ramírez Peña", s: "Horizonte Global", tm: ["Comercio Internacional", "Guerras Comerciales y Geoeconomía"], min: 9, dest: true },
+  { t: "Sesgos que cuestan: el ahorro juvenil visto desde la economía conductual", a: "Valeria Cantú", s: "Miradas Económicas", tm: ["Economía Conductual", "Finanzas"], min: 8 },
+  { t: "El peso en datos: 30 años de tipo de cambio en una sola gráfica", a: "Emilio Zárate", s: "Datanomics", tm: ["Ciencia de Datos", "Mercados Financieros"], min: 6, dest: true },
+  { t: "¿Sabías que el Banco de México nació en 1925?", a: "Equipo Vértices", s: "¿Sabías Qué?", tm: ["Banca Central", "Historia del Pensamiento Económico"], min: 3 },
+  { t: "Cooperar o traicionar: teoría de juegos en la OPEP", a: "Marcela Ortiz", s: "Miradas Económicas", tm: ["Teoría de Juegos", "Economía Política"], min: 10 },
+  { t: "Fintech en México: ¿inclusión financiera o espejismo digital?", a: "Rodrigo Elizondo", s: "Miradas Económicas", tm: ["Fintech", "Finanzas"], min: 11, dest: true },
+  { t: "Enseñar economía del comportamiento: conversación con la cátedra", a: "Redacción Vértices", s: "La Voz de la Experiencia", tm: ["Economía Conductual"], min: 7 },
+  { t: "Salarios mínimos y empleo juvenil: lo que dicen los microdatos", a: "Paola Gutiérrez", s: "Datanomics", tm: ["Economía Laboral", "Econometría"], min: 9 },
+  { t: "Stablecoins y remesas: el corredor México-Estados Unidos", a: "Iker Morales", s: "Miradas Económicas", tm: ["Criptomonedas y Activos Digitales", "Fintech"], min: 10 },
+  { t: "El costo de la desigualdad: movilidad social en la Ciudad de México", a: "Regina Salas", s: "Miradas Económicas", tm: ["Desigualdad y Distribución", "Economía del Desarrollo"], min: 13, dest: true },
+  { t: "El dilema eléctrico mexicano: transición energética y mercado", a: "Santiago Vela", s: "Horizonte Global", tm: ["Economía Ambiental", "Economía Pública"], min: 9 },
+  { t: "¿Sabías que en México ya se comercian derechos de emisión?", a: "Equipo Vértices", s: "¿Sabías Qué?", tm: ["Economía Ambiental"], min: 3 },
+  { t: "Precios dinámicos y poder de mercado en las plataformas de reparto", a: "Fernanda Ríos", s: "Miradas Económicas", tm: ["Economía de Plataformas", "Organización Industrial", "Microeconomía"], min: 10, dest: true },
+  { t: "IA generativa y productividad: primeras señales en firmas mexicanas", a: "Alonso Vergara", s: "Miradas Económicas", tm: ["IA y Economía", "Ciencia de Datos"], min: 11, dest: true },
+  { t: "Crónica del primer coloquio estudiantil de economía", a: "Redacción Vértices", s: "Capital Social", tm: ["Economía de Redes"], min: 5 },
+  { t: "Los tres ensayos ganadores del semestre", a: "Comité Editorial", s: "Excelencia en Acción", tm: [], min: 4 },
+  { t: "Por qué una revista de economía hecha por estudiantes", a: "Comité Editorial", s: "Apertura Editorial", tm: [], min: 4 },
+  { t: "ESG bajo la lupa: ¿los fondos sostenibles rinden menos?", a: "Camila Deloya", s: "Miradas Económicas", tm: ["Finanzas Sostenibles y ESG", "Mercados Financieros"], min: 9, dest: true },
+  { t: "El regreso de la política industrial: lecciones de Asia oriental", a: "Héctor Lomelí", s: "Horizonte Global", tm: ["Economía del Desarrollo", "Economía Institucional", "Economía Política"], min: 12 },
+  { t: "La inflación mexicana contada en 12 gráficas", a: "Equipo Datanomics", s: "Datanomics", tm: ["Macroeconomía", "Econometría"], min: 7, dest: true },
+  { t: "Mapear una guerra comercial: aranceles y redes de producción", a: "Luis Barrientos", s: "Miradas Económicas", tm: ["Economía de Redes", "Guerras Comerciales y Geoeconomía", "Comercio Internacional"], min: 11 },
+  { t: "Microcréditos y decisiones de mujeres rurales: evidencia de campo", a: "Ximena Paredes", s: "Miradas Económicas", tm: ["Economía del Desarrollo", "Microeconomía"], min: 10 },
+  { t: "De la licenciatura al banco central: una trayectoria posible", a: "Redacción Vértices", s: "La Voz de la Experiencia", tm: ["Banca Central", "Política Monetaria"], min: 8 },
+  { t: "Keynes en el siglo XXI: releer la Teoría General", a: "Mateo Iglesias", s: "Miradas Económicas", tm: ["Historia del Pensamiento Económico", "Macroeconomía"], min: 9 },
+  { t: "Impuestos saludables: la economía pública del refresco", a: "Daniela Roldán", s: "Miradas Económicas", tm: ["Economía Pública", "Microeconomía"], min: 8 },
+];
+
+function slug(txt) {
+  return txt.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "")
+    .replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+}
+const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+
+// fases del recorrido como fracciones del scroll del espaciador (u en [0,1])
+const PH = {
+  formedEnd:   0.09,
+  jitterEnd:   0.14,
+  dissolveEnd: 0.26,
+  fieldEnd:    0.33,
+  toNetEnd:    0.40,
+  netEnd:      0.56,
+  toSecEnd:    0.64,
+  secEnd:      0.86,
+  regroupEnd:  0.965,
+};
+
+/* ------- estado del motor ------- */
+const canvas = document.getElementById("c");
+const ctx = canvas.getContext("2d");
+const DPR = Math.min(window.devicePixelRatio || 1, 2);
+const REDUCIDO = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+let W = 0, H = 0;
+let word = [];
+let field = [];
+let sprites = null;      // un sprite de brillo por tinte
+let bg = null, bgH = 0;  // fondo perlado pre-renderizado (nebulosa + estrellas)
+let layout = { fontPx: 100 };
+let net = null;
+let sec = null;
+let uSmooth = 0;
+let mx = -1e4, my = -1e4;
+let yaw = 0;
+let secLabelTimer = 0;
+let hover = null;        // { tipo: "tema" | "seccion", label }
+let autoAng = 0;
+let rotIdle = 10;
+let dragging = false;
+let dragYaw = 0, dragPitch = 0, dragMoved = 0;
+let lastMX = 0, lastMY = 0;
+let tcs = Math.cos(0.38), tsn = Math.sin(0.38);
+let angNet = 0, angSec = 0; // angulos del cuadro actual, para hit-test
+
+// idiomas: TR devuelve la traduccion del literal en espanol (o el original)
+const TR = (s) => (window.__dicc && window.__dicc[s]) || s;
+let SUBTITULO = "El punto donde las ideas se conectan";
+
+// paleta perlada: blanco dominante, crema, indigo claro y naranja quemado
+const TINTES = [
+  [45, 35, 46],
+  [77, 77, 250],
+  [253, 99, 67],
+  [192, 117, 21],
+];
+const TINTE_CSS = ["#2d232e", "#4d4dfa", "#fd6343", "#c07515"];
+function pickTinte() {
+  const r = Math.random();
+  return r < 0.72 ? 0 : r < 0.82 ? 1 : r < 0.91 ? 2 : 3;
+}
+// un color distinto por nodo, ciclando la paleta del sistema
+const PALETA_NODOS = [
+  [77, 77, 250],
+  [119, 118, 207],
+  [63, 61, 90],
+  [253, 99, 67],
+  [237, 145, 38],
+  [45, 35, 46],
+];
+const PALETA_CSS = ["#4d4dfa", "#7776cf", "#3f3d5a", "#fd6343", "#ed9126", "#2d232e"];
+
+function makeSprites() {
+  return PALETA_NODOS.map(([r, g, b]) => {
+    const s = document.createElement("canvas");
+    s.width = s.height = 64;
+    const c = s.getContext("2d");
+    const grad = c.createRadialGradient(32, 32, 0, 32, 32, 32);
+    grad.addColorStop(0.0, `rgba(${r},${g},${b},1)`);
+    grad.addColorStop(0.35, `rgba(${r},${g},${b},0.55)`);
+    grad.addColorStop(1.0, `rgba(${r},${g},${b},0)`);
+    c.fillStyle = grad;
+    c.fillRect(0, 0, 64, 64);
+    return s;
+  });
+}
+
+/* fondo perlado: negro profundo, velos de nebulosa y polvo de estrellas.
+   se dibuja cada cuadro con alpha igual al desvanecimiento de estelas,
+   de modo que el estado estable del lienzo converge exactamente a el */
+function makeBg() {
+  bgH = Math.ceil(H * 1.3);
+  const b = document.createElement("canvas");
+  b.width = W; b.height = bgH;
+  const g = b.getContext("2d");
+  g.fillStyle = "#E7DECB";
+  g.fillRect(0, 0, W, bgH);
+  const neb = (x, y, r, rgb, a) => {
+    const gr = g.createRadialGradient(x, y, 0, x, y, r);
+    gr.addColorStop(0, `rgba(${rgb},${a})`);
+    gr.addColorStop(1, `rgba(${rgb},0)`);
+    g.fillStyle = gr;
+    g.fillRect(0, 0, W, bgH);
+  };
+  neb(W * 0.74, bgH * 0.30, Math.max(W, bgH) * 0.55, "74,74,232", 0.045);
+  neb(W * 0.16, bgH * 0.74, Math.max(W, bgH) * 0.45, "122,126,200", 0.040);
+  neb(W * 0.44, bgH * 0.10, Math.max(W, bgH) * 0.38, "231,104,76", 0.035);
+  neb(W * 0.88, bgH * 0.82, Math.max(W, bgH) * 0.30, "222,155,62", 0.035);
+  const n = Math.round((W * bgH) / 9000);
+  for (let i = 0; i < n; i++) {
+    const x = Math.random() * W, y = Math.random() * bgH;
+    const r = Math.random() < 0.94 ? 0.4 + Math.random() * 0.9 : 1.2 + Math.random() * 0.9;
+    const cr = Math.random();
+    const col = cr < 0.72 ? "36,31,46" : cr < 0.86 ? "61,61,85"
+              : cr < 0.95 ? "74,74,232" : "231,104,76";
+    g.fillStyle = `rgba(${col},${0.05 + Math.random() * 0.18})`;
+    g.beginPath();
+    g.arc(x, y, r, 0, Math.PI * 2);
+    g.fill();
+  }
+  bg = b;
+}
+
+function sampleTextPoints(text, targetW, targetH) {
+  const off = document.createElement("canvas");
+  off.width = targetW;
+  off.height = targetH;
+  const octx = off.getContext("2d");
+
+  let fontSize = Math.floor(targetH * 0.78);
+  const setFont = () => {
+    octx.font = `700 ${fontSize}px "Neue Montreal", Arial, "Helvetica Neue", sans-serif`;
+    octx.textAlign = "center";
+    octx.textBaseline = "middle";
+  };
+  setFont();
+  while (octx.measureText(text).width > targetW * 0.9 && fontSize > 10) {
+    fontSize -= 4;
+    setFont();
+  }
+  layout.fontPx = fontSize;
+
+  octx.clearRect(0, 0, targetW, targetH);
+  octx.fillStyle = "#fff";
+  octx.fillText(text, targetW / 2, targetH / 2 + fontSize * 0.03);
+
+  const img = octx.getImageData(0, 0, targetW, targetH).data;
+  const step = 3.1;
+  const pts = [];
+  for (let y = 0; y < targetH; y += step) {
+    for (let x = 0; x < targetW; x += step) {
+      const xi = Math.round(x), yi = Math.round(y);
+      const a = img[(yi * targetW + xi) * 4 + 3];
+      if (a > 80) pts.push({ x: xi, y: yi });
+    }
+  }
+  return pts;
+}
+
+function flowAngle(x, y, t) {
+  return (
+    Math.sin(x * 0.0048 + t * 0.14) * 1.9 +
+    Math.cos(y * 0.006 - t * 0.11) * 1.7 +
+    Math.sin((x * 0.002 - y * 0.0033) * 3.0 + t * 0.05) * 1.6
+  );
+}
+
+function makeBeads(len) {
+  const nb = Math.max(1, Math.round(len * (2 + Math.random() * 3)));
+  return Array.from({ length: nb }, () => ({
+    t: 0.12 + Math.random() * 0.76,
+    r: 0.8 + Math.random() * 1.6,
+  }));
+}
+
+// curvatura de cada filamento: vector perpendicular a la arista en 3D
+function edgeExtras(a, b, esc) {
+  const dx = b.x - a.x, dy = b.y - a.y, dz = b.z - a.z;
+  const len = Math.hypot(dx, dy, dz) || 1;
+  const rx = Math.random() * 2 - 1, ry = Math.random() * 2 - 1, rz = Math.random() * 2 - 1;
+  let px = dy * rz - dz * ry, py = dz * rx - dx * rz, pz = dx * ry - dy * rx;
+  const pl = Math.hypot(px, py, pz) || 1;
+  px /= pl; py /= pl; pz /= pl;
+  return { px, py, pz, bow: len * esc * (0.7 + Math.random() * 0.9), ph: Math.random() * Math.PI * 2 };
+}
+
+function buildNetwork() {
+  const N = TOPICS.length;
+  const nodes = [];
+  let guard = 0;
+  while (nodes.length < N && guard++ < 40000) {
+    const x = (Math.random() * 2 - 1) * 1.25;
+    const y = (Math.random() * 2 - 1) * 0.85;
+    const z = (Math.random() * 2 - 1);
+    if (nodes.some((n) => (n.x - x) ** 2 + (n.y - y) ** 2 + (n.z - z) ** 2 < 0.24)) continue;
+    nodes.push({ x, y, z, imp: 0.65 + Math.random() * 1.05, colIdx: nodes.length % PALETA_NODOS.length, label: TR(TOPICS[nodes.length]), label0: TOPICS[nodes.length] });
+  }
+
+  const E = new Set();
+  for (let i = 0; i < nodes.length; i++) {
+    const d = nodes.map((n, j) => i === j ? 1e9 :
+      (n.x - nodes[i].x) ** 2 + (n.y - nodes[i].y) ** 2 + (n.z - nodes[i].z) ** 2);
+    const order = d.map((v, j) => [v, j]).sort((a, b) => a[0] - b[0]);
+    E.add([i, order[0][1]].sort((a, b) => a - b).join(","));
+    if (Math.random() < 0.6) E.add([i, order[1][1]].sort((a, b) => a - b).join(","));
+  }
+  const cand = [];
+  for (let i = 0; i < nodes.length; i++) {
+    for (let j = i + 1; j < nodes.length; j++) {
+      const dd = Math.hypot(nodes[i].x - nodes[j].x, nodes[i].y - nodes[j].y, nodes[i].z - nodes[j].z);
+      if (dd > 1.3 && dd < 2.3 && !E.has(i + "," + j)) cand.push([i, j]);
+    }
+  }
+  for (let k = 0; k < 9 && cand.length; k++) {
+    const [i, j] = cand.splice(Math.floor(Math.random() * cand.length), 1)[0];
+    E.add(i + "," + j);
+  }
+
+  const edges = [...E].map((s) => {
+    const [i, j] = s.split(",").map(Number);
+    const len = Math.hypot(nodes[i].x - nodes[j].x, nodes[i].y - nodes[j].y, nodes[i].z - nodes[j].z);
+    return {
+      i, j,
+      ...edgeExtras(nodes[i], nodes[j], 0.12),
+      beads: makeBeads(len),
+      pulse: Math.random() < 0.35,
+      pulseOff: Math.random(),
+      pulseSpeed: 0.08 + Math.random() * 0.08,
+      pulseTinte: Math.floor(Math.random() * PALETA_NODOS.length),
+    };
+  });
+  return { nodes, edges };
+}
+
+function buildSections() {
+  // el mapa se aplana en vertical para leerse como una franja panoramica
+  const nodes = SECTIONS.map((s, i) => ({ ...s, y: s.y * 0.62, colIdx: i % PALETA_NODOS.length, label: TR(s.label), desc: TR(s.desc), label0: s.label, desc0: s.desc }));
+  const edges = SEC_EDGES.map(([i, j]) => {
+    const len = Math.hypot(nodes[i].x - nodes[j].x, nodes[i].y - nodes[j].y, nodes[i].z - nodes[j].z);
+    return {
+      i, j,
+      ...edgeExtras(nodes[i], nodes[j], 0.08),
+      beads: makeBeads(len),
+      pulse: true,
+      pulseOff: Math.random() * 0.5,
+      pulseSpeed: 0.10 + Math.random() * 0.05,
+      pulseTinte: Math.floor(Math.random() * PALETA_NODOS.length),
+    };
+  });
+  return { nodes, edges };
+}
+
+function targetPoint3D(g, idx, p, spread) {
+  const n = g.nodes[idx];
+  return {
+    x: n.x + p.no1 * spread,
+    y: n.y + p.no2 * spread,
+    z: n.z + p.no3 * spread,
+  };
+}
+
+// punto de control de la curva: mid + perpendicular * 2*bow (la curva pasa
+// por el apice mid + perpendicular * bow)
+function edgeCtrl3D(g, e, tSec) {
+  const a = g.nodes[e.i], b = g.nodes[e.j];
+  const br = e.bow * (1 + 0.18 * Math.sin(tSec * 0.5 + e.ph)) * 2;
+  return {
+    x: (a.x + b.x) / 2 + e.px * br,
+    y: (a.y + b.y) / 2 + e.py * br,
+    z: (a.z + b.z) / 2 + e.pz * br,
+  };
+}
+
+function edgePoint3D(g, e, t, tSec) {
+  const a = g.nodes[e.i], b = g.nodes[e.j];
+  const c = edgeCtrl3D(g, e, tSec);
+  const u = 1 - t;
+  return {
+    x: u * u * a.x + 2 * u * t * c.x + t * t * b.x,
+    y: u * u * a.y + 2 * u * t * c.y + t * t * b.y,
+    z: u * u * a.z + 2 * u * t * c.z + t * t * b.z,
+  };
+}
+
+const TILT = 0.38;
+function project(pt, ang, xs = 1, yOff = 0, esc = 1, xOff = 0) {
+  const cs = Math.cos(ang), sn = Math.sin(ang);
+  const xr = pt.x * cs + pt.z * sn;
+  const zr0 = -pt.x * sn + pt.z * cs;
+  const yr = pt.y * tcs - zr0 * tsn;
+  const zr = pt.y * tsn + zr0 * tcs;
+  const R = Math.min(W, H) * 0.38 * esc;
+  const s = 2.3 / (2.3 + zr);
+  return {
+    x: W / 2 + xOff + xr * R * s * xs,
+    y: H / 2 + yOff + yr * R * s,
+    s,
+  };
+}
+
+// la constelacion de temas se encoge y se corre a la derecha para no
+// pisar el bloque de texto del margen izquierdo
+const netEsc = () => 0.85;
+const netXOff = () => W * 0.05;
+const netYOff = () => H * 0.05;
+
+// compresion horizontal del mapa de secciones: mas ancho que alto,
+// para librar el titulo arriba y el carrusel abajo
+function secXS() {
+  return Math.min(1.15, (W * 0.32) / (Math.min(W, H) * 0.38));
+}
+const secYOff = () => H * 0.01;
+
+const ROT_SPEED = 0.22;
+const secAng = (t) => 0.16 * Math.sin(t * 0.33);
+
+let buckets = [[], [], [], []]; // indices de particulas por tinte
+
+function buildParticles() {
+  const boxW = Math.min(W * 0.84, 1500);
+  const boxH = Math.max(120, boxW * 0.30);
+  const ox = (W - boxW) / 2;
+  const oy = (H - boxH) / 2;
+  const cx = W / 2, cy = H / 2;
+
+  net = buildNetwork();
+  sec = buildSections();
+  const wts = sec.nodes.map((n) => n.imp * n.imp);
+  const wsum = wts.reduce((a, b) => a + b, 0);
+  const pickSec = () => {
+    let r = Math.random() * wsum;
+    for (let k = 0; k < wts.length; k++) { r -= wts[k]; if (r <= 0) return k; }
+    return wts.length - 1;
+  };
+
+  const pts = sampleTextPoints(WORD, Math.floor(boxW), Math.floor(boxH));
+  buckets = [[], [], [], []];
+  word = pts.map((p, i) => {
+    const hx = ox + p.x, hy = oy + p.y;
+    let ang = Math.atan2(hy - cy, hx - cx);
+    if (!isFinite(ang)) ang = Math.random() * Math.PI * 2;
+    ang += (Math.random() - 0.5) * 1.1;
+    const tinte = pickTinte();
+    buckets[tinte].push(i);
+    return {
+      x: hx, y: hy, vx: 0, vy: 0,
+      hx, hy,
+      burstAng: ang,
+      seed: Math.random() * 100,
+      speed: 0.7 + Math.random() * 0.9,
+      bright: 0.7 + Math.random() * 0.3,
+      tinte,
+      netNode: Math.floor(Math.random() * net.nodes.length),
+      secNode: pickSec(),
+      no1: gauss(), no2: gauss(), no3: gauss(),
+      tScale: 1,
+    };
+  });
+
+  const nField = Math.floor((W * H) / 140);
+  field = Array.from({ length: nField }, () => ({
+    x: Math.random() * W,
+    y: Math.random() * H,
+    px: 0, py: 0,
+    speed: 60 + Math.random() * 130,
+    gray: 100 + Math.random() * 90,
+    seed: Math.random() * 100,
+  }));
+  field.forEach((f) => { f.px = f.x; f.py = f.y; });
+}
+
+function gauss() {
+  return (Math.random() + Math.random() + Math.random() - 1.5) * 1.2;
+}
+
+function resize() {
+  W = window.innerWidth;
+  H = window.innerHeight;
+  canvas.width = W * DPR;
+  canvas.height = H * DPR;
+  ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+  sprites = sprites || makeSprites();
+  makeBg();
+  buildParticles();
+  ctx.fillStyle = "#E7DECB";
+  ctx.fillRect(0, 0, W, H);
+}
+
+function ss(a, b, x) {
+  const t = clamp((x - a) / (b - a), 0, 1);
+  return t * t * (3 - 2 * t);
+}
+
+function phaseParams(u) {
+  const P = { jitter: 0, burst: 0, flow: 0, attractWord: 0, attractNet: 0,
+              attractSec: 0, netAmp: 0, secAmp: 0, fieldAmp: 0,
+              snap: false, textAlpha: 0 };
+  if (u < PH.formedEnd) {
+    P.snap = true; P.attractWord = 1; P.textAlpha = 1; P.fieldAmp = 0.12;
+  } else if (u < PH.jitterEnd) {
+    const t = ss(PH.formedEnd, PH.jitterEnd, u);
+    P.attractWord = 1; P.jitter = t; P.textAlpha = 1 - t; P.fieldAmp = 0.2;
+  } else if (u < PH.dissolveEnd) {
+    const t = ss(PH.jitterEnd, PH.dissolveEnd, u);
+    P.jitter = 1 - t; P.burst = t; P.flow = t; P.fieldAmp = 0.3 + 0.7 * t;
+  } else if (u < PH.fieldEnd) {
+    P.burst = 0.08; P.flow = 1; P.fieldAmp = 1;
+  } else if (u < PH.toNetEnd) {
+    const t = ss(PH.fieldEnd, PH.toNetEnd, u);
+    P.flow = 1 - t; P.attractNet = 0.25 + 0.75 * t; P.netAmp = t;
+    P.fieldAmp = 1 - 0.92 * t;
+  } else if (u < PH.netEnd) {
+    P.attractNet = 1; P.netAmp = 1; P.fieldAmp = 0.2;
+  } else if (u < PH.toSecEnd) {
+    const t = ss(PH.netEnd, PH.toSecEnd, u);
+    P.attractNet = 1 - t; P.netAmp = 1 - t;
+    P.attractSec = t; P.secAmp = t;
+    P.fieldAmp = 0.2;
+  } else if (u < PH.secEnd) {
+    P.attractSec = 1; P.secAmp = 1; P.fieldAmp = 0.2;
+  } else if (u < PH.regroupEnd) {
+    const t = ss(PH.secEnd, PH.regroupEnd, u);
+    P.attractWord = t; P.attractSec = 1 - t; P.secAmp = 1 - t;
+    P.fieldAmp = 0.16;
+    P.textAlpha = ss(0.78, 1, t);
+  } else {
+    P.snap = true; P.attractWord = 1; P.textAlpha = 1; P.fieldAmp = 0.12;
+  }
+  return P;
+}
+
+function update(dt, tSec, u) {
+  const P = phaseParams(u);
+  const maxV = 620;
+
+  const yawTarget = mx > -1e3 && !dragging ? (mx / W - 0.5) * 0.35 : yaw;
+  yaw += (yawTarget - yaw) * Math.min(1, 3 * dt);
+
+  const tilt = clamp(TILT + dragPitch, -0.6, 0.95);
+  tcs = Math.cos(tilt); tsn = Math.sin(tilt);
+
+  rotIdle += dt;
+  const autoEase = (dragging || REDUCIDO) ? 0 : clamp((rotIdle - 3) / 2, 0, 1);
+  autoAng += ROT_SPEED * autoEase * dt;
+
+  angNet = autoAng + yaw + dragYaw;
+  angSec = secAng(tSec) + yaw + dragYaw;
+
+  if (P.secAmp > 0.9) secLabelTimer += dt;
+  else if (P.secAmp < 0.5) secLabelTimer = 0;
+
+  for (let i = 0; i < word.length; i++) {
+    const p = word[i];
+
+    if (P.snap) {
+      p.x += (p.hx - p.x) * Math.min(1, 12 * dt);
+      p.y += (p.hy - p.y) * Math.min(1, 12 * dt);
+      if (Math.abs(p.x - p.hx) < 0.4 && Math.abs(p.y - p.hy) < 0.4) {
+        p.x = p.hx; p.y = p.hy;
+      }
+      p.vx = 0; p.vy = 0;
+      p.tScale = 1;
+      continue;
+    }
+
+    if (P.attractWord > 0) {
+      const k = 26 * P.attractWord;
+      p.vx += (p.hx - p.x) * k * dt;
+      p.vy += (p.hy - p.y) * k * dt;
+    }
+    if (P.attractNet > 0) {
+      const T = project(targetPoint3D(net, p.netNode, p, 0.010), angNet, 1, netYOff(), netEsc(), netXOff());
+      const k = 32 * P.attractNet;
+      p.vx += (T.x - p.x) * k * dt;
+      p.vy += (T.y - p.y) * k * dt;
+      p.tScale = T.s;
+    }
+    if (P.attractSec > 0) {
+      const T = project(targetPoint3D(sec, p.secNode, p, 0.014), angSec, secXS(), secYOff());
+      const k = 32 * P.attractSec;
+      p.vx += (T.x - p.x) * k * dt;
+      p.vy += (T.y - p.y) * k * dt;
+      p.tScale = T.s;
+    }
+    if (P.burst > 0) {
+      const acc = 520 * P.burst * p.speed;
+      p.vx += Math.cos(p.burstAng) * acc * dt;
+      p.vy += Math.sin(p.burstAng) * acc * dt;
+    }
+    if (P.flow > 0) {
+      const th = flowAngle(p.x, p.y, tSec + p.seed);
+      const acc = 420 * P.flow * p.speed;
+      p.vx += Math.cos(th) * acc * dt;
+      p.vy += Math.sin(th) * acc * dt;
+    }
+    if (P.jitter > 0) {
+      p.vx += Math.sin(tSec * 9 + p.seed * 7) * 810 * P.jitter * dt;
+      p.vy += Math.cos(tSec * 8 + p.seed * 5) * 810 * P.jitter * dt;
+    }
+
+    const attracted = P.attractWord > 0 || P.attractNet > 0 || P.attractSec > 0;
+    const f = Math.exp(-(attracted ? 5.5 : 1.4) * dt);
+    p.vx *= f; p.vy *= f;
+    const sp = Math.hypot(p.vx, p.vy);
+    if (sp > maxV) { p.vx *= maxV / sp; p.vy *= maxV / sp; }
+
+    p.x += p.vx * dt;
+    p.y += p.vy * dt;
+
+    if (P.flow > 0.6 && P.attractWord === 0 && P.attractNet < 0.3 && P.attractSec < 0.3) {
+      if (p.x < -30) p.x = W + 30; else if (p.x > W + 30) p.x = -30;
+      if (p.y < -30) p.y = H + 30; else if (p.y > H + 30) p.y = -30;
+    }
+  }
+
+  for (let i = 0; i < field.length; i++) {
+    const f = field[i];
+    f.px = f.x; f.py = f.y;
+    const th = flowAngle(f.x, f.y, tSec * 0.9 + f.seed);
+    f.x += Math.cos(th) * f.speed * dt;
+    f.y += Math.sin(th) * f.speed * dt;
+    let wrapped = false;
+    if (f.x < -20) { f.x = W + 20; wrapped = true; }
+    else if (f.x > W + 20) { f.x = -20; wrapped = true; }
+    if (f.y < -20) { f.y = H + 20; wrapped = true; }
+    else if (f.y > H + 20) { f.y = -20; wrapped = true; }
+    if (wrapped) { f.px = f.x; f.py = f.y; }
+  }
+}
+
+// dibuja una red; los nodos etiquetados reaccionan al cursor y son botones
+function drawNet(g, amp, ang, tSec, isSections, xs = 1, yOff = 0, esc = 1, xOff = 0) {
+  ctx.globalCompositeOperation = "source-over";
+  ctx.lineCap = "round";
+  ctx.lineJoin = "round";
+  for (let k = 0; k < g.edges.length; k++) {
+    const e = g.edges[k];
+    const q0 = project(g.nodes[e.i], ang, xs, yOff, esc, xOff);
+    const q1 = project(g.nodes[e.j], ang, xs, yOff, esc, xOff);
+    const qc = project(edgeCtrl3D(g, e, tSec), ang, xs, yOff, esc, xOff);
+    const qm = project(edgePoint3D(g, e, 0.5, tSec), ang, xs, yOff, esc, xOff);
+    const depth = ss(0.62, 1.1, qm.s);
+    const base = amp * (0.12 + 0.88 * depth);
+    ctx.beginPath();
+    ctx.moveTo(q0.x, q0.y);
+    ctx.quadraticCurveTo(qc.x, qc.y, q1.x, q1.y);
+    ctx.strokeStyle = "rgba(63,61,90,1)";
+    ctx.lineWidth = 5 * qm.s;
+    ctx.globalAlpha = base * 0.035;
+    ctx.stroke();
+    ctx.lineWidth = 1.8 * qm.s;
+    ctx.globalAlpha = base * 0.08;
+    ctx.stroke();
+    ctx.strokeStyle = "rgba(45,35,46,1)";
+    ctx.lineWidth = Math.max(0.4, 0.65 * qm.s);
+    ctx.globalAlpha = base * 0.42;
+    ctx.stroke();
+    ctx.fillStyle = "#3f3d5a";
+    for (let b = 0; b < e.beads.length; b++) {
+      const bd = e.beads[b];
+      const q = project(edgePoint3D(g, e, bd.t, tSec), ang, xs, yOff, esc, xOff);
+      ctx.globalAlpha = base * 0.75;
+      ctx.beginPath();
+      ctx.arc(q.x, q.y, bd.r * q.s, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    if (e.pulse) {
+      const tp = (tSec * e.pulseSpeed + e.pulseOff) % 1;
+      const q = project(edgePoint3D(g, e, tp, tSec), ang, xs, yOff, esc, xOff);
+      const pr = 7 * q.s;
+      ctx.globalAlpha = base * 0.9;
+      ctx.drawImage(sprites[e.pulseTinte], q.x - pr, q.y - pr, pr * 2, pr * 2);
+    }
+  }
+  ctx.globalCompositeOperation = "source-over";
+
+  const proj = g.nodes.map((n, idx) => {
+    const q = project(n, ang, xs, yOff, esc, xOff);
+    return { n, q, idx, depth: ss(0.68, 1.12, q.s) };
+  }).sort((A, B) => B.depth - A.depth);
+  const placed = [];
+  for (let k = 0; k < proj.length; k++) {
+    const { n, q, idx, depth } = proj[k];
+    const a = amp * (0.15 + 0.85 * depth);
+    let r = 8.5 * q.s * n.imp;
+
+    const isHover = !hover && amp > 0.5 &&
+      (mx - q.x) ** 2 + (my - q.y) ** 2 < (r + 12) ** 2;
+    if (isHover) {
+      hover = { tipo: isSections ? "seccion" : "tema", label: n.label };
+      r *= 1.45;
+    }
+
+    const ci = n.colIdx !== undefined ? n.colIdx : 5;
+    ctx.globalAlpha = Math.min(1, a * (isHover ? 0.55 : 0.3));
+    ctx.drawImage(sprites[ci], q.x - r, q.y - r, r * 2, r * 2);
+    ctx.globalAlpha = Math.min(1, a * 1.1);
+    ctx.fillStyle = PALETA_CSS[ci];
+    ctx.beginPath();
+    ctx.arc(q.x, q.y, Math.max(1.4, 2.6 * q.s * n.imp) * (isHover ? 1.3 : 1), 0, Math.PI * 2);
+    ctx.fill();
+    if (isHover) {
+      // anillo continuo de resalte (nunca punteado)
+      ctx.globalAlpha = a * 0.6;
+      ctx.strokeStyle = "rgba(45,35,46,0.75)";
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.arc(q.x, q.y, r * 1.15, 0, Math.PI * 2);
+      ctx.stroke();
+    }
+
+    // en el mapa de secciones la tipografia va unificada: mismo tamano
+    // para las ocho etiquetas, sin variar con la profundidad
+    const scale = isSections ? 1.75 : 1;
+    const fpx = isSections
+      ? Math.max(9, 12.4 * Math.min(1.35, W / 1200 + 0.55)) * scale
+      : Math.max(9, (8.5 + 5.5 * depth) * Math.min(1.35, W / 1200 + 0.55)) * scale;
+    ctx.fillStyle = isHover ? "#19131a" : "#3c323f";
+    ctx.font = isSections
+      ? `400 ${fpx.toFixed(1)}px Arial, "Helvetica Neue", sans-serif`
+      : `${n.imp > 1.3 || isHover ? "600 " : "400 "}${fpx.toFixed(1)}px "Space Grotesk", Arial, sans-serif`;
+    ctx.textBaseline = "middle";
+
+    if (isSections) {
+      const writeT = secLabelTimer - (0.5 + idx * 0.32);
+      if (writeT <= 0) continue;
+      const chars = Math.min(n.label.length, Math.floor(writeT / 0.05));
+      if (chars <= 0) continue;
+      const writing = chars < n.label.length;
+      const caret = writing && (tSec * 2) % 1 < 0.65 ? "|" : "";
+      const shown = n.label.slice(0, chars) + caret;
+      ctx.globalAlpha = amp * 0.95;
+      const above = n.side ? n.side === "above" : n.y > 0;
+      const tw2 = ctx.measureText(n.label).width;
+      const ly = q.y + (above ? -(r + fpx * 0.85) : r + fpx * 0.85);
+      const lx = Math.min(W - 8 - tw2, Math.max(8, q.x - tw2 / 2));
+      ctx.textAlign = "left";
+      ctx.fillText(shown, lx, Math.min(H - fpx, Math.max(fpx, ly)));
+      continue;
+    }
+
+    if (depth < 0.22 && !isHover) continue;
+    if (q.x < 10 || q.x > W - 10 || q.y < 14 || q.y > H - 14) continue;
+    ctx.globalAlpha = a * (isHover ? 1 : 0.3 + 0.7 * depth);
+    const tw2 = ctx.measureText(n.label).width;
+    const right = q.x + r + 5 + tw2 > W - 8;
+    const lx = right ? q.x - r - 5 - tw2 : q.x + r + 5;
+    const ly = q.y - r * 0.4;
+    const box = { x0: lx - 4, x1: lx + tw2 + 4, y0: ly - fpx * 0.8, y1: ly + fpx * 0.8 };
+    if (!isHover && placed.some((b) => box.x0 < b.x1 && box.x1 > b.x0 && box.y0 < b.y1 && box.y1 > b.y0)) continue;
+    placed.push(box);
+    ctx.textAlign = "left";
+    ctx.fillText(n.label, lx, ly);
+  }
+  ctx.globalAlpha = 1;
+}
+
+function render(tSec, u) {
+  const P = phaseParams(u);
+  const netsAmp = Math.max(P.netAmp, P.secAmp);
+  hover = null;
+
+  const trail = P.snap ? 0.5
+    : netsAmp > 0 ? 0.16 + 0.24 * netsAmp
+    : Math.min(0.4, 0.19 - 0.13 * P.fieldAmp + 0.25 * P.attractWord);
+
+  // el fondo perlado es el destino del desvanecimiento de estelas
+  ctx.globalAlpha = Math.min(1, trail);
+  ctx.drawImage(bg, 0, -(bgH - H) * u);
+  ctx.globalAlpha = 1;
+
+  if (P.fieldAmp > 0.02) {
+    ctx.lineWidth = 1;
+    for (let i = 0; i < field.length; i++) {
+      const f = field[i];
+      ctx.strokeStyle = `rgba(${(f.gray*0.28)|0},${(f.gray*0.26)|0},${(f.gray*0.38)|0},${0.22 * P.fieldAmp})`;
+      ctx.beginPath();
+      ctx.moveTo(f.px, f.py);
+      ctx.lineTo(f.x, f.y);
+      ctx.stroke();
+    }
+  }
+
+  const dotsAlpha = 1 - ss(0.55, 0.95, P.textAlpha);
+  if (dotsAlpha > 0.01) {
+    ctx.globalCompositeOperation = "source-over";
+    for (let b = 0; b < 4; b++) {
+      ctx.fillStyle = TINTE_CSS[b];
+      const idxs = buckets[b];
+      for (let k = 0; k < idxs.length; k++) {
+        const p = word[idxs[k]];
+        const tw = 0.82 + 0.18 * Math.sin(tSec * 2.2 + p.seed * 3);
+        let a = p.bright * tw * 0.62 * dotsAlpha;
+        let d = 1.15 * (0.85 + 0.3 * p.speed);
+        if (netsAmp > 0.3) {
+          d = Math.min(2.0, 1.1 * p.tScale * p.tScale);
+          a = p.bright * dotsAlpha * (0.04 + 0.12 * ss(0.72, 1.15, p.tScale));
+        }
+        ctx.globalAlpha = Math.min(1, a);
+        ctx.fillRect(p.x - d / 2, p.y - d / 2, d, d);
+      }
+    }
+    ctx.globalAlpha = 1;
+    ctx.globalCompositeOperation = "source-over";
+  }
+
+  if (P.netAmp > 0.03) drawNet(net, P.netAmp, angNet, tSec, false, 1, netYOff(), netEsc(), netXOff());
+  if (P.secAmp > 0.03) drawNet(sec, P.secAmp, angSec, tSec, true, secXS(), secYOff());
+
+  if (P.textAlpha > 0.01) {
+    ctx.globalAlpha = P.textAlpha;
+    ctx.fillStyle = "#2d232e";
+    ctx.shadowColor = "rgba(45,35,46,0.28)";
+    ctx.shadowBlur = 26 * P.textAlpha;
+    ctx.font = `700 ${layout.fontPx}px "Neue Montreal", Arial, "Helvetica Neue", sans-serif`;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(WORD, W / 2, H / 2 + layout.fontPx * 0.03);
+    ctx.shadowBlur = 0;
+    // subtitulo en Garet, alineado a la derecha del wordmark (Manual de Identidad)
+    const subPx = Math.max(13, layout.fontPx * 0.105);
+    const wordW = ctx.measureText(WORD).width;
+    ctx.font = `500 ${subPx.toFixed(1)}px "Garet", Arial, sans-serif`;
+    if ("letterSpacing" in ctx) ctx.letterSpacing = `${(subPx * 0.14).toFixed(1)}px`;
+    ctx.fillStyle = "#5e5dc7";
+    ctx.globalAlpha = P.textAlpha * 0.85;
+    ctx.textAlign = "right";
+    ctx.fillText(SUBTITULO, W / 2 + wordW / 2, H / 2 + layout.fontPx * 0.62);
+    if ("letterSpacing" in ctx) ctx.letterSpacing = "0px";
+    ctx.textAlign = "center";
+    ctx.globalAlpha = 1;
+  }
+
+  canvas.style.cursor = hover ? "pointer"
+    : dragging ? "grabbing"
+    : netsAmp > 0.5 ? "grab"
+    : "default";
+}
+
+/* ------- sincronizacion del scroll con las capas HTML ------- */
+
+const recorrido = document.getElementById("recorrido");
+const velo = document.getElementById("velo");
+const capaHero = document.getElementById("capaHero");
+const capaTemas = document.getElementById("capaTemas");
+const capaSecciones = document.getElementById("capaSecciones");
+const capaCierre = document.getElementById("capaCierre");
+const ficha = document.getElementById("fichaSeccion");
+const fsNombre = document.getElementById("fsNombre");
+const fsDesc = document.getElementById("fsDesc");
+const rielBotones = [...document.querySelectorAll(".riel button")];
+
+function limiteRecorrido() {
+  return Math.max(1, recorrido.offsetHeight - window.innerHeight);
+}
+function scrollU() {
+  return clamp(window.scrollY / limiteRecorrido(), 0, 1);
+}
+function veloT() {
+  return clamp((window.scrollY - limiteRecorrido()) / (window.innerHeight * 0.75), 0, 1);
+}
+
+function setCapa(el, op) {
+  el.style.opacity = op.toFixed(3);
+  el.style.visibility = op < 0.02 ? "hidden" : "visible";
+  el.style.transform = `translateY(${((1 - op) * 14).toFixed(1)}px)`;
+}
+
+let fichaTimer = 0;
+function syncUI(u, tSec) {
+  const vt = veloT();
+  setCapa(capaHero, (1 - ss(0.05, 0.115, u)) * (1 - vt));
+  setCapa(capaTemas, ss(0.40, 0.46, u) * (1 - ss(0.545, 0.60, u)));
+  setCapa(capaSecciones, ss(0.645, 0.70, u) * (1 - ss(0.845, 0.885, u)));
+  setCapa(capaCierre, ss(0.955, 0.99, u) * (1 - vt));
+  velo.style.opacity = vt.toFixed(3);
+  document.body.classList.toggle("en-portal", vt > 0.5);
+
+  // ficha de la seccion bajo el cursor (con una breve persistencia)
+  if (hover && hover.tipo === "seccion") {
+    const s = SECTIONS.find((x) => x.label === hover.label);
+    if (s && fsNombre.textContent !== s.label) {
+      fsNombre.textContent = s.label;
+      fsDesc.textContent = s.desc;
+    }
+    ficha.classList.add("visible");
+    fichaTimer = tSec;
+  } else if (tSec - fichaTimer > 0.35) {
+    ficha.classList.remove("visible");
+  }
+
+  // riel de progreso
+  const activo = vt > 0.4 ? 3 : u < 0.28 ? 0 : u < 0.62 ? 1 : u < 0.93 ? 2 : 3;
+  rielBotones.forEach((b, i) => b.classList.toggle("activo", i === activo));
+}
+
+/* ------- bucle ------- */
+
+let lastT = 0;
+let qaPaused = false;
+let qaU = null;
+function frame(now) {
+  const dt = Math.min(0.033, (now - lastT) / 1000 || 0.016);
+  lastT = now;
+  if (!qaPaused) {
+    const target = qaU !== null ? qaU : scrollU();
+    uSmooth += (target - uSmooth) * Math.min(1, 3.5 * dt);
+    update(dt, now * 0.001, uSmooth);
+    render(now * 0.001, uSmooth);
+    syncUI(uSmooth, now * 0.001);
+  }
+  requestAnimationFrame(frame);
+}
+
+/* ------- interaccion con el lienzo ------- */
+
+function pickAt(x, y) {
+  const P = phaseParams(uSmooth);
+  const capas = [];
+  if (P.secAmp > 0.4) capas.push({ g: sec, ang: angSec, xs: secXS(), yOff: secYOff(), esc: 1, xOff: 0, tipo: "seccion" });
+  if (P.netAmp > 0.4) capas.push({ g: net, ang: angNet, xs: 1, yOff: netYOff(), esc: netEsc(), xOff: netXOff(), tipo: "tema" });
+  for (const c of capas) {
+    for (const n of c.g.nodes) {
+      const q = project(n, c.ang, c.xs, c.yOff, c.esc, c.xOff);
+      const r = 8.5 * q.s * n.imp + 14;
+      if ((x - q.x) ** 2 + (y - q.y) ** 2 < r * r) return { tipo: c.tipo, label: n.label };
+    }
+  }
+  return null;
+}
+
+window.addEventListener("resize", resize);
+window.addEventListener("pointermove", (ev) => {
+  if (dragging) {
+    dragYaw += (ev.clientX - lastMX) * 0.005;
+    dragPitch += (ev.clientY - lastMY) * 0.004;
+    dragMoved += Math.abs(ev.clientX - lastMX) + Math.abs(ev.clientY - lastMY);
+    rotIdle = 0;
+  }
+  lastMX = ev.clientX; lastMY = ev.clientY;
+  mx = ev.clientX; my = ev.clientY;
+});
+window.addEventListener("pointerout", (ev) => {
+  if (!ev.relatedTarget) { mx = -1e4; my = -1e4; }
+});
+canvas.addEventListener("pointerdown", (ev) => {
+  if (ev.pointerType !== "mouse") return; // en tactil, el gesto es scroll
+  dragging = true; dragMoved = 0;
+  lastMX = ev.clientX; lastMY = ev.clientY;
+});
+window.addEventListener("pointerup", () => { dragging = false; });
+canvas.addEventListener("click", (ev) => {
+  if (dragMoved > 6) { dragMoved = 0; return; }
+  const h = hover || pickAt(ev.clientX, ev.clientY);
+  if (h) abrirPanel(h.tipo, h.label);
+});
+
+/* ------- panel lateral de articulos ------- */
+
+const panel = document.getElementById("panel");
+const panelCeja = document.getElementById("panelCeja");
+const panelTitulo = document.getElementById("panelTitulo");
+const panelBusqueda = document.getElementById("panelBusqueda");
+const panelMeta = document.getElementById("panelMeta");
+const panelLista = document.getElementById("panelLista");
+let panelEstado = null; // { tipo: "tema" | "seccion" | "indice", valor }
+
+const norm = (s) => s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
+
+function articulosDe(tipo, valor) {
+  if (tipo === "tema") return ARTICULOS.filter((a) => a.tm.includes(valor));
+  if (tipo === "seccion") return ARTICULOS.filter((a) => a.s === valor);
+  return ARTICULOS.slice();
+}
+
+function artHTML(a) {
+  return `<a class="art" href="#articulo-${slug(a.t)}">
+    <span class="art-sec">${a.s} · ${a.min} min de lectura</span>
+    <strong>${a.t}</strong>
+    <span class="art-aut">${a.a}</span>
+  </a>`;
+}
+
+function pintarPanel(filtro = "") {
+  const f = norm(filtro.trim());
+  if (panelEstado.tipo === "indice") {
+    const temas = TOPICS.filter((t) => !f || norm(t).includes(f));
+    panelMeta.textContent = TR("{n} de {m} temas").replace("{n}", temas.length).replace("{m}", TOPICS.length);
+    panelLista.innerHTML = temas.map((t) => {
+      const n = articulosDe("tema", t).length;
+      return `<button class="ind" data-tema="${t}"><span>${t}</span><span class="cuenta">${n === 1 ? "1 artículo" : n + " artículos"}</span></button>`;
+    }).join("");
+    return;
+  }
+  let items = articulosDe(panelEstado.tipo, panelEstado.valor);
+  if (f) items = items.filter((a) => norm(a.t + " " + a.a).includes(f));
+  panelMeta.textContent = items.length === 1 ? TR("1 artículo") : TR("{n} artículos").replace("{n}", items.length);
+  const regreso = panelEstado.desdeIndice
+    ? `<button class="regresa" id="regresaIndice">← Regresar al índice</button>` : "";
+  if (!items.length) {
+    panelLista.innerHTML = regreso + `<div class="vacio">
+      <p>Aún no hay artículos publicados aquí.</p>
+      <p>Sé la primera persona en escribir sobre ${panelEstado.valor}. La convocatoria está abierta y el comité editorial te acompaña en el proceso.</p>
+    </div>`;
+    return;
+  }
+  panelLista.innerHTML = regreso + items.map(artHTML).join("");
+}
+
+function abrirPanel(tipo, valor, desdeIndice = false) {
+  panelEstado = { tipo, valor, desdeIndice };
+  panelCeja.textContent = tipo === "indice" ? "Índice de temas"
+    : tipo === "tema" ? "Tema" : "Sección de la revista";
+  panelTitulo.textContent = tipo === "indice" ? "Todos los temas" : valor;
+  panelBusqueda.value = "";
+  panelBusqueda.placeholder = tipo === "indice" ? "Buscar un tema" : "Buscar por título o autor";
+  pintarPanel();
+  document.body.classList.add("panel-abierto");
+  panel.setAttribute("aria-hidden", "false");
+  panelBusqueda.focus({ preventScroll: true });
+}
+
+function cerrarPanel() {
+  document.body.classList.remove("panel-abierto");
+  panel.setAttribute("aria-hidden", "true");
+}
+
+panelBusqueda.addEventListener("input", () => pintarPanel(panelBusqueda.value));
+panelLista.addEventListener("click", (ev) => {
+  const b = ev.target.closest(".ind");
+  if (b) { abrirPanel("tema", b.dataset.tema, true); return; }
+  if (ev.target.closest("#regresaIndice")) abrirPanel("indice", null);
+});
+document.getElementById("cerrarPanel").addEventListener("click", cerrarPanel);
+document.getElementById("fondoPanel").addEventListener("click", cerrarPanel);
+document.addEventListener("keydown", (ev) => {
+  if (ev.key === "Escape") cerrarPanel();
+});
+document.getElementById("verIndice").addEventListener("click", () => abrirPanel("indice", null));
+
+/* ------- navegacion por scroll (marco, riel, botones) ------- */
+
+function irAU(u) {
+  window.scrollTo({ top: u * limiteRecorrido(), behavior: REDUCIDO ? "auto" : "smooth" });
+}
+function irA(id) {
+  document.getElementById(id)?.scrollIntoView({ behavior: REDUCIDO ? "auto" : "smooth" });
+}
+document.addEventListener("click", (ev) => {
+  const b = ev.target.closest("[data-u], [data-ir]");
+  if (!b) return;
+  ev.preventDefault();
+  cerrarPanel();
+  if (b.dataset.u !== undefined) irAU(parseFloat(b.dataset.u));
+  else irA(b.dataset.ir);
+});
+
+/* ------- carrusel de articulos destacados ------- */
+
+const carrusel = document.getElementById("carrusel");
+carrusel.innerHTML = ARTICULOS.filter((a) => a.dest).map((a) => `
+  <a class="tarjeta" href="#articulo-${slug(a.t)}">
+    <span class="tarjeta-sec">${a.s}</span>
+    <h4>${a.t}</h4>
+    <p>${a.a} · ${a.min} min de lectura</p>
+  </a>`).join("");
+document.getElementById("cPrev").addEventListener("click", () =>
+  carrusel.scrollBy({ left: -320, behavior: "smooth" }));
+document.getElementById("cSig").addEventListener("click", () =>
+  carrusel.scrollBy({ left: 320, behavior: "smooth" }));
+
+/* ------- formulario de envio (asistente de 4 pasos) ------- */
+
+const form = document.getElementById("formulario");
+const pasosFS = [...form.querySelectorAll("fieldset.paso")];
+const wizItems = [...document.querySelectorAll("#wizPasos li")];
+const atras = document.getElementById("atras");
+const continuar = document.getElementById("continuar");
+const formError = document.getElementById("formError");
+const confirmacion = document.getElementById("confirmacion");
+let pasoActual = 0;
+let archivos = [];
+
+// poblar selects de seccion y tema
+const selSeccion = document.getElementById("seccion");
+SECTIONS.forEach((s) => selSeccion.insertAdjacentHTML("beforeend", `<option value="${s.label}">${s.label}</option>`));
+selSeccion.insertAdjacentHTML("beforeend", '<option value="Aún no lo decido">Aún no lo decido</option>');
+const selTema = document.getElementById("tema");
+TOPICS.forEach((t) => selTema.insertAdjacentHTML("beforeend", `<option value="${t}">${t}</option>`));
+selTema.insertAdjacentHTML("beforeend", '<option value="Otro tema">Otro tema</option>');
+
+function mostrarPaso(i) {
+  pasoActual = i;
+  pasosFS.forEach((fs, k) => fs.classList.toggle("activo", k === i));
+  wizItems.forEach((li, k) => {
+    li.classList.toggle("activo", k === i);
+    li.classList.toggle("hecho", k < i);
+  });
+  atras.disabled = i === 0;
+  continuar.textContent = i === 3 ? "Enviar manuscrito" : "Continuar";
+  formError.textContent = "";
+}
+
+const val = (id) => document.getElementById(id).value.trim();
+function validarPaso(i) {
+  if (i === 0) {
+    if (!val("nombre")) return TR("Escribe tu nombre completo.");
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val("correo"))) return TR("Escribe un correo de contacto válido.");
+    if (!val("perfil")) return TR("Elige tu perfil de autor.");
+    if (!val("afiliacion")) return TR("Indica tu institución o afiliación.");
+  }
+  if (i === 1) {
+    if (!val("tituloArt")) return TR("Tu manuscrito necesita un título.");
+    if (!val("formato")) return TR("Elige el formato de tu pieza.");
+    if (!val("seccion")) return TR("Elige la sección que mejor le queda a tu trabajo.");
+    if (!val("tema")) return TR("Elige el tema principal.");
+    const palabras = val("resumen").split(/\s+/).filter(Boolean).length;
+    if (palabras < 100) return TR("El resumen lleva {n} palabras; se piden al menos 100.").replace("{n}", palabras);
+    if (palabras > 300) return TR("El resumen lleva {n} palabras; el máximo es 300.").replace("{n}", palabras);
+    const claves = val("claves").split(",").map((s) => s.trim()).filter(Boolean);
+    if (claves.length < 3 || claves.length > 5) return TR("Escribe de 3 a 5 palabras clave separadas por comas.");
+  }
+  if (i === 2) {
+    if (!archivos.length) return TR("Adjunta tu manuscrito en .docx o .pdf.");
+  }
+  if (i === 3) {
+    if (!val("usoIA")) return TR("Indica si usaste herramientas de inteligencia artificial.");
+    if (!["d1", "d2", "d3", "d4"].every((id) => document.getElementById(id).checked))
+      return TR("Confirma las cuatro declaraciones para poder enviar.");
+  }
+  return null;
+}
+
+continuar.addEventListener("click", async () => {
+  const err = validarPaso(pasoActual);
+  if (err) { formError.textContent = err; return; }
+  if (pasoActual < 3) { mostrarPaso(pasoActual + 1); return; }
+
+  // registro, en orden de preferencia:
+  // 1) API directa (tunel a la compu del editor o servidor local): folio real al instante.
+  // 2) Correo estructurado via Web3Forms hacia el flujo de Power Automate
+  //    (siempre encendido): el folio definitivo llega al autor por correo.
+  // 3) Sin conexion: folio provisional marcado.
+  const carga = {
+    nombre: val("nombre"),
+    coautores: val("coautores"),
+    correo: val("correo"),
+    perfil: val("perfil"),
+    afiliacion: val("afiliacion"),
+    genero: val("genero"),
+    titulo: val("tituloArt"),
+    formato: val("formato"),
+    seccion: val("seccion"),
+    tema: val("tema"),
+    claves: val("claves"),
+    resumen: val("resumen"),
+    usoIA: val("usoIA"),
+    archivos: archivos.map((a) => a.name),
+  };
+  let folio = "";
+  let provisional = false;
+  let porCorreo = false;
+  continuar.disabled = true;
+  formError.textContent = TR("Registrando tu pieza…");
+  // leer los adjuntos en base64 para que el worker los suba a OneDrive
+  const adjuntos = (await Promise.all(archivos.map((a) => new Promise((res) => {
+    const fr = new FileReader();
+    fr.onload = () => res({ nombre: a.name, tipo: a.type || "application/octet-stream", b64: String(fr.result).split(",")[1] || "" });
+    fr.onerror = () => res(null);
+    fr.readAsDataURL(a);
+  })))).filter(Boolean);
+  if (API_BASE) {
+    try {
+      const r = await fetch(`${API_BASE}/api/registro`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...carga, adjuntos }),
+      });
+      const datos = await r.json();
+      if (r.ok && datos.folio) folio = datos.folio;
+      else throw new Error(datos.error || "registro rechazado");
+    } catch (e) {
+      console.warn("Registro sin conexión con la API:", e);
+    }
+  }
+  if (!folio && window.VERTICES_W3F) {
+    try {
+      const r = await fetch("https://api.web3forms.com/submit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        body: JSON.stringify({
+          access_key: window.VERTICES_W3F,
+          subject: "[REGISTRO-VERTICES] Nuevo manuscrito",
+          from_name: "Portal de envíos Vértices",
+          email: carga.correo,
+          registro: "<<<JSON>>>" + JSON.stringify(carga) + "<<<FIN>>>",
+        }),
+      });
+      const rj = await r.json();
+      if (r.ok && rj.success) porCorreo = true;
+      else throw new Error(rj.message || "envío por correo rechazado");
+    } catch (e) {
+      console.warn("Registro sin conexión con el flujo por correo:", e);
+    }
+  }
+  continuar.disabled = false;
+  if (!folio && !porCorreo) {
+    folio = `VTX-2026-${String(Math.floor(100 + Math.random() * 900))}`;
+    provisional = !!(API_BASE || window.VERTICES_W3F);
+  }
+  formError.textContent = "";
+  if (porCorreo) {
+    document.getElementById("folio").textContent = "VTX-2026-···";
+    document.getElementById("folio").insertAdjacentHTML(
+      "afterend",
+      ` <em style="font-size:12.5px;color:var(--gris)">${TR("Tu registro fue enviado; el folio definitivo te llegará por correo en unos minutos.")}</em>`
+    );
+  } else {
+    document.getElementById("folio").textContent = folio + (provisional ? " (provisional)" : "");
+    if (provisional) {
+      document.getElementById("folio").insertAdjacentHTML(
+        "afterend",
+        ` <em style="font-size:12.5px;color:var(--gris)">${TR("(no hubo conexión con el registro; el comité te confirmará el folio definitivo por correo)")}</em>`
+      );
+    }
+  }
+  document.getElementById("resTitulo").textContent = val("tituloArt");
+  document.getElementById("resAutor").textContent =
+    val("nombre") + (val("coautores") ? ", " + val("coautores") : "");
+  document.getElementById("resFormato").textContent = TR(val("formato"));
+  document.getElementById("resSeccion").textContent = TR(val("seccion"));
+  form.hidden = true;
+  confirmacion.hidden = false;
+  confirmacion.scrollIntoView({ behavior: "smooth", block: "center" });
+});
+atras.addEventListener("click", () => { if (pasoActual > 0) mostrarPaso(pasoActual - 1); });
+wizItems.forEach((li, k) => li.addEventListener("click", () => {
+  if (li.classList.contains("hecho")) mostrarPaso(k);
+}));
+document.getElementById("otroEnvio").addEventListener("click", () => {
+  form.reset();
+  archivos = [];
+  pintarArchivos();
+  form.hidden = false;
+  confirmacion.hidden = true;
+  mostrarPaso(0);
+});
+
+// contador de palabras del resumen
+const resumen = document.getElementById("resumen");
+const contador = document.getElementById("contadorResumen");
+resumen.addEventListener("input", () => {
+  const n = resumen.value.split(/\s+/).filter(Boolean).length;
+  contador.textContent = (n === 1 ? TR("{n} palabra · se piden entre 100 y 300") : TR("{n} palabras · se piden entre 100 y 300")).replace("{n}", n);
+});
+
+// zona de arrastre de archivos
+const zona = document.getElementById("zonaArchivo");
+const archivoInput = document.getElementById("archivoInput");
+const listaArchivos = document.getElementById("listaArchivos");
+const OK_EXT = /\.(pdf|docx?|)$/i;
+
+function pesoTexto(b) {
+  return b > 1048576 ? (b / 1048576).toFixed(1) + " MB" : Math.ceil(b / 1024) + " KB";
+}
+function agregarArchivos(lista) {
+  for (const f of lista) {
+    if (!/\.(pdf|docx?)$/i.test(f.name)) {
+      formError.textContent = TR("\"{a}\" no es .pdf ni .docx.").replace("{a}", f.name);
+      continue;
+    }
+    if (f.size > 20 * 1048576) {
+      formError.textContent = TR("\"{a}\" pesa más de 20 MB.").replace("{a}", f.name);
+      continue;
+    }
+    if (!archivos.some((x) => x.name === f.name && x.size === f.size)) archivos.push(f);
+    formError.textContent = "";
+  }
+  pintarArchivos();
+}
+function pintarArchivos() {
+  listaArchivos.innerHTML = archivos.map((f, i) =>
+    `<li><span>${f.name}</span><span class="peso">${pesoTexto(f.size)}</span>
+     <button type="button" data-quitar="${i}" aria-label="Quitar archivo">✕</button></li>`).join("");
+}
+archivoInput.addEventListener("change", () => { agregarArchivos(archivoInput.files); archivoInput.value = ""; });
+["dragenter", "dragover"].forEach((ev) => zona.addEventListener(ev, (e) => {
+  e.preventDefault(); zona.classList.add("sobre");
+}));
+["dragleave", "drop"].forEach((ev) => zona.addEventListener(ev, (e) => {
+  e.preventDefault(); zona.classList.remove("sobre");
+}));
+zona.addEventListener("drop", (e) => agregarArchivos(e.dataTransfer.files));
+listaArchivos.addEventListener("click", (ev) => {
+  const b = ev.target.closest("[data-quitar]");
+  if (!b) return;
+  archivos.splice(parseInt(b.dataset.quitar, 10), 1);
+  pintarArchivos();
+});
+form.addEventListener("submit", (e) => e.preventDefault());
+
+/* ------- boletin del pie ------- */
+
+document.getElementById("boletinForm").addEventListener("submit", (e) => {
+  e.preventDefault();
+  const correo = document.getElementById("boletinCorreo").value.trim();
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correo)) return;
+  e.target.outerHTML = `<p style="color:var(--crema)">${TR("Listo, recibirás la próxima edición en tu correo.")}</p>`;
+});
+
+/* ------- registro y estado: conexion con la API -------
+   API_BASE se resuelve en este orden:
+   1. ?api=https://...  en la URL (se recuerda en localStorage; ?api= vacio lo borra).
+      Asi el sitio publicado puede apuntar al tunel de la compu del editor
+      sin redesplegar: https://sitio/?api=https://xxx.trycloudflare.com
+   2. window.VERTICES_API definido en config.js (fijo por despliegue).
+   3. http://localhost:8788 cuando el sitio corre en local (servidor de pruebas).
+   4. "" = modo maqueta: folio provisional y estado desde estado.json. */
+const API_BASE = (() => {
+  try {
+    const param = new URLSearchParams(location.search).get("api");
+    if (param !== null) {
+      if (param === "") localStorage.removeItem("vertices_api");
+      else if (/^https:\/\/[\w.-]+/.test(param)) localStorage.setItem("vertices_api", param.replace(/\/+$/, ""));
+    }
+    const guardada = localStorage.getItem("vertices_api");
+    if (guardada) return guardada;
+  } catch {}
+  if (window.VERTICES_API) return window.VERTICES_API;
+  return ["localhost", "127.0.0.1"].includes(location.hostname) ? "http://localhost:8788" : "";
+})();
+
+document.getElementById("estadoForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const res = document.getElementById("estadoRes");
+  const folio = document.getElementById("estadoFolio").value.trim().toUpperCase();
+  const correo = document.getElementById("estadoCorreo").value.trim().toLowerCase();
+  res.classList.remove("err");
+  if (!/^VTX-\d{4}-\d{1,4}$/.test(folio)) {
+    res.classList.add("err");
+    res.textContent = TR("Escribe tu folio completo, por ejemplo VTX-2026-001.");
+    return;
+  }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correo)) {
+    res.classList.add("err");
+    res.textContent = TR("Escribe el correo con el que registraste tu pieza.");
+    return;
+  }
+  res.textContent = TR("Consultando…");
+  const pinta = (pieza) => {
+    res.innerHTML = `<strong>${pieza.titulo}</strong>
+      <dl>
+        <dt>${TR("Estado")}</dt><dd>${TR(pieza.estado)}</dd>
+        <dt>${TR("Sección")}</dt><dd>${TR(pieza.seccion)}</dd>
+        <dt>${TR("Actualizado")}</dt><dd>${pieza.actualizado}</dd>
+      </dl>`;
+  };
+  const noEncontrada = () => {
+    res.classList.add("err");
+    res.textContent = TR("No encontramos ese folio con ese correo. Revisa ambos datos o escríbenos a vertices@servicios.tec.mx.");
+  };
+  try {
+    if (API_BASE) {
+      const r = await fetch(
+        `${API_BASE}/api/estado?folio=${encodeURIComponent(folio)}&correo=${encodeURIComponent(correo)}`,
+        { cache: "no-store" }
+      );
+      if (r.ok) pinta(await r.json());
+      else if (r.status === 404) noEncontrada();
+      else throw new Error("api");
+    } else {
+      // modo maqueta: stub local con la misma forma que la API
+      const r = await fetch("estado.json", { cache: "no-store" });
+      const datos = await r.json();
+      const pieza = (datos.piezas || []).find(
+        (p) => p.folio.toUpperCase() === folio && p.correo.toLowerCase() === correo
+      );
+      pieza ? pinta(pieza) : noEncontrada();
+    }
+  } catch {
+    res.classList.add("err");
+    res.textContent = TR("No pudimos consultar el estado en este momento. Verifica que el servidor de pruebas esté encendido (bash api/inicia-pruebas.sh) o intenta más tarde.");
+  }
+});
+
+
+/* ------- gancho de idioma: etiquetas del canvas y subtitulo ------- */
+window.__alCambiarIdioma = () => {
+  SUBTITULO = TR("El punto donde las ideas se conectan");
+  if (net) net.nodes.forEach((n) => { if (n.label0) n.label = TR(n.label0); });
+  if (sec) sec.nodes.forEach((n) => { if (n.label0) { n.label = TR(n.label0); n.desc = TR(n.desc0); } });
+};
+
+/* ------- arranque ------- */
+
+resize();
+uSmooth = scrollU(); // si la pagina carga a mitad del recorrido, sin carreras
+requestAnimationFrame(frame);
+// re-muestrear la palabra cuando las tipografias web ya cargaron
+if (document.fonts && document.fonts.ready) {
+  document.fonts.ready.then(() => buildParticles());
+}
+
+// hook de QA para verificacion sin scroll real: fija el estado en u (0 a 1)
+window.__qa = {
+  runTo(u, seconds = 3) {
+    qaPaused = true;
+    resize();
+    uSmooth = u;
+    const steps = Math.floor(seconds * 60);
+    const dt = 1 / 60;
+    let t = -seconds;
+    for (let i = 0; i < steps; i++) {
+      t += dt;
+      update(dt, t, u);
+      render(t, u);
+    }
+    syncUI(u, 0);
+  },
+  resume(u = null) { qaU = u; qaPaused = false; },
+};
+</script>
+
+<script>
+(() => {
+  const boton = document.querySelector(".menu-boton");
+  if (!boton) return;
+  const nav = boton.closest("nav");
+  boton.addEventListener("click", () => {
+    const abierto = nav.classList.toggle("abierto");
+    boton.setAttribute("aria-expanded", abierto);
+  });
+  document.addEventListener("click", (e) => { if (!nav.contains(e.target)) nav.classList.remove("abierto"); });
+  nav.querySelectorAll(".menu-panel a").forEach((a) => a.addEventListener("click", () => nav.classList.remove("abierto")));
+})();
+</script>
+<script src="idiomas.js?v=5" defer></script>
+</body>
+</html>

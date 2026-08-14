@@ -1,0 +1,736 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Lineamientos editoriales · Vértices</title>
+<meta name="description" content="Qué se acepta, qué se rechaza y cómo se evalúa cada sección de Vértices: niveles de dictamen, requisitos, rúbricas y checklist de cierre para autores." />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cg fill='none' stroke='%232d232e' stroke-width='1.6'%3E%3Cpath d='M16 4 L28 26 L4 26 Z'/%3E%3Cpath d='M16 4 L17 18.5 M4 26 L17 18.5 M28 26 L17 18.5' opacity='.55'/%3E%3C/g%3E%3C/svg%3E" />
+<link rel="preload" href="fonts/NeueMontreal-Medium.woff2" as="font" type="font/woff2" crossorigin />
+<link rel="preload" href="fonts/Garet-Book.woff2" as="font" type="font/woff2" crossorigin />
+<style>
+  /* Tipografías del Manual de Identidad: Neue Montreal (logo y títulos) y Garet (subtítulos) */
+  @font-face{ font-family:"Neue Montreal"; src:url("fonts/NeueMontreal-Regular.woff2") format("woff2"); font-weight:400; font-style:normal; font-display:swap; }
+  @font-face{ font-family:"Neue Montreal"; src:url("fonts/NeueMontreal-Medium.woff2") format("woff2"); font-weight:500 600; font-style:normal; font-display:swap; }
+  @font-face{ font-family:"Neue Montreal"; src:url("fonts/NeueMontreal-Bold.woff2") format("woff2"); font-weight:700 800; font-style:normal; font-display:swap; }
+  @font-face{ font-family:"Neue Montreal"; src:url("fonts/NeueMontreal-Italic.woff2") format("woff2"); font-weight:400 600; font-style:italic; font-display:swap; }
+  @font-face{ font-family:"Garet"; src:url("fonts/Garet-Book.woff2") format("woff2"); font-weight:400 600; font-style:normal; font-display:swap; }
+  @font-face{ font-family:"Garet"; src:url("fonts/Garet-Heavy.woff2") format("woff2"); font-weight:700 900; font-style:normal; font-display:swap; }
+  :root{
+    --fondo:#E7DECB;
+    --beige:#f8f2ec;
+    --tinta:#2d232e;
+    --hueso:#433947;
+    --texto:#4d4252;
+    --gris:#776d80;
+    --indigo:#4d4dfa;
+    --indigo-claro:#5e5dc7;
+    --perla:#7776cf;
+    --pizarra:#3f3d5a;
+    --coral:#fd6343;
+    --ambar:#ed9126;
+    --ambar-texto:#a86300;
+    --linea:rgba(45,35,46,.18);
+    --linea-fuerte:rgba(45,35,46,.45);
+    --f-titulo:"Neue Montreal",Arial,"Helvetica Neue",sans-serif;
+    --f-ui:"Neue Montreal",Arial,"Helvetica Neue",sans-serif;
+    --f-sub:"Garet",Arial,"Helvetica Neue",sans-serif;
+  }
+  *{ box-sizing:border-box; }
+  html{ scroll-behavior:smooth; }
+  html,body{ margin:0; background:var(--fondo); }
+  body{ font:400 15px/1.7 var(--f-ui); color:var(--texto); -webkit-font-smoothing:antialiased; }
+  ::selection{ background:var(--indigo); color:var(--beige); }
+
+  .marco{
+    position:fixed; top:0; left:0; right:0; z-index:50;
+    display:flex; justify-content:space-between; align-items:center;
+    padding:20px 5vw 22px;
+    background:linear-gradient(rgba(231,222,203,.97), rgba(231,222,203,.8));
+    backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
+    box-shadow:0 1px 0 rgba(45,35,46,.08);
+  }
+  .marca{ display:flex; align-items:center; gap:12px; text-decoration:none; color:var(--tinta); }
+  .emblema{ width:26px; height:26px; color:var(--tinta); }
+  .marca span{ font:600 14px var(--f-ui); letter-spacing:.34em; text-transform:uppercase; transform:translateY(1px); }
+  .marco nav{ display:flex; align-items:center; gap:20px; }
+  .marco nav a.enlace{
+    font:500 11.5px var(--f-ui); letter-spacing:.18em; text-transform:uppercase; white-space:nowrap;
+    color:var(--hueso); text-decoration:none; opacity:.85; transition:opacity .2s, color .2s;
+  }
+  .marco nav a.enlace:hover{ opacity:1; color:var(--tinta); }
+  .boton{
+    display:inline-block; font:500 11.5px var(--f-ui); letter-spacing:.14em;
+    text-transform:uppercase; color:var(--tinta); text-decoration:none; white-space:nowrap;
+    background:transparent; border:1px solid var(--linea); border-radius:999px;
+    padding:12px 22px; cursor:pointer;
+    transition:border-color .25s, background .25s, transform .15s;
+  }
+  .boton:hover{ border-color:var(--linea-fuerte); }
+  .boton--lleno{ background:var(--coral); color:#2d232e; border-color:var(--coral); }
+  .boton--lleno:hover{ background:#ee5333; border-color:#ee5333; }
+
+  main{ max-width:900px; margin:0 auto; padding:calc(6vh + 92px) 24px 90px; }
+  .ceja{
+    margin:0 0 14px; font:400 14px var(--f-sub); letter-spacing:.3em;
+    text-transform:uppercase; color:var(--indigo);
+  }
+  h1{
+    margin:0 0 22px; font:500 clamp(34px,5.6vw,58px)/1.05 var(--f-titulo);
+    color:var(--tinta); letter-spacing:-.01em;
+  }
+  .entrada{ max-width:64ch; font-size:16.5px; color:var(--hueso); }
+  section{ margin-top:64px; }
+  h2{ margin:0 0 16px; font:500 clamp(23px,3.2vw,32px)/1.15 var(--f-titulo); color:var(--tinta); }
+  .texto{ max-width:64ch; }
+
+  /* lineamientos generales: lista de definición */
+  .generales{ margin:26px 0 0; padding:0; border-top:1px solid var(--linea); }
+  .generales li{
+    list-style:none; padding:16px 0 14px; border-bottom:1px solid var(--linea);
+    display:grid; grid-template-columns:190px 1fr; gap:18px;
+  }
+  .generales strong{
+    font:400 12.5px var(--f-sub); letter-spacing:.2em; text-transform:uppercase;
+    color:var(--indigo); padding-top:3px;
+  }
+  .generales p{ margin:0; max-width:60ch; }
+  @media (max-width:640px){ .generales li{ grid-template-columns:1fr; gap:6px; } }
+
+  /* niveles de dictamen */
+  .niveles{ display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:18px; margin-top:26px; }
+  .nivel{
+    border:1px solid var(--linea); border-radius:16px; padding:22px;
+    background:rgba(252,248,240,.55);
+  }
+  .nivel h3{ margin:0 0 8px; font:600 15px var(--f-titulo); color:var(--tinta); }
+  .nivel .letra{
+    display:inline-block; font:700 22px var(--f-titulo); color:var(--tinta); margin-bottom:10px;
+  }
+  .nivel p{ margin:0; font-size:13.5px; line-height:1.6; }
+  .nivel em{ display:block; margin-top:10px; font-style:normal; font-size:12.5px; color:var(--gris); }
+
+  /* acordeón por sección */
+  .acordeon{ margin-top:26px; border-top:1px solid var(--linea); }
+  details{ border-bottom:1px solid var(--linea); }
+  summary{
+    display:flex; align-items:center; gap:16px; padding:20px 4px;
+    cursor:pointer; list-style:none;
+  }
+  summary::-webkit-details-marker{ display:none; }
+  summary i{ width:10px; height:10px; border-radius:50%; flex:none; }
+  summary h3{ margin:0; font:500 17px/1.3 var(--f-titulo); color:var(--tinta); flex:1; }
+  summary .nivel-etq{
+    font:500 10px var(--f-sub); letter-spacing:.2em; text-transform:uppercase;
+    color:var(--gris); flex:none;
+  }
+  summary .flecha{
+    flex:none; width:10px; height:10px; border-right:1.4px solid var(--linea-fuerte);
+    border-bottom:1.4px solid var(--linea-fuerte); transform:rotate(45deg);
+    transition:transform .25s; margin-top:-4px;
+  }
+  details[open] summary .flecha{ transform:rotate(225deg); margin-top:4px; }
+  .cuerpo-sec{ padding:2px 4px 26px 26px; }
+  .cuerpo-sec p{ max-width:62ch; }
+  .cuerpo-sec .dato{ margin:0 0 12px; }
+  .cuerpo-sec .dato strong{
+    display:block; font:400 12.5px var(--f-sub); letter-spacing:.2em;
+    text-transform:uppercase; color:var(--indigo); margin-bottom:4px;
+  }
+  .dos-col{ display:grid; grid-template-columns:1fr 1fr; gap:20px; margin:18px 0; }
+  @media (max-width:640px){ .dos-col{ grid-template-columns:1fr; } }
+  .dos-col h4{
+    margin:0 0 8px; font:700 12.5px var(--f-sub); letter-spacing:.2em; text-transform:uppercase;
+  }
+  .si h4{ color:var(--tinta); }
+  .no h4{ color:var(--ambar-texto); }
+  .cuerpo-sec ul{ margin:0; padding-left:18px; }
+  .cuerpo-sec li{ margin-bottom:7px; font-size:14px; line-height:1.6; }
+  .cuerpo-sec li::marker{ color:var(--gris); }
+  .umbral{
+    margin:18px 0 0; padding:14px 18px; border-left:2px solid var(--coral);
+    background:rgba(252,248,240,.55); font-size:14px; max-width:58ch;
+  }
+
+  /* matriz resumen */
+  .matriz{ width:100%; border-collapse:collapse; margin-top:26px; font-size:13.5px; }
+  .matriz th{
+    text-align:left; font:400 11px var(--f-sub); letter-spacing:.18em; text-transform:uppercase;
+    color:var(--tinta); padding:10px 12px 8px; border-bottom:1px solid var(--linea-fuerte);
+  }
+  .matriz td{ padding:10px 12px; border-bottom:1px solid var(--linea); vertical-align:top; }
+  .matriz td:first-child{ color:var(--tinta); font-weight:500; white-space:nowrap; }
+  .tabla-scroll{ overflow-x:auto; }
+
+  .cierre{
+    margin-top:80px; padding-top:36px; border-top:1px solid var(--linea);
+    display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:18px;
+  }
+  .cierre p{ margin:0; max-width:44ch; color:var(--hueso); }
+
+  /* pie de página idéntico al de la landing */
+  footer.pie{
+    margin-top:10vh; border-top:1px solid var(--linea);
+    background:rgba(224,213,191,.8); backdrop-filter:blur(18px); -webkit-backdrop-filter:blur(18px);
+  }
+  .pie-int{ width:min(1180px,92vw); margin:0 auto; padding:64px 0 34px; }
+  .pie-rejilla{ display:grid; grid-template-columns:1.5fr 1fr 1fr 1.3fr; gap:36px; margin-bottom:56px; }
+  .pie h4{ margin:0 0 16px; font:500 11px var(--f-ui); letter-spacing:.26em; text-transform:uppercase; color:var(--gris); }
+  .pie-marca p{ margin:14px 0 0; font-size:13.5px; line-height:1.65; max-width:34ch; }
+  .pie ul{ list-style:none; margin:0; padding:0; }
+  .pie ul li{ margin-bottom:10px; }
+  .pie ul a{ font-size:13.5px; color:var(--hueso); text-decoration:none; transition:color .2s; }
+  .pie ul a:hover{ color:var(--tinta); }
+  .boletin p{ margin:0 0 14px; font-size:13.5px; }
+  .boletin form{ display:flex; gap:8px; }
+  .boletin input{
+    flex:1; min-width:0; padding:11px 14px; border:1px solid var(--linea); border-radius:10px;
+    background:rgba(252,248,240,.65); color:var(--tinta); font:400 14px var(--f-ui);
+  }
+  .boletin input:focus{ outline:none; border-color:var(--indigo-claro); }
+  .pie-legal{
+    display:flex; justify-content:space-between; gap:18px; flex-wrap:wrap;
+    padding-top:22px; border-top:1px solid var(--linea);
+    font-size:11.5px; letter-spacing:.05em; color:var(--gris);
+  }
+  .pie-legal a{ color:var(--gris); }
+  .pie-legal a:hover{ color:var(--tinta); }
+  @media (max-width:980px){ .pie-rejilla{ grid-template-columns:1fr 1fr; } }
+  @media (max-width:640px){ .pie-rejilla{ grid-template-columns:1fr; } }
+
+  /* menú de tres rayas: panel de vidrio con los enlaces (evita empalmes en cualquier idioma) */
+  .marco nav{ position:relative; }
+  .menu-boton{
+    width:42px; height:42px; flex:none; cursor:pointer; background:transparent;
+    border:1px solid var(--linea); border-radius:999px;
+    display:flex; flex-direction:column; justify-content:center; align-items:center; gap:4.5px;
+    transition:border-color .25s;
+  }
+  .menu-boton:hover{ border-color:var(--linea-fuerte); }
+  .menu-boton i{ display:block; width:16px; height:1.5px; background:var(--tinta); border-radius:2px; transition:transform .3s, opacity .25s; }
+  nav.abierto .menu-boton i:nth-child(1){ transform:translateY(6px) rotate(45deg); }
+  nav.abierto .menu-boton i:nth-child(2){ opacity:0; }
+  nav.abierto .menu-boton i:nth-child(3){ transform:translateY(-6px) rotate(-45deg); }
+  .menu-panel{
+    position:absolute; top:calc(100% + 12px); right:0; min-width:250px;
+    display:flex; flex-direction:column; padding:10px 8px;
+    border:1px solid var(--linea); border-radius:16px;
+    background:rgba(252,248,240,.94); backdrop-filter:blur(18px); -webkit-backdrop-filter:blur(18px);
+    box-shadow:0 18px 44px rgba(45,35,46,.14);
+    opacity:0; transform:translateY(-8px); pointer-events:none;
+    transition:opacity .3s, transform .3s;
+  }
+  nav.abierto .menu-panel{ opacity:1; transform:none; pointer-events:auto; }
+  .menu-panel a.enlace{ padding:12px 18px; border-radius:10px; }
+  .menu-panel a.enlace:hover{ background:rgba(45,35,46,.06); }
+  @media (max-width:560px){ .marca span{ display:none; } }
+
+  /* revelado por scroll (revelar.js) */
+  .rev{ opacity:0; transform:translateY(22px);
+    transition:opacity .8s cubic-bezier(.22,.61,.36,1), transform .8s cubic-bezier(.22,.61,.36,1); }
+  .rev-on{ opacity:1; transform:none; }
+
+  /* Acerca de y Conoce al equipo viven en la barra; en pantallas angostas
+     regresan al panel del menú para no encimarse */
+  .menu-panel .solo-angosto{ display:none; }
+  @media (max-width:940px){
+    .marco nav > .enlace-bar, .marco nav > .boton-bar{ display:none; }
+    .menu-panel .solo-angosto{ display:block; }
+  }
+</style>
+</head>
+<body>
+
+<header class="marco">
+  <a class="marca" href="index.html">
+    <svg class="emblema" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
+      <path d="M16 4 L28 26 L4 26 Z"/>
+      <path d="M16 4 L17 18.5 M4 26 L17 18.5 M28 26 L17 18.5" opacity=".55"/>
+    </svg>
+    <span>Vértices</span>
+  </a>
+  <nav aria-label="Navegación principal">
+    <a class="enlace enlace-bar" href="quienes-somos.html">Acerca de</a>
+    <a class="boton boton-bar" href="equipo-ds.html">Conoce al equipo</a>
+    <a class="boton boton--lleno" href="index.html#envio">Publica tu artículo</a>
+    <button class="menu-boton" type="button" aria-label="Menú" aria-expanded="false" aria-controls="menuPanel"><i></i><i></i><i></i></button>
+    <div class="menu-panel" id="menuPanel">
+      <a class="enlace" href="index.html#temas">Temas</a>
+      <a class="enlace" href="index.html#secciones">Secciones</a>
+      <a class="enlace" href="index.html#convocatoria">Convocatoria</a>
+      <a class="enlace" href="lineamientos.html">Lineamientos</a>
+      <a class="enlace solo-angosto" href="quienes-somos.html">Acerca de</a>
+      <a class="enlace solo-angosto" href="equipo-ds.html">Conoce al equipo</a>
+    </div>
+  </nav>
+</header>
+
+<main>
+  <p class="ceja">Vértices · Guía para autores</p>
+  <h1>Lineamientos editoriales</h1>
+  <div class="entrada">
+    <p>Antes de enviar tu pieza, revisa los lineamientos generales y despliega la sección a la que quieres postular: ahí están sus requisitos, su rúbrica y el checklist de cierre.</p>
+  </div>
+
+  <section id="generales">
+    <p class="ceja">Para todas las secciones</p>
+    <h2>Lineamientos generales</h2>
+    <p class="texto">Aplican a todas las secciones, salvo que el bloque de la sección indique algo distinto. El principio rector: <em>rigurosos en la evidencia, amables en la lectura</em>. Toda pieza equilibra sustento (fuentes, método, contexto) con accesibilidad (sin jerga innecesaria).</p>
+    <ul class="generales">
+      <li>
+        <strong>Originalidad</strong>
+        <p>Se prioriza el material inédito. Para trabajos estudiantiles se relaja el requisito: se aceptan trabajos de materias o de retos aunque no se hayan publicado antes, con aprobación del comité. Declara, por transparencia, si la pieza fue entregada en una materia o presentada en algún evento.</p>
+      </li>
+      <li>
+        <strong>Antiplagio</strong>
+        <p>Toda pieza con datos, citas o imágenes debe atribuir correctamente sus fuentes. Los trabajos de investigación pasan por una verificación antiplagio con Turnitin antes del dictamen.</p>
+      </li>
+      <li>
+        <strong>Uso de IA</strong>
+        <p>Se permite solo como apoyo en tareas específicas (corrección de estilo, asistencia en programación, revisión metodológica), siempre declarado: qué herramienta, con qué finalidad y en qué partes. En piezas con dictamen Nivel A no se permite IA generativa para elaborar el contenido del manuscrito. La revista puede rechazar trabajos ante evidencia o sospecha fundada de uso indebido.</p>
+      </li>
+      <li>
+        <strong>Equidad de género</strong>
+        <p>La revista busca en todo momento la equidad de género y la igualdad de oportunidades, procurando de manera activa la participación homogénea a lo largo de sus ediciones.</p>
+      </li>
+      <li>
+        <strong>Fuentes y datos</strong>
+        <p>Todo dato lleva fuente y fecha. En piezas con datos se incluye una nota metodológica breve (origen, limpieza, supuestos y límites). Cuando sea posible, se enlaza el repositorio con código o los datos usados.</p>
+      </li>
+      <li>
+        <strong>Metadatos</strong>
+        <p>Cada pieza registra título, autoría, filiación y correo. Las piezas de investigación suman resumen y de 3 a 5 palabras clave; códigos JEL y ORCID cuando existan.</p>
+      </li>
+      <li>
+        <strong>Citación</strong>
+        <p>Se adopta Chicago como estilo de citación único, cuidando la limpieza y presentación de la revista.</p>
+      </li>
+    </ul>
+  </section>
+
+  <section id="niveles">
+    <p class="ceja">¿Cómo se revisa?</p>
+    <h2>Tres niveles de dictamen</h2>
+    <div class="niveles">
+      <article class="nivel">
+        <span class="letra">A</span>
+        <h3>Dictamen doble ciego por pares</h3>
+        <p>Dos dictaminadores evalúan el manuscrito anonimizado con la rúbrica del Dictamen Maestro.</p>
+        <em>Miradas Económicas y Horizonte Global cuando la pieza es investigación.</em>
+      </article>
+      <article class="nivel">
+        <span class="letra">B</span>
+        <h3>Revisión reforzada y verificación de datos</h3>
+        <p>Revisor estudiante y revisor de datos o profesor; foco en fuentes, método y claridad.</p>
+        <em>Datanomics y Horizonte Global (análisis).</em>
+      </article>
+      <article class="nivel">
+        <span class="letra">C</span>
+        <h3>Edición y verificación</h3>
+        <p>Se verifican datos, consentimientos y derechos de imagen, y se edita el estilo.</p>
+        <em>Apertura, La Voz de la Experiencia, ¿Sabías que…?, Capital Social y Excelencia en Acción.</em>
+      </article>
+    </div>
+  </section>
+
+  <section id="secciones">
+    <p class="ceja">Sección por sección</p>
+    <h2>Criterios por sección</h2>
+    <p class="texto">Cada bloque incluye propósito, autoría, formato, qué sí y qué no entra, requisitos obligatorios, criterios de evaluación y el checklist de cierre.</p>
+
+    <div class="acordeon">
+
+      <details id="datanomics">
+        <summary>
+          <i style="background:var(--ambar)"></i>
+          <h3>1 · Datanomics</h3>
+          <span class="nivel-etq">Nivel B</span>
+          <span class="flecha"></span>
+        </summary>
+        <div class="cuerpo-sec">
+          <p class="dato"><strong>Propósito</strong> Publicar visualizaciones e infografías basadas en datos que expliquen fenómenos económicos, acercando herramientas prácticas (Excel, Python, R, SQL) con un how-to breve.</p>
+          <p class="dato"><strong>Formato y extensión</strong> Visualización + texto de 200 a 800 palabras (cápsula ~200, artículo 500 a 800), con 1 a 3 gráficas; opcional repositorio con código en GitHub.</p>
+          <div class="dos-col">
+            <div class="si">
+              <h4>Qué sí entra</h4>
+              <ul>
+                <li>Visualizaciones con fuente de datos explícita y fecha, indicando qué miden y por qué importan.</li>
+                <li>Comparaciones claras (tiempo, regiones, grupos) con un hallazgo principal sustentado por el gráfico.</li>
+                <li>Metodología breve: de dónde viene el dato y cómo se limpió o transformó (3 a 4 líneas).</li>
+                <li>Recursos replicables: herramientas, cursos o recursos vinculados al caso.</li>
+              </ul>
+            </div>
+            <div class="no">
+              <h4>Qué no entra</h4>
+              <ul>
+                <li>Gráficas atractivas sin pregunta económica ni conclusión verificable.</li>
+                <li>Visualizaciones sin fuente, sin fecha o con datos imposibles de rastrear.</li>
+                <li>Interpretación fuerte sin evidencia.</li>
+                <li>Tutoriales largos tipo manual técnico o infografías decorativas.</li>
+              </ul>
+            </div>
+          </div>
+          <p class="dato"><strong>Requisitos obligatorios</strong></p>
+          <ul>
+            <li>Fuente citada y fecha del dato.</li>
+            <li>Nota metodológica de 3 a 4 líneas.</li>
+            <li>Un hallazgo principal legible en el propio gráfico.</li>
+            <li>Ejes, unidades y escalas correctamente rotulados.</li>
+          </ul>
+          <p class="dato" style="margin-top:14px"><strong>Cómo se evalúa</strong> Trazabilidad del dato (condición de entrada), corrección metodológica, legibilidad del gráfico (escalas honestas), valor del hallazgo y utilidad del how-to.</p>
+          <p class="umbral">No se publica sin fuente citada, fecha y un hallazgo verificable en el propio gráfico.</p>
+        </div>
+      </details>
+
+      <details id="voz">
+        <summary>
+          <i style="background:var(--perla)"></i>
+          <h3>2 · La Voz de la Experiencia</h3>
+          <span class="nivel-etq">Nivel C</span>
+          <span class="flecha"></span>
+        </summary>
+        <div class="cuerpo-sec">
+          <p class="dato"><strong>Propósito</strong> Conversar con economistas en activo para aprender cómo se piensa y se trabaja en el mundo real, obtener posturas argumentadas y orientar el desarrollo profesional de la comunidad.</p>
+          <p class="dato"><strong>Formato y extensión</strong> Entrevista presencial, extractos de 100 a 200 palabras.</p>
+          <div class="dos-col">
+            <div class="si">
+              <h4>Qué sí entra</h4>
+              <ul>
+                <li>Consejos accionables: habilidades, portafolio, entrevistas, primeros roles, posgrado.</li>
+                <li>Opiniones ancladas en evidencia o experiencia verificable, con contexto y límites.</li>
+                <li>Recomendaciones de lectura, herramientas y decisiones de carrera con ejemplos.</li>
+                <li>Explicación accesible para estudiantes, sin jerga innecesaria.</li>
+              </ul>
+            </div>
+            <div class="no">
+              <h4>Qué no entra</h4>
+              <ul>
+                <li>Motivación vacía sin pasos concretos.</li>
+                <li>Opinión política o ideológica sin datos, contexto o supuestos declarados.</li>
+                <li>Comentarios de coyuntura sin sustento o con afirmaciones absolutas.</li>
+                <li>Promoción personal o de empresa sin valor informativo; ataques a personas.</li>
+              </ul>
+            </div>
+          </div>
+          <p class="dato"><strong>Requisitos obligatorios</strong></p>
+          <ul>
+            <li>Presentación de la persona: rol, sector y trayectoria breve (2 a 3 líneas).</li>
+            <li>Al menos 3 consejos o ideas accionables.</li>
+            <li>Fuente cuando se citen datos o cifras.</li>
+            <li>Consentimiento del entrevistado sobre la publicación y sus citas.</li>
+          </ul>
+          <p class="dato" style="margin-top:14px"><strong>Cómo se evalúa</strong> Valor práctico, anclaje en evidencia o experiencia, accesibilidad, estructura de la conversación e interés de la comunidad.</p>
+          <p class="umbral">No se publica si es motivación genérica sin pasos o si contiene datos sin fuente.</p>
+        </div>
+      </details>
+
+      <details id="miradas">
+        <summary>
+          <i style="background:var(--coral)"></i>
+          <h3>3 · Miradas Económicas</h3>
+          <span class="nivel-etq">Nivel A</span>
+          <span class="flecha"></span>
+        </summary>
+        <div class="cuerpo-sec">
+          <p class="dato"><strong>Propósito</strong> Difundir investigaciones económicas breves para acercar el conocimiento académico a la comunidad y al público general. Es la sección insignia de investigación y el sello de rigor de la revista.</p>
+          <p class="dato"><strong>Formato y extensión</strong> Paper breve de hasta 5 cuartillas (aprox. 2,000 a 2,500 palabras) + código QR al documento completo. Etiqueta discreta de posgrado en la parte superior derecha cuando aplique. Subsección para investigaciones del extranjero.</p>
+          <div class="dos-col">
+            <div class="si">
+              <h4>Qué sí entra</h4>
+              <ul>
+                <li>Investigación original con metodología cualitativa o cuantitativa y marco teórico claro.</li>
+                <li>Estudios de caso, modelos económicos y análisis de política pública.</li>
+                <li>Evidencias finales de materias y trabajos de equipos ganadores de retos.</li>
+                <li>Temas actuales: inflación, empleo, desigualdad, crecimiento, fintech, política monetaria, entre otros.</li>
+              </ul>
+            </div>
+            <div class="no">
+              <h4>Qué no entra</h4>
+              <ul>
+                <li>Opiniones sin sustento académico.</li>
+                <li>Ensayos puramente reflexivos o narrativos.</li>
+                <li>Divulgación general sin metodología ni referencias.</li>
+                <li>Lenguaje excesivamente técnico sin explicación.</li>
+              </ul>
+            </div>
+          </div>
+          <p class="dato"><strong>Requisitos obligatorios</strong></p>
+          <ul>
+            <li>Pregunta de investigación explícita.</li>
+            <li>Marco teórico breve y metodología identificable.</li>
+            <li>Hallazgo principal, implicación y limitaciones declaradas.</li>
+            <li>Referencias completas y QR funcional al paper íntegro.</li>
+            <li>Extensión dentro de las 5 cuartillas; etiqueta de posgrado si corresponde.</li>
+          </ul>
+          <p class="dato" style="margin-top:14px"><strong>Cómo se evalúa</strong> Con la rúbrica del Dictamen Maestro: relevancia, claridad de la pregunta, rigor conceptual (crítico), evidencia y metodología (crítico), estructura, escritura y adecuación al formato.</p>
+          <p class="umbral">No se acepta con puntaje menor a 2 en rigor conceptual, metodología o claridad de la pregunta. Cualquier problema crítico impide la decisión de aceptado.</p>
+        </div>
+      </details>
+
+      <details id="horizonte">
+        <summary>
+          <i style="background:var(--pizarra)"></i>
+          <h3>4 · Horizonte Global</h3>
+          <span class="nivel-etq">Nivel B (A si es paper)</span>
+          <span class="flecha"></span>
+        </summary>
+        <div class="cuerpo-sec">
+          <p class="dato"><strong>Propósito</strong> Traducir la economía internacional a un lenguaje accesible, aplicar modelos económicos a problemas globales contemporáneos y conectar lo que ocurre en el mundo con la economía local mexicana.</p>
+          <p class="dato"><strong>Formato y extensión</strong> Análisis explicativo, aplicado y accesible, de 800 a 1500 palabras, con gráficas de apoyo (fuente + fecha).</p>
+          <div class="dos-col">
+            <div class="si">
+              <h4>Qué sí entra</h4>
+              <ul>
+                <li>Temas que inviten a cuestionar lo aprendido en clase.</li>
+                <li>Papers y ensayos que expliquen cómo lo que pasa en Asia o Europa afecta la economía local.</li>
+                <li>Ideas nuevas o innovadoras sobre la perspectiva global.</li>
+              </ul>
+            </div>
+            <div class="no">
+              <h4>Qué no entra</h4>
+              <ul>
+                <li>Resumen de lo que ya salió en las noticias.</li>
+                <li>Lenguaje excesivamente técnico: si un alumno de primer semestre no lo entiende, no sirve.</li>
+                <li>Afirmaciones sin canales de transmisión ni evidencia.</li>
+              </ul>
+            </div>
+          </div>
+          <p class="dato"><strong>Requisitos obligatorios</strong></p>
+          <ul>
+            <li>Hecho detonante y por qué importa para México.</li>
+            <li>Pregunta guía y un marco conceptual simple (concepto explicado).</li>
+            <li>Canales de transmisión del fenómeno hacia la economía local.</li>
+            <li>Gráficas con fuente y fecha; implicaciones y cierre con indicadores a seguir y límites.</li>
+          </ul>
+          <p class="dato" style="margin-top:14px"><strong>Cómo se evalúa</strong> Aplicación conceptual (aplica teoría, no resume noticias), conexión global a local explícita y razonada, accesibilidad (pasa el test de primer semestre) y evidencia gráfica con fuente y fecha.</p>
+          <p class="umbral">No se publica si es solo resumen de coyuntura, sin marco conceptual ni conexión con México.</p>
+        </div>
+      </details>
+
+      <details id="sabias">
+        <summary>
+          <i style="background:var(--indigo)"></i>
+          <h3>5 · ¿Sabías que…?</h3>
+          <span class="nivel-etq">Nivel C</span>
+          <span class="flecha"></span>
+        </summary>
+        <div class="cuerpo-sec">
+          <p class="dato"><strong>Propósito</strong> Compartir datos curiosos, hechos relevantes y hallazgos breves sobre economía, economistas y actualidad, para despertar la curiosidad y ampliar la cultura económica de la comunidad.</p>
+          <p class="dato"><strong>Formato y extensión</strong> Cápsula breve de 100 a 200 palabras, visualmente atractiva (imagen o gráfico + texto conciso).</p>
+          <div class="dos-col">
+            <div class="si">
+              <h4>Qué sí entra</h4>
+              <ul>
+                <li>Datos curiosos sobre conceptos o fenómenos económicos.</li>
+                <li>Hechos interesantes de la historia económica.</li>
+                <li>Curiosidades sobre economistas y sus aportaciones.</li>
+                <li>Explicaciones breves de eventos económicos actuales.</li>
+              </ul>
+            </div>
+            <div class="no">
+              <h4>Qué no entra</h4>
+              <ul>
+                <li>Contenido excesivamente técnico para el formato breve.</li>
+                <li>Explicaciones extensas que rompen el carácter de cápsula.</li>
+                <li>Datos desactualizados o fuera de contexto.</li>
+                <li>Temas no relacionados con la economía.</li>
+              </ul>
+            </div>
+          </div>
+          <p class="dato"><strong>Requisitos obligatorios</strong></p>
+          <ul>
+            <li>Fuente verificable del dato (registrada aunque no se muestre completa).</li>
+            <li>Contexto y fecha cuando sea pertinente.</li>
+            <li>Un gancho claro que motive la lectura.</li>
+          </ul>
+          <p class="dato" style="margin-top:14px"><strong>Cómo se evalúa</strong> Veracidad y verificabilidad del dato (condición de entrada), interés del gancho, concisión y claridad visual.</p>
+          <p class="umbral">No se publica si el dato no es verificable o está fuera de contexto.</p>
+        </div>
+      </details>
+
+      <details id="capital">
+        <summary>
+          <i style="background:var(--perla)"></i>
+          <h3>6 · Capital Social</h3>
+          <span class="nivel-etq">Nivel C</span>
+          <span class="flecha"></span>
+        </summary>
+        <div class="cuerpo-sec">
+          <p class="dato"><strong>Propósito</strong> Documentar y fortalecer la identidad de la comunidad estudiantil: eventos, congresos, experiencias y aprendizajes que ocurren fuera del aula (SALEC, foros, visitas, intercambios).</p>
+          <p class="dato"><strong>Formato y extensión</strong> Crónica de tono cercano y documentado de 500 a 900 palabras, con 2 a 4 fotos y sus pies de foto.</p>
+          <div class="dos-col">
+            <div class="si">
+              <h4>Qué sí entra</h4>
+              <ul>
+                <li>Relatos en primera persona sobre la vida en la facultad.</li>
+                <li>Contenido visual que acompañe las crónicas de eventos.</li>
+                <li>Métodos y tips de estudio para las materias de economía.</li>
+                <li>Charlas con profesores destacados o alumnos con proyectos sobresalientes.</li>
+              </ul>
+            </div>
+            <div class="no">
+              <h4>Qué no entra</h4>
+              <ul>
+                <li>Críticas destructivas hacia la institución o los docentes.</li>
+                <li>Lenguaje informal excesivo: se mantiene el decoro editorial.</li>
+                <li>Contenido sin conexión con la facultad o la economía.</li>
+              </ul>
+            </div>
+          </div>
+          <p class="dato"><strong>Requisitos obligatorios</strong></p>
+          <ul>
+            <li>Qué evento o experiencia se relata y por qué importa.</li>
+            <li>2 a 4 fotos con pie de foto: qué, quién, fecha y lugar.</li>
+            <li>Revisión previa de imágenes por el equipo de Fotografía y Archivo.</li>
+            <li>Consentimiento de las personas fotografiadas.</li>
+          </ul>
+          <p class="dato" style="margin-top:14px"><strong>Cómo se evalúa</strong> Valor comunitario, precisión factual (fechas, nombres y lugares correctos), tono cercano con decoro y calidad y pertinencia visual.</p>
+          <p class="umbral">No se publica con críticas destructivas ni con fotos sin revisión de Fotografía y Archivo o sin consentimiento.</p>
+        </div>
+      </details>
+
+      <details id="excelencia">
+        <summary>
+          <i style="background:var(--coral)"></i>
+          <h3>7 · Excelencia en Acción</h3>
+          <span class="nivel-etq">Nivel C</span>
+          <span class="flecha"></span>
+        </summary>
+        <div class="cuerpo-sec">
+          <p class="dato"><strong>Propósito</strong> Reconocer y visibilizar los logros académicos y profesionales de la comunidad de Economía, para celebrar la excelencia y fortalecer el sentido de comunidad.</p>
+          <p class="dato"><strong>Formato y extensión</strong> Cápsula de reconocimiento: foto + nombre + semestre, cargo o vínculo + descripción concisa del logro.</p>
+          <div class="dos-col">
+            <div class="si">
+              <h4>Qué sí entra</h4>
+              <ul>
+                <li>Logros académicos: premios, becas, publicaciones, concursos, certificaciones.</li>
+                <li>Reconocimientos institucionales o externos y participación sobresaliente en proyectos.</li>
+                <li>Investigaciones que lograron publicarse.</li>
+                <li>Méritos profesionales relacionados con el ámbito económico.</li>
+              </ul>
+            </div>
+            <div class="no">
+              <h4>Qué no entra</h4>
+              <ul>
+                <li>Logros no relacionados con el ámbito académico o profesional.</li>
+                <li>Contenido sin información suficiente o verificable.</li>
+              </ul>
+            </div>
+          </div>
+          <p class="dato"><strong>Requisitos obligatorios</strong></p>
+          <ul>
+            <li>Evidencia del logro: documento, enlace o constancia.</li>
+            <li>Fotografía proporcionada por la persona, con su consentimiento.</li>
+            <li>Datos correctos: nombre, semestre o cargo, vínculo con la institución.</li>
+          </ul>
+          <p class="dato" style="margin-top:14px"><strong>Cómo se evalúa</strong> Verificabilidad del logro (condición de entrada), pertinencia, claridad de la cápsula, consentimiento y exactitud de datos.</p>
+          <p class="umbral">No se publica sin evidencia del logro ni consentimiento de la persona reconocida.</p>
+        </div>
+      </details>
+
+    </div>
+  </section>
+
+  <section id="matriz">
+        <h2>Las secciones de un vistazo</h2>
+    <div class="tabla-scroll">
+      <table class="matriz">
+        <thead>
+          <tr><th>Sección</th><th>Cómo se revisa</th><th>Extensión sugerida</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>1 · Datanomics</td><td>B · Reforzada + datos</td><td>200 a 800 palabras + 1 a 3 gráficas</td></tr>
+          <tr><td>2 · La Voz de la Experiencia</td><td>C · Editorial + fact-check</td><td>Extractos de 100 a 200 palabras</td></tr>
+          <tr><td>3 · Miradas Económicas</td><td>A · Doble ciego por pares</td><td>Hasta 5 cuartillas + QR</td></tr>
+          <tr><td>4 · Horizonte Global</td><td>B (A si es paper)</td><td>800 a 1500 palabras</td></tr>
+          <tr><td>5 · ¿Sabías que…?</td><td>C · Fact-check</td><td>100 a 200 palabras</td></tr>
+          <tr><td>6 · Capital Social</td><td>C · Editorial + imagen</td><td>500 a 900 palabras + fotos</td></tr>
+          <tr><td>7 · Excelencia en Acción</td><td>C · Verificación del logro</td><td>Cápsula (foto + texto)</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <div class="cierre">
+    <p>¿Tu pieza ya cumple con su sección? El asistente de envío te guía en 4 pasos.</p>
+    <a class="boton boton--lleno" href="index.html#envio">Publica tu artículo</a>
+  </div>
+</main>
+
+<footer class="pie">
+  <div class="pie-int">
+    <div class="pie-rejilla">
+      <div class="pie-marca">
+        <a class="marca" href="index.html">
+          <svg class="emblema" viewBox="0 0 40 40" aria-hidden="true">
+            <path d="M20 5 L35 32 L5 32 Z" fill="none" stroke="currentColor" stroke-width="1.2"/>
+            <path d="M20 5 L21.5 22.5 M5 32 L21.5 22.5 M35 32 L21.5 22.5" fill="none" stroke="currentColor" stroke-width="1.2" opacity="0.55"/>
+          </svg>
+          <span>Vértices</span>
+        </a>
+        <p>Revista académica de economía nacida en la Licenciatura en Economía del Tecnológico de Monterrey, Campus Ciudad de México. De economistas para economistas y para quien quiera entender.</p>
+      </div>
+      <div>
+        <h4>Explora</h4>
+        <ul>
+          <li><a href="index.html#temas">Temas</a></li>
+          <li><a href="index.html#secciones">Secciones</a></li>
+          <li><a href="index.html#convocatoria">Convocatoria</a></li>
+          <li><a href="lineamientos.html">Lineamientos</a></li>
+          <li><a href="index.html#estado">Estado de tu envío</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Contacto</h4>
+        <ul>
+          <li><a href="mailto:vertices@servicios.tec.mx">vertices@servicios.tec.mx</a></li>
+          <li><a href="#" rel="noopener">Instagram · @vertices.ccm</a></li>
+          <li><a href="#" rel="noopener">LinkedIn · Vértices CCM</a></li>
+        </ul>
+      </div>
+      <div class="boletin">
+        <h4>Boletín</h4>
+        <p>Recibe cada edición y las convocatorias en tu correo.</p>
+        <form id="boletinForm">
+          <input type="email" id="boletinCorreo" placeholder="tu correo" aria-label="Tu correo" />
+          <button class="boton" type="submit">Suscribirme</button>
+        </form>
+      </div>
+    </div>
+    <div class="pie-legal">
+      <span>© 2026 Vértices · Tecnológico de Monterrey, Campus Ciudad de México</span>
+      <span>Rigurosa en evidencia, amable en lectura · <a href="#">Aviso de privacidad</a></span>
+    </div>
+  </div>
+</footer>
+
+<script>
+document.getElementById("boletinForm").addEventListener("submit", (e) => {
+  e.preventDefault();
+  const correo = document.getElementById("boletinCorreo").value.trim();
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correo)) return;
+  const TRS = (s) => (window.__dicc && window.__dicc[s]) || s;
+  e.target.outerHTML = `<p style="color:var(--tinta)">${TRS("Listo, recibirás la próxima edición en tu correo.")}</p>`;
+});
+</script>
+
+
+<script src="fondo-flujo.js?v=6" defer></script>
+
+<script>
+(() => {
+  const boton = document.querySelector(".menu-boton");
+  if (!boton) return;
+  const nav = boton.closest("nav");
+  boton.addEventListener("click", () => {
+    const abierto = nav.classList.toggle("abierto");
+    boton.setAttribute("aria-expanded", abierto);
+  });
+  document.addEventListener("click", (e) => { if (!nav.contains(e.target)) nav.classList.remove("abierto"); });
+  nav.querySelectorAll(".menu-panel a").forEach((a) => a.addEventListener("click", () => nav.classList.remove("abierto")));
+})();
+</script>
+<script src="revelar.js?v=5" defer></script>
+<script src="idiomas.js?v=5" defer></script>
+</body>
+</html>
