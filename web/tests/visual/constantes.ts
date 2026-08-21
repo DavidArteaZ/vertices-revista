@@ -48,15 +48,23 @@ export const guionSemilla = `
     t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
     return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
   };
+})();
+`;
 
-  // El bucle de animación se anula por completo. El motor auto-rota la
-  // constelación tras 3 s de inactividad acumulando autoAng en cada cuadro
-  // (index.html:1507-1511), así que el ángulo de la red al momento de la
-  // captura depende de cuánto tardó la página en cargar: irreproducible.
-  //
-  // __qa.runTo no necesita rAF — corre su propio bucle síncrono de
-  // update/render — así que anularlo deja el motor totalmente gobernado por
-  // la prueba, con autoAng en 0 y rotIdle en su valor inicial.
+/**
+ * Sólo para el SITIO LEGADO.
+ *
+ * Anula el bucle de animación para que autoAng no acumule antes de la
+ * captura: el motor auto-rota la constelación tras 3 s de inactividad
+ * (index.html:1507-1511) y el ángulo dependería de cuánto tardó la página en
+ * cargar. __qa.runTo no necesita rAF porque corre su propio bucle síncrono.
+ *
+ * NO se puede usar contra la app nueva: React 19 programa su render sobre
+ * rAF, y sin él el componente del lienzo nunca monta. El puerto llega al
+ * mismo estado por otra vía — su runTo pone autoAng en cero al empezar.
+ */
+export const guionSinRaf = `
+(() => {
   window.requestAnimationFrame = function () { return 0; };
   window.cancelAnimationFrame = function () {};
 })();

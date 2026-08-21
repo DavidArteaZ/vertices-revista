@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useState } from "react";
+import "./globals.css";
 import Lienzo from "@/components/landing/Lienzo";
 import Carrusel from "@/components/landing/Carrusel";
 import Convocatoria from "@/components/landing/Convocatoria";

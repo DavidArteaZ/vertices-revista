@@ -782,6 +782,32 @@ function pickAt(x: number, y: number): Hover {
 
   // hook de QA para verificacion sin scroll real: fija el estado en u (0 a 1)
   const qa = {
+    /**
+     * Devuelve el motor a su estado recién arrancado y lo congela.
+     *
+     * Se llama UNA vez antes de la primera captura. El motor auto-rota tras
+     * 3 s de inactividad acumulando autoAng en cada cuadro real
+     * (index.html:1507-1511), así que sin esto el ángulo de la red dependería
+     * de cuánto tardó la página en cargar. El sitio original evita ese
+     * problema en las pruebas anulando requestAnimationFrame; aquí no se
+     * puede, porque React 19 programa su render sobre rAF y sin él el
+     * componente del lienzo nunca monta.
+     *
+     * Deliberadamente NO va dentro de runTo: en el original autoAng sí se
+     * acumula entre llamadas sucesivas a runTo (cada una simula 3 s), y hay
+     * que reproducir esa acumulación para que las capturas coincidan.
+     */
+    reset() {
+      qaPaused = true;
+      autoAng = 0;
+      rotIdle = 10;
+      yaw = 0;
+      dragYaw = 0;
+      dragPitch = 0;
+      secLabelTimer = 0;
+      mx = -1e4;
+      my = -1e4;
+    },
     runTo(u: number, seconds = 3) {
       qaPaused = true;
       resize();

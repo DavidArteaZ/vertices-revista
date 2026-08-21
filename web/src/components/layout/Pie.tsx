@@ -10,9 +10,17 @@ import Link from "next/link";
  * Es exactamente lo que hace el sitio hoy y esta etapa lo preserva; la
  * etapa 4 decidirá si se conecta de verdad.
  */
-export default function Pie() {
+export default function Pie({
+  satelite = false,
+  style,
+}: { satelite?: boolean; style?: React.CSSProperties } = {}) {
   const [suscrito, setSuscrito] = useState(false);
   const [correo, setCorreo] = useState("");
+
+  // igual que en Marco: en satélite las anclas apuntan a la raíz con hash y
+  // no llevan data-u / data-ir (lineamientos.html:674-681)
+  const a = (hash: string) => (satelite ? `/${hash}` : hash);
+  const datos = (d: Record<string, string>) => (satelite ? {} : d);
 
   const enviar = (e: React.FormEvent) => {
     e.preventDefault();
@@ -21,11 +29,11 @@ export default function Pie() {
   };
 
   return (
-    <footer className="pie">
+    <footer className="pie" style={style}>
       <div className="pie-int">
         <div className="pie-rejilla">
           <div className="pie-marca">
-            <a className="marca" href="#" data-u="0">
+            <a className="marca" href={satelite ? "/" : "#"} {...datos({ "data-u": "0" })}>
               <svg className="emblema" viewBox="0 0 40 40" aria-hidden="true">
                 <path d="M20 5 L35 32 L5 32 Z" fill="none" stroke="currentColor" strokeWidth="1.2" />
                 <path d="M20 5 L21.5 22.5 M5 32 L21.5 22.5 M35 32 L21.5 22.5" fill="none" stroke="currentColor" strokeWidth="1.2" opacity="0.55" />
@@ -37,11 +45,13 @@ export default function Pie() {
           <div>
             <h4>Explora</h4>
             <ul>
-              <li><a href="#temas" data-u="0.48">Temas</a></li>
-              <li><a href="#secciones" data-u="0.75">Secciones</a></li>
-              <li><a href="#convocatoria" data-ir="convocatoria">Convocatoria</a></li>
-              <li><a href="#lineamientos" data-ir="lineamientos">Lineamientos</a></li>
-              <li><a href="#estado" data-ir="estado">Estado de tu envío</a></li>
+              <li><a href={a("#temas")} {...datos({ "data-u": "0.48" })}>Temas</a></li>
+              <li><a href={a("#secciones")} {...datos({ "data-u": "0.75" })}>Secciones</a></li>
+              <li><a href={a("#convocatoria")} {...datos({ "data-ir": "convocatoria" })}>Convocatoria</a></li>
+              {satelite
+                ? <li><Link href="/lineamientos">Lineamientos</Link></li>
+                : <li><a href="#lineamientos" data-ir="lineamientos">Lineamientos</a></li>}
+              <li><a href={a("#estado")} {...datos({ "data-ir": "estado" })}>Estado de tu envío</a></li>
             </ul>
           </div>
           <div>

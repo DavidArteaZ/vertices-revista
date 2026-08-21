@@ -1,6 +1,18 @@
 import type { Metadata } from "next";
-import "./globals.css";
 import "./selector-idioma.css";
+
+/**
+ * globals.css NO se importa aquí: es la hoja de la landing y cada página
+ * satélite trae la suya, con sus propios @font-face y reglas de body.
+ *
+ * Cargarla en todas las rutas provoca colisiones de clase que en el sitio
+ * original no existen, porque allí cada página satélite es un documento
+ * autónomo que nunca ve el CSS de la landing. El caso concreto que lo
+ * destapó: globals.css define .cierre como el botón redondo de cerrar el
+ * panel (36x36, border-radius 50%), y lineamientos.html usa .cierre para su
+ * bloque de cierre de página. Al cargar ambas hojas, el bloque quedaba
+ * aplastado a 36px de alto.
+ */
 
 // Emblema de Vértices en línea, igual que en el sitio original (index.html:10)
 const FAVICON =

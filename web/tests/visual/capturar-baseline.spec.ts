@@ -8,6 +8,7 @@ import {
   nombreU,
   PUERTO_LEGADO,
   guionSemilla,
+  guionSinRaf,
 } from "./constantes";
 
 /**
@@ -45,6 +46,7 @@ test.afterAll(() => {
 for (const locale of LOCALES) {
   test(`baseline landing ${locale}`, async ({ page }) => {
     await page.addInitScript(guionSemilla);
+    await page.addInitScript(guionSinRaf);
     await page.goto(`${BASE}/index.html`);
     await page.evaluate((l) => localStorage.setItem("vertices_lang", l), locale);
     await page.reload();
@@ -87,7 +89,12 @@ for (const locale of LOCALES) {
 for (const locale of LOCALES) {
   for (const { legado, nombre } of SATELITES) {
     test(`baseline ${nombre} ${locale}`, async ({ page }) => {
-      // fondo-flujo.js también usa Math.random para sus partículas
+      // fondo-flujo.js también usa Math.random para sus partículas.
+      // Aquí NO se anula rAF: sin bucle, el campo de flujo no alcanza a
+      // dibujar ninguna estela y el fondo saldría crema liso, que no es lo
+      // que muestra el sitio. Estas capturas ya son estables sin anularlo,
+      // porque el velo por cuadro (VELO = 0.002) cambia menos de un paso de
+      // cuantización.
       await page.addInitScript(guionSemilla);
       await page.goto(`${BASE}/${legado}`);
       await page.evaluate((l) => localStorage.setItem("vertices_lang", l), locale);
