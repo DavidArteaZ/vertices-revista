@@ -81,6 +81,46 @@
   `/_next/static/css/`. The minifier also lowercases hex, so `#E7DECB` becomes
   `#e7decb` — greps against compiled output need `-i`.
 
+- **`globals.css` cannot be a global stylesheet.** It defines `.cierre` as the
+  round 36×36 panel-close button; `lineamientos.html` uses `.cierre` for its
+  end-of-page block. The legacy satellite pages are standalone documents that
+  never load the landing's stylesheet, so the collision is impossible there.
+  Loading it from the root layout squashed that block from 88 px to 38 px.
+  `globals.css` now imports from the landing page; each satellite carries its
+  own sheet, `@font-face` and `body` rules included. Worth remembering in
+  Stage 2 and beyond: **any new shared stylesheet risks the same class of
+  bug**, because the legacy pages were never designed to coexist.
+- **The satellite header is not fixed, and that is accidental.**
+  `fondo-flujo.js:9-20` walks `document.body.children` and stamps inline
+  `position:relative; z-index:1` on every sibling — including
+  `header.marco`, whose CSS says `position:fixed`. So on satellite pages the
+  header scrolls away. Almost certainly not intended by the author, but it is
+  the live behaviour and it is in the baselines. Reproduced explicitly through
+  an `EN_FLUJO` style constant rather than by mutating nodes React owns. If the
+  committee ever wants the header to stick on those pages, that is a design
+  change and needs saying out loud.
+- **There is no `.grano` element.** `globals.css` defines the class
+  (`index.html:75`) but the original markup never uses it. The plan said to add
+  one; doing so would have introduced a film-grain overlay the site does not
+  have.
+- **Stubbing `requestAnimationFrame` breaks the port but not the legacy.** It
+  was how the baseline capture stops `autoAng` accumulating. React 19 schedules
+  rendering on rAF, so with it stubbed the canvas component never mounted and
+  `__qa` never appeared — the parity run failed with a 180 s
+  `waitForFunction` timeout, not a pixel diff. The port reaches the same frozen
+  state through a new `__qa.reset()`.
+- **`__qa.reset()` is deliberately not part of `runTo`.** The original *does*
+  accumulate `autoAng` across successive `runTo` calls — each simulates three
+  seconds — and that accumulation has to be reproduced. Resetting inside
+  `runTo` made capture 1 match and every later one drift.
+- **The language pill is injected at runtime**, along with its CSS
+  (`idiomas.js:98-143`), so it is in the golden images and had to be
+  reproduced even though i18n is Stage 2. Its stylesheet is separate so
+  `globals.css` stays a literal copy.
+- **Next 16 emits CSS to `/_next/static/chunks/*.css`**, not
+  `/_next/static/css/`, and the minifier lowercases hex — grep compiled output
+  case-insensitively.
+
 ## Deferred / follow-ups
 
 - Baselines for the five non-Spanish locales are captured but not asserted
@@ -93,4 +133,14 @@
 
 ## Open questions for review
 
-- None yet.
+- **The language pill is a working-looking control that does nothing.** It has
+  to render to match pixels, and its `<select>` defines the pill's hit area and
+  size, so removing it would change the geometry. Stage 2 wires it up. If that
+  bothers you before then, the alternative is disabling the `<select>`, which
+  costs nothing visually but changes the cursor.
+- **The satellite header not sticking** (above) is preserved because it is
+  current behaviour. Say the word if it should be fixed instead — it is a
+  one-line change, but it is a design decision, not a port decision.
+- **Stage 2 must re-run the visual suite for the other five locales.** The
+  baselines exist; only the assertion is deferred. Do not regenerate them
+  against the new app.
