@@ -120,7 +120,10 @@
     "folio_vtx_2026_001": "Fólio (VTX-2026-001)",
     "folio": "Fólio",
     "correo_registrado": "E-mail registrado",
-    "consultar": "Consultar"
+    "consultar": "Consultar",
+    "en_revision": "Em avaliação",
+    "decision_del_comite": "Decisión del comité",
+    "recibido_el_f": "Recibido el {f}"
   },
   "panelarticulos": {
     "cerrar_panel": "Fechar painel",
@@ -145,11 +148,9 @@
     "envio_registrado": "Envio registrado",
     "gracias_por_confiar_en_vertices": "Obrigado por confiar na Vértices",
     "tu_manuscrito_quedo_registrado_con_el_folio": "Seu manuscrito foi registrado com o fólio",
-    "vtx_2026_000": "VTX-2026-000",
     "guardalo_con_el_y_tu_correo_puedes_consultar_el_e92d": ". Guarde-o: com ele e seu e-mail você pode consultar o andamento em",
     "estado_de_tu_envio": "Status do seu envio",
     "tu_pieza_entrara_al_proceso_de_dictaminacion_de_79ea": ". Sua peça entrará no processo de avaliação da sua seção e o comitê editorial escreverá para o e-mail registrado.",
-    "el_registro_todavia_no_esta_conectado_esta_panta_558b": "El registro todavía no está conectado: esta pantalla es sólo la interfaz.",
     "titulo": "Título",
     "autoria": "Autoria",
     "formato": "Formato",
@@ -181,11 +182,6 @@
     "titulo_del_trabajo": "Título do trabalho *",
     "formato_de_la_pieza": "Formato da peça *",
     "elige_un_formato": "Escolha um formato",
-    "paper_o_abstract_de_investigacion": "Paper ou resumo de pesquisa",
-    "articulo_con_datos_o_visualizacion": "Artigo com dados ou visualização",
-    "entrevista_o_articulo_de_opinion_verificado": "Entrevista ou opinião verificada",
-    "capsula_breve": "Cápsula breve",
-    "otro_formato": "Outro formato",
     "seccion_sugerida": "Seção sugerida *",
     "elige_una_seccion": "Escolha uma seção",
     "aun_no_lo_decido": "Aún no lo decido",
@@ -217,7 +213,19 @@
     "paso_archivos": "Arquivos",
     "paso_declaracion": "Declaração",
     "contador_singular": "{n} palavra · pedem-se entre 100 e 300",
-    "contador_plural": "{n} palavras · pedem-se entre 100 e 300"
+    "contador_plural": "{n} palavras · pedem-se entre 100 e 300",
+    "tipo_paper_investigacion": "Paper/Investigación",
+    "tipo_articulo": "Artículo",
+    "tipo_nota": "Nota",
+    "tipo_entrevista": "Entrevista",
+    "tipo_visualizacion": "Visualización",
+    "tipo_infografia": "Infografía",
+    "tipo_capsula": "Cápsula",
+    "tipo_cronica": "Crónica",
+    "tipo_resena": "Reseña",
+    "subiendo_archivos": "Subiendo archivos…",
+    "registrando_envio": "Registrando tu envío…",
+    "te_escribimos_un_acuse_a_tu_correo": "Te enviamos un acuse a tu correo con el folio y el enlace de consulta."
   },
   "avisos": {
     "escribe_tu_nombre_completo": "Escreva seu nome completo.",
@@ -238,7 +246,15 @@
     "a_pesa_mas_de_20_mb": "\"{a}\" pesa mais de 20 MB.",
     "escribe_tu_folio_completo_por_ejemplo_vtx_2026_0_b793": "Escreva seu fólio completo, por exemplo VTX-2026-001.",
     "escribe_el_correo_con_el_que_registraste_tu_piez_29f8": "Escreva o e-mail com o qual registrou sua peça.",
-    "consultando": "Consultando…"
+    "consultando": "Consultando…",
+    "no_pudimos_registrar_tu_envio": "No pudimos registrar tu envío. No se ha perdido nada de lo que escribiste: vuelve a intentarlo en un momento.",
+    "no_pudimos_subir_a": "No pudimos subir \"{a}\". Vuelve a intentarlo.",
+    "demasiados_intentos": "Demasiados intentos desde esta conexión. Espera unos minutos y vuelve a intentarlo.",
+    "a_no_es_un_pdf_ni_un_documento_de_word": "\"{a}\" no es un .pdf ni un documento de Word por dentro, aunque lo parezca por el nombre.",
+    "entre_todos_los_archivos_se_pasan_de_50_mb": "Entre todos los archivos se pasan de 50 MB.",
+    "puedes_adjuntar_como_maximo_5_archivos": "Puedes adjuntar como máximo 5 archivos.",
+    "no_encontramos_esa_combinacion_de_folio_y_correo": "No encontramos esa combinación de folio y correo.",
+    "no_pudimos_consultar_ahora": "No pudimos consultar ahora mismo. Inténtalo de nuevo."
   },
   "temas": {
     "macroeconomia": "Macroeconomia",
@@ -533,5 +549,15 @@
     "pagina_en_construccion_aqui_viviran_los_siete_eq_5d60": "Página em construção. Aqui viverão as sete equipes que fazem a revista: Direção Geral, Comitê Editorial, Conteúdo e Alianças, Produção, Design, Comunicação e Difusão, e Fotografia e Arquivo.",
     "regresar": "← Voltar",
     "titulo_documento": "Conheça a equipe · Vértices"
+  },
+  "correo": {
+    "asunto_acuse": "Recibimos tu manuscrito — {folio}",
+    "hola_nombre": "Hola {nombre}:",
+    "registramos_tu_manuscrito_titulo": "Registramos tu manuscrito «{titulo}» en Revista Vértices.",
+    "tu_folio_es_folio": "Tu folio es {folio}. Guárdalo: con él y con este correo puedes consultar en qué etapa va tu pieza.",
+    "entra_a_dictaminacion": "Tu pieza entra ahora al proceso de dictaminación a doble ciego. Te escribiremos en cuanto el comité registre una decisión.",
+    "consultar_el_estado": "Consultar el estado de mi envío",
+    "firma": "Revista Vértices",
+    "no_respondas_a_este_correo": "Este mensaje es automático; para cualquier duda responde al correo del comité editorial."
   }
 }

@@ -1,43 +1,98 @@
 "use client";
 
 import { useState } from "react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { CORREO } from "@/lib/validacion";
 
 /**
  * Buscador de estado de pieza. Marcado de index.html:900-909,
  * validación de :2298-2313.
  *
- * Sólo valida: no hay consulta hasta la etapa 4.
+ * El regex del folio es correcto y quien discrepa es el libro de Excel, que
+ * genera VTX-001 en vez de VTX-2026-001 (defecto 1 de la spec). No relajarlo
+ * para acomodarlo: lo que se corrigió fue el generador de folios.
  *
- * Nota para quien conecte la API: el regex del folio es correcto y quien
- * discrepa es el libro de Excel, que genera VTX-001 en vez de VTX-2026-001
- * (defecto 1 de la spec). No relajar esta validación para acomodarlo.
+ * Lo que se muestra es la decisión GRABADA por el comité, o "en revisión". No
+ * la que sugiere el motor de dictamen — hoy el libro filtra al autor la
+ * decisión vigente, de modo que en cuanto un dictaminador califica una sola
+ * dimensión el estado público puede saltar a "No publicable (falla puerta ★)"
+ * (spec §10).
  */
 
 const FOLIO = /^VTX-\d{4}-\d{1,4}$/;
 
+type Consulta =
+  | { tipo: "aviso"; clave: string; err: boolean }
+  | { tipo: "resultado"; folio: string; titulo: string; recibido: string; decision: string | null };
+
 export default function EstadoEnvio() {
   const t = useTranslations("estadoenvio");
   const tAviso = useTranslations("avisos");
+  const locale = useLocale();
   const [folio, setFolio] = useState("");
   const [correo, setCorreo] = useState("");
-  const [res, setRes] = useState<{ clave: string | null; err: boolean }>({ clave: null, err: false });
+  const [res, setRes] = useState<Consulta | null>(null);
+  const [cargando, setCargando] = useState(false);
 
-  function consultar(e: React.FormEvent) {
+  async function consultar(e: React.FormEvent) {
     e.preventDefault();
+    if (cargando) return;
+
     const f = folio.trim().toUpperCase();
     const c = correo.trim().toLowerCase();
     if (!FOLIO.test(f)) {
-      setRes({ clave: "escribe_tu_folio_completo_por_ejemplo_vtx_2026_0_b793", err: true });
+      setRes({ tipo: "aviso", clave: "escribe_tu_folio_completo_por_ejemplo_vtx_2026_0_b793", err: true });
       return;
     }
     if (!CORREO.test(c)) {
-      setRes({ clave: "escribe_el_correo_con_el_que_registraste_tu_piez_29f8", err: true });
+      setRes({ tipo: "aviso", clave: "escribe_el_correo_con_el_que_registraste_tu_piez_29f8", err: true });
       return;
     }
-    setRes({ clave: "consultando", err: false });
+
+    setCargando(true);
+    setRes({ tipo: "aviso", clave: "consultando", err: false });
+
+    try {
+      const r = await fetch("/api/estado", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ folio: f, correo: c }),
+      });
+      const cuerpo = (await r.json()) as {
+        estado: string;
+        folio?: string;
+        titulo?: string;
+        recibido_at?: string;
+        decision?: string | null;
+      };
+
+      if (cuerpo.estado === "ok" && cuerpo.folio) {
+        setRes({
+          tipo: "resultado",
+          folio: cuerpo.folio,
+          titulo: cuerpo.titulo ?? "",
+          recibido: new Date(cuerpo.recibido_at ?? "").toLocaleDateString(locale, {
+            year: "numeric", month: "long", day: "numeric",
+          }),
+          decision: cuerpo.decision ?? null,
+        });
+      } else if (cuerpo.estado === "limite") {
+        setRes({ tipo: "aviso", clave: "demasiados_intentos", err: true });
+      } else if (cuerpo.estado === "no_coincide") {
+        // Mismo mensaje que si el folio no existiera: la consulta pública no
+        // debe servir para averiguar qué dirección envió qué (spec §13).
+        setRes({ tipo: "aviso", clave: "no_encontramos_esa_combinacion_de_folio_y_correo", err: true });
+      } else {
+        setRes({ tipo: "aviso", clave: "no_pudimos_consultar_ahora", err: true });
+      }
+    } catch {
+      setRes({ tipo: "aviso", clave: "no_pudimos_consultar_ahora", err: true });
+    } finally {
+      setCargando(false);
+    }
   }
+
+  const erroneo = res?.tipo === "aviso" && res.err;
 
   return (
     <div id="estado" className="estado-bloque">
@@ -61,10 +116,21 @@ export default function EstadoEnvio() {
           value={correo}
           onChange={(e) => setCorreo(e.target.value)}
         />
-        <button className="boton" type="submit">{t("consultar")}</button>
+        <button className="boton" type="submit" disabled={cargando}>{t("consultar")}</button>
       </form>
-      <div className={`estado-res${res.err ? " err" : ""}`} id="estadoRes" aria-live="polite">
-        {res.clave ? tAviso(res.clave) : ""}
+      <div className={`estado-res${erroneo ? " err" : ""}`} id="estadoRes" aria-live="polite">
+        {res?.tipo === "aviso" && tAviso(res.clave)}
+        {res?.tipo === "resultado" && (
+          <>
+            <strong>{res.folio}</strong> — {res.titulo}
+            <br />
+            {t("recibido_el_f", { f: res.recibido })}
+            <br />
+            {res.decision
+              ? `${t("decision_del_comite")}: ${res.decision}`
+              : t("en_revision")}
+          </>
+        )}
       </div>
     </div>
   );

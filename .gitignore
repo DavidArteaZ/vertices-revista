@@ -7,3 +7,9 @@ Vertices_BaseDatos_Editorial.xlsx
 
 # Skills instaladas por `npx skills add` — se reinstalan con ese mismo comando
 .agents/
+
+# Secretos. web/.gitignore ya ignora .env*, pero la raíz no lo hacía y aquí
+# viven SUPABASE_SERVICE_ROLE_KEY y RESEND_API_KEY. El ejemplo sí se versiona.
+.env
+.env.*
+!.env.example

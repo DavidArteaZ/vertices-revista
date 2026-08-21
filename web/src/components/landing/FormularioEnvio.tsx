@@ -1,15 +1,18 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useCatalogo } from "@/i18n/catalogo";
 import { SECTIONS } from "@/lib/datos/secciones";
 import { TOPICS } from "@/lib/datos/temas";
+import { TIPOS_PIEZA } from "@/lib/datos/tipos";
+import { enviarManuscrito, esError, type Progreso } from "@/lib/cliente/enviar";
 import {
   validarPaso,
   vacio,
   pesoTexto,
   EXT_OK,
+  MAX_ARCHIVOS,
   MAX_BYTES,
   AVISO,
   type Aviso,
@@ -20,10 +23,10 @@ import {
  * Asistente de envío de manuscritos, 4 pasos.
  * Marcado de index.html:717-863, comportamiento de :2037-2265.
  *
- * En esta etapa no hay backend: el envío no viaja a ninguna parte. Lo que NO
- * se porta es el respaldo que inventa un folio y muestra éxito cuando el
- * registro falla (index.html:2172-2175): es el defecto 3 de la spec y se
- * elimina, no se arrastra.
+ * Lo que NO se porta es el respaldo que inventa un folio y muestra éxito
+ * cuando el registro falla (index.html:2172-2175): es el defecto 3 de la spec
+ * y se elimina, no se arrastra. Si el registro falla, se muestra el error y el
+ * formulario conserva lo escrito, que es justo lo que hoy no pasa.
  */
 
 /** Rótulos de los cuatro pasos, en el orden de index.html:719-724. */
@@ -32,12 +35,14 @@ const PASOS = ["autoria", "manuscrito", "archivos", "declaracion"] as const;
 export default function FormularioEnvio() {
   const t = useTranslations("formularioenvio");
   const tAviso = useTranslations("avisos");
+  const locale = useLocale();
   const { tema, seccion } = useCatalogo();
   const [paso, setPaso] = useState(0);
   const [datos, setDatos] = useState<DatosEnvio>(vacio);
   const [archivos, setArchivos] = useState<File[]>([]);
   const [error, setError] = useState<Aviso | null>(null);
-  const [enviado, setEnviado] = useState(false);
+  const [folio, setFolio] = useState<string | null>(null);
+  const [enviando, setEnviando] = useState<Progreso | null>(null);
   const [sobre, setSobre] = useState(false);
   const input = useRef<HTMLInputElement>(null);
 
@@ -61,15 +66,28 @@ export default function FormularioEnvio() {
       if (!siguientes.some((x) => x.name === f.name && x.size === f.size)) siguientes.push(f);
       err = null;
     }
+    if (siguientes.length > MAX_ARCHIVOS) {
+      setError({ clave: "puedes_adjuntar_como_maximo_5_archivos" });
+      return;
+    }
     setArchivos(siguientes);
     setError(err);
   }
 
-  function continuar() {
+  async function continuar() {
+    if (enviando) return;
     const err = validarPaso(paso, datos, archivos);
     if (err) { setError(err); return; }
     if (paso < 3) { setPaso(paso + 1); setError(null); return; }
-    setEnviado(true);
+
+    setError(null);
+    const resultado = await enviarManuscrito(datos, archivos, locale, setEnviando);
+    setEnviando(null);
+
+    // Nada de folios inventados: si no volvió uno, esto no fue un envío. Los
+    // datos y los archivos se quedan donde están para poder reintentar.
+    if (esError(resultado)) { setError(resultado.error); return; }
+    setFolio(resultado.folio);
   }
 
   function otroEnvio() {
@@ -77,16 +95,16 @@ export default function FormularioEnvio() {
     setArchivos([]);
     setPaso(0);
     setError(null);
-    setEnviado(false);
+    setFolio(null);
   }
 
-  if (enviado) {
+  if (folio) {
     return (
       <div id="confirmacion">
         <p className="ceja">{t("envio_registrado")}</p>
         <h3>{t("gracias_por_confiar_en_vertices")}</h3>
-        <p>{t("tu_manuscrito_quedo_registrado_con_el_folio")}{" "}<strong id="folio">{t("vtx_2026_000")}</strong>{t("guardalo_con_el_y_tu_correo_puedes_consultar_el_e92d")}{" "}<a href="#estado" data-ir="estado">{t("estado_de_tu_envio")}</a>{t("tu_pieza_entrara_al_proceso_de_dictaminacion_de_79ea")}</p>
-        <p className="ayuda">{t("el_registro_todavia_no_esta_conectado_esta_panta_558b")}</p>
+        <p>{t("tu_manuscrito_quedo_registrado_con_el_folio")}{" "}<strong id="folio">{folio}</strong>{t("guardalo_con_el_y_tu_correo_puedes_consultar_el_e92d")}{" "}<a href="#estado" data-ir="estado">{t("estado_de_tu_envio")}</a>{t("tu_pieza_entrara_al_proceso_de_dictaminacion_de_79ea")}</p>
+        <p className="ayuda">{t("te_escribimos_un_acuse_a_tu_correo")}</p>
         <dl>
           <dt>{t("titulo")}</dt><dd id="resTitulo">{datos.titulo}</dd>
           <dt>{t("autoria")}</dt><dd id="resAutor">{datos.nombre}{datos.coautores ? `, ${datos.coautores}` : ""}</dd>
@@ -169,11 +187,13 @@ export default function FormularioEnvio() {
           <label htmlFor="formato">{t("formato_de_la_pieza")}</label>
           <select id="formato" name="formato" value={datos.formato} onChange={(e) => set("formato", e.target.value)}>
             <option value="">{t("elige_un_formato")}</option>
-            <option value="Paper o abstract de investigación">{t("paper_o_abstract_de_investigacion")}</option>
-            <option value="Artículo con datos o visualización">{t("articulo_con_datos_o_visualizacion")}</option>
-            <option value="Entrevista o artículo de opinión verificado">{t("entrevista_o_articulo_de_opinion_verificado")}</option>
-            <option value="Cápsula breve">{t("capsula_breve")}</option>
-            <option value="Otro formato">{t("otro_formato")}</option>
+            {/* Los nueve tipos canónicos del catálogo, en lugar de las cinco
+                opciones que no cruzaban con nada (spec §8). El value sigue en
+                español en los seis idiomas: es lo que el servidor resuelve
+                contra public.tipos_pieza. */}
+            {TIPOS_PIEZA.map((x) => (
+              <option key={x.nombre} value={x.nombre}>{t(x.clave)}</option>
+            ))}
           </select>
         </div>
         <div className="fila2 campo">
@@ -272,9 +292,13 @@ export default function FormularioEnvio() {
 
       <p id="formError" role="alert">{error ? tAviso(error.clave, error.valores) : ""}</p>
       <div className="wiz-acciones">
-        <button type="button" className="boton" id="atras" disabled={paso === 0} onClick={() => { if (paso > 0) { setPaso(paso - 1); setError(null); } }}>{t("regresar")}</button>
-        <button type="button" className="boton boton--lleno" id="continuar" onClick={continuar}>
-          {paso === 3 ? "Enviar manuscrito" : "Continuar"}
+        <button type="button" className="boton" id="atras" disabled={paso === 0 || !!enviando} onClick={() => { if (paso > 0) { setPaso(paso - 1); setError(null); } }}>{t("regresar")}</button>
+        <button type="button" className="boton boton--lleno" id="continuar" disabled={!!enviando} onClick={continuar}>
+          {enviando === "subiendo"
+            ? t("subiendo_archivos")
+            : enviando === "registrando"
+              ? t("registrando_envio")
+              : paso === 3 ? "Enviar manuscrito" : "Continuar"}
         </button>
       </div>
     </form>

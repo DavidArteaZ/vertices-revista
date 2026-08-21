@@ -109,3 +109,26 @@ export function pesoTexto(b: number): string {
 
 export const EXT_OK = /\.(pdf|docx?)$/i;
 export const MAX_BYTES = 20 * 1048576;
+
+/**
+ * Topes que el sitio actual no tiene porque el archivo viajaba dentro del POST
+ * y el límite lo ponía el tamaño de la petición. Ahora la subida va directa a
+ * Storage, así que si nadie los escribe no existen (spec §8).
+ */
+export const MAX_ARCHIVOS = 5;
+export const MAX_BYTES_TOTAL = 50 * 1048576;
+
+/**
+ * Los cuatro pasos de una vez. El asistente valida uno a uno según avanza; el
+ * servidor no ve pasos, ve un cuerpo JSON que puede venir de cualquier sitio,
+ * y tiene que aplicar exactamente las mismas reglas.
+ */
+export function validarEnvio(d: DatosEnvio, archivos: ArchivoLike[]): Aviso | null {
+  for (let i = 0; i < 4; i++) {
+    const aviso = validarPaso(i, d, archivos);
+    if (aviso) return aviso;
+  }
+  if (archivos.length > MAX_ARCHIVOS) return { clave: AVISO.archivos };
+  if (archivos.reduce((s, a) => s + a.size, 0) > MAX_BYTES_TOTAL) return { clave: AVISO.archivos };
+  return null;
+}

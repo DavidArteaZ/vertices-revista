@@ -23,6 +23,13 @@ export const PARAMETRIZADOS = {
   "avisos.a_pesa_mas_de_20_mb": ["a"],
   "formularioenvio.contador_singular": ["n"],
   "formularioenvio.contador_plural": ["n"],
+  "avisos.no_pudimos_subir_a": ["a"],
+  "avisos.a_no_es_un_pdf_ni_un_documento_de_word": ["a"],
+  "estadoenvio.recibido_el_f": ["f"],
+  "correo.asunto_acuse": ["folio"],
+  "correo.hola_nombre": ["nombre"],
+  "correo.registramos_tu_manuscrito_titulo": ["titulo"],
+  "correo.tu_folio_es_folio": ["folio"],
 };
 
 export function verificaParametros(claves) {
