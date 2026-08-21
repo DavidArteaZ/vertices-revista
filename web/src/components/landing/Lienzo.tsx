@@ -1,7 +1,9 @@
 "use client";
 
 import { useEffect, useRef, type ReactNode } from "react";
+import { useTranslations } from "next-intl";
 import { crearMotor, type Motor, type TipoNodo } from "@/lib/motor/motor";
+import { useCatalogo } from "@/i18n/catalogo";
 
 /**
  * Anfitrión del motor de partículas.
@@ -21,11 +23,13 @@ export default function Lienzo({
   onVerIndice,
   carrusel,
 }: {
-  onAbrirPanel: (tipo: TipoNodo, label: string) => void;
+  onAbrirPanel: (tipo: TipoNodo, label: string, label0: string) => void;
   onCerrarPanel: () => void;
   onVerIndice: () => void;
   carrusel: ReactNode;
 }) {
+  const t = useTranslations("lienzo");
+  const { traducir } = useCatalogo();
   const canvas = useRef<HTMLCanvasElement>(null);
   const recorrido = useRef<HTMLDivElement>(null);
   const velo = useRef<HTMLDivElement>(null);
@@ -38,12 +42,18 @@ export default function Lienzo({
   const fsDesc = useRef<HTMLParagraphElement>(null);
   const riel = useRef<HTMLElement>(null);
 
-  // el callback puede cambiar de identidad entre renders; el motor se monta
-  // una sola vez, así que lo lee por referencia
+  // Los callbacks y el diccionario cambian de identidad entre renders; el
+  // motor se monta una sola vez, así que los lee por referencia. La escritura
+  // va dentro de un efecto: hacerla durante el render es un efecto secundario
+  // y rompe con el render concurrente.
   const abrir = useRef(onAbrirPanel);
-  abrir.current = onAbrirPanel;
   const cerrar = useRef(onCerrarPanel);
-  cerrar.current = onCerrarPanel;
+  const tr = useRef(traducir);
+  useEffect(() => {
+    abrir.current = onAbrirPanel;
+    cerrar.current = onCerrarPanel;
+    tr.current = traducir;
+  });
 
   useEffect(() => {
     let motor: Motor | undefined;
@@ -70,7 +80,8 @@ export default function Lienzo({
           desc: fsDesc.current!,
         },
         rielBotones: Array.from(riel.current!.querySelectorAll("button")),
-        alAbrirPanel: (t, l) => abrir.current(t, l),
+        traducir: (es) => tr.current(es),
+        alAbrirPanel: (tipo, label, label0) => abrir.current(tipo, label, label0),
         alCerrarPanel: () => cerrar.current(),
       });
     });
@@ -87,24 +98,22 @@ export default function Lienzo({
       <div className="vineta" aria-hidden="true"></div>
       <div id="velo" ref={velo} aria-hidden="true"></div>
 
-      <nav className="riel" ref={riel} aria-label="Progreso del recorrido">
-        <button data-u="0" className="activo"><i></i><span>Vértices</span></button>
-        <button data-u="0.48"><i></i><span>Temas</span></button>
-        <button data-u="0.75"><i></i><span>Secciones</span></button>
-        <button data-ir="convocatoria"><i></i><span>Publica</span></button>
+      <nav className="riel" ref={riel} aria-label={t("progreso_del_recorrido")}>
+        <button data-u="0" className="activo"><i></i><span>{t("vertices")}</span></button>
+        <button data-u="0.48"><i></i><span>{t("temas")}</span></button>
+        <button data-u="0.75"><i></i><span>{t("secciones")}</span></button>
+        <button data-ir="convocatoria"><i></i><span>{t("publica")}</span></button>
       </nav>
 
       {/* capa 1: hero (el lienzo dibuja la palabra al centro; aqui solo margenes) */}
       <div className="capa" id="capaHero" ref={hero}>
-        <div className="pista" aria-hidden="true"><i></i>Desplázate para explorar</div>
+        <div className="pista" aria-hidden="true"><i></i>{t("desplazate_para_explorar")}</div>
         <div className="hero-abajo">
-          <p className="hero-etq">
-            Revista académica de economía
-            <span>Tecnológico de Monterrey · Campus Ciudad de México</span>
+          <p className="hero-etq">{t("revista_academica_de_economia")}<span>{t("tecnologico_de_monterrey_campus_ciudad_de_mexico")}</span>
           </p>
           <div className="hero-edicion">
-            <p>Edición inaugural · 2026</p>
-            <a className="boton" href="#convocatoria" data-ir="convocatoria">Convocatoria abierta</a>
+            <p>{t("edicion_inaugural_2026")}</p>
+            <a className="boton" href="#convocatoria" data-ir="convocatoria">{t("convocatoria_abierta")}</a>
           </div>
         </div>
       </div>
@@ -112,20 +121,20 @@ export default function Lienzo({
       {/* capa 2: constelacion de temas */}
       <div className="capa" id="capaTemas" ref={temas}>
         <div className="temas-bloque">
-          <p className="ceja">Constelación de conocimiento</p>
-          <h2 className="titulo">Explora por <em>tema</em></h2>
-          <p className="bajada">Veintisiete áreas de la economía, un nodo por tema. Haz clic en cualquier nodo para descubrir los artículos que orbitan a su alrededor.</p>
-          <button className="boton" id="verIndice" type="button" onClick={onVerIndice}>Ver índice completo</button>
+          <p className="ceja">{t("constelacion_de_conocimiento")}</p>
+          <h2 className="titulo">{t("explora_por")}{" "}<em>{t("tema")}</em></h2>
+          <p className="bajada">{t("veintisiete_areas_de_la_economia_un_nodo_por_tem_a6a3")}</p>
+          <button className="boton" id="verIndice" type="button" onClick={onVerIndice}>{t("ver_indice_completo")}</button>
         </div>
-        <p className="temas-pie">Arrastra para girar la red<br />Haz clic en un nodo para abrirlo</p>
+        <p className="temas-pie">{t("arrastra_para_girar_la_red")}<br />{t("haz_clic_en_un_nodo_para_abrirlo")}</p>
       </div>
 
       {/* capa 3: mapa de secciones */}
       <div className="capa" id="capaSecciones" ref={secciones}>
         <div className="secciones-bloque">
-          <p className="ceja">El mapa de la revista</p>
-          <h2 className="titulo">Ocho secciones, un solo <em>recorrido</em></h2>
-          <p className="bajada">De la carta editorial al cierre en comunidad. Pasa el cursor por un nodo para conocer su sección y haz clic para ver sus artículos.</p>
+          <p className="ceja">{t("el_mapa_de_la_revista")}</p>
+          <h2 className="titulo">{t("ocho_secciones_un_solo")}{" "}<em>{t("recorrido")}</em></h2>
+          <p className="bajada">{t("de_la_carta_editorial_al_cierre_en_comunidad_pas_7503")}</p>
         </div>
         {carrusel}
       </div>
@@ -139,10 +148,10 @@ export default function Lienzo({
       {/* capa 4: cierre del recorrido e invitacion a publicar */}
       <div className="capa" id="capaCierre" ref={cierre}>
         <div className="cierre-bloque">
-          <h2 className="titulo">¿Tienes una idea que merece <em>publicarse</em>?</h2>
+          <h2 className="titulo">{t("tienes_una_idea_que_merece")}{" "}<em>{t("publicarse")}</em>?</h2>
           <div className="cierre-acciones">
-            <a className="boton boton--lleno" href="#envio" data-ir="envio">Publica tu artículo</a>
-            <a className="boton" href="#convocatoria" data-ir="convocatoria">Conoce el proceso</a>
+            <a className="boton boton--lleno" href="#envio" data-ir="envio">{t("publica_tu_articulo")}</a>
+            <a className="boton" href="#convocatoria" data-ir="convocatoria">{t("conoce_el_proceso")}</a>
           </div>
         </div>
       </div>

@@ -20,7 +20,7 @@
 
 import { clamp } from "../texto";
 import { SECTIONS } from "../datos/secciones";
-import { PH, ss, phaseParams } from "./fases";
+import { ss, phaseParams } from "./fases";
 import {
   project,
   edgeCtrl3D,
@@ -39,8 +39,6 @@ import {
   PALETA_CSS,
   PALETA_NODOS,
   type Grafo,
-  type Nodo,
-  type Arista,
 } from "./grafo";
 
 export type TipoNodo = "tema" | "seccion";
@@ -58,11 +56,26 @@ export type MotorOpciones = {
   velo: HTMLElement;
   ficha: { raiz: HTMLElement; nombre: HTMLElement; desc: HTMLElement };
   rielBotones: HTMLElement[];
-  alAbrirPanel: (tipo: TipoNodo, label: string) => void;
+  /**
+   * Traduce un literal español al idioma en curso, o lo devuelve tal cual si
+   * no hay traducción. Es la misma forma que TR() en el original, que
+   * consultaba window.__dicc (index.html:1933 y idiomas.js:63).
+   */
+  traducir?: (espanol: string) => string;
+  /**
+   * `label` es lo que se muestra, ya traducido; `label0` es el literal español
+   * con el que están indexados los datos. El original pasa sólo el traducido
+   * (index.html:1920) y por eso, fuera de español, articulosDe() no empareja
+   * nada y todo tema sale vacío. Aquí van los dos.
+   */
+  alAbrirPanel: (tipo: TipoNodo, label: string, label0: string) => void;
   alCerrarPanel: () => void;
 };
 
 export type Motor = { destruir: () => void };
+
+/** El subtítulo que el lienzo dibuja bajo la palabra (index.html:2354). */
+export const SUBTITULO_ES = "El punto donde las ideas se conectan";
 
 type Particula = {
   x: number; y: number; vx: number; vy: number;
@@ -78,7 +91,7 @@ type Campo = {
   speed: number; gray: number; seed: number;
 };
 
-type Hover = { tipo: TipoNodo; label: string } | null;
+type Hover = { tipo: TipoNodo; label: string; label0: string } | null;
 
 export function crearMotor(o: MotorOpciones): Motor {
   const WORD = "Vértices";
@@ -110,9 +123,15 @@ export function crearMotor(o: MotorOpciones): Motor {
   let tcs = Math.cos(0.38), tsn = Math.sin(0.38);
   let angNet = 0, angSec = 0; // angulos del cuadro actual, para hit-test
 
-  // en esta etapa no hay diccionario: TR es la identidad
-  const TR = (s: string): string => s;
-  let SUBTITULO = "El punto donde las ideas se conectan";
+  const TR = o.traducir ?? ((s: string): string => s);
+  let SUBTITULO = TR(SUBTITULO_ES);
+
+  /** label0/desc0 guardan el español; label/desc son lo que se dibuja. */
+  function traduceEtiquetas() {
+    SUBTITULO = TR(SUBTITULO_ES);
+    net?.nodes.forEach((n) => { n.label = TR(n.label0); });
+    sec?.nodes.forEach((n) => { n.label = TR(n.label0); if (n.desc0) n.desc = TR(n.desc0); });
+  }
 
   // La vista viaja a project() como tercer argumento. El envoltorio conserva
   // la firma original para no tocar ningún sitio de llamada.
@@ -262,6 +281,7 @@ function buildParticles() {
 
   net = buildNetwork();
   sec = buildSections();
+  traduceEtiquetas();
   const wts = sec.nodes.map((n) => n.imp * n.imp);
   const wsum = wts.reduce((a, b) => a + b, 0);
   const pickSec = () => {
@@ -477,7 +497,7 @@ function drawNet(g: Grafo, amp: number, ang: number, tSec: number, isSections: b
     const isHover = !hover && amp > 0.5 &&
       (mx - q.x) ** 2 + (my - q.y) ** 2 < (r + 12) ** 2;
     if (isHover) {
-      hover = { tipo: isSections ? "seccion" : "tema", label: n.label };
+      hover = { tipo: isSections ? "seccion" : "tema", label: n.label, label0: n.label0 };
       r *= 1.45;
     }
 
@@ -698,7 +718,7 @@ function pickAt(x: number, y: number): Hover {
     for (const n of c.g.nodes) {
       const q = proyecta(n, c.ang, c.xs, c.yOff, c.esc, c.xOff);
       const r = 8.5 * q.s * n.imp + 14;
-      if ((x - q.x) ** 2 + (y - q.y) ** 2 < r * r) return { tipo: c.tipo, label: n.label };
+      if ((x - q.x) ** 2 + (y - q.y) ** 2 < r * r) return { tipo: c.tipo, label: n.label, label0: n.label0 };
     }
   }
   return null;
@@ -738,7 +758,7 @@ function pickAt(x: number, y: number): Hover {
   escuchar(canvas, "click", ((ev: MouseEvent) => {
     if (dragMoved > 6) { dragMoved = 0; return; }
     const h = hover || pickAt(ev.clientX, ev.clientY);
-    if (h) o.alAbrirPanel(h.tipo, h.label);
+    if (h) o.alAbrirPanel(h.tipo, h.label, h.label0);
   }) as EventListener);
 
   /* ------- navegacion por scroll (marco, riel, botones) ------- */
@@ -759,20 +779,17 @@ function pickAt(x: number, y: number): Hover {
     else irA(b.dataset.ir!);
   }) as EventListener);
 
-  /* ------- gancho de idioma: etiquetas del canvas y subtitulo ------- */
-  const alCambiarIdioma = () => {
-    SUBTITULO = TR("El punto donde las ideas se conectan");
-    if (net) net.nodes.forEach((n) => { if (n.label0) n.label = TR(n.label0); });
-    if (sec) sec.nodes.forEach((n) => {
-      if (n.label0) { n.label = TR(n.label0); n.desc = TR(n.desc0!); }
-    });
-  };
-  (window as unknown as { __alCambiarIdioma?: () => void }).__alCambiarIdioma =
-    alCambiarIdioma;
-
   /* ------- arranque ------- */
 
   resize();
+  // El original traduce las etiquetas dentro de buildNetwork/buildSections
+  // (index.html:1261 y :1302) y vuelve a hacerlo desde __alCambiarIdioma
+  // cuando idiomas.js cambia de idioma en caliente. Aquí el idioma es la URL
+  // y una página nunca cambia de idioma sin volver a montar, así que basta
+  // con traducir una vez después de construir los grafos. Se hace fuera de
+  // buildNetwork para no alterar el orden en que consume Math.random, que es
+  // lo que la compuerta visual compara contra el sitio legado.
+  traduceEtiquetas();
   uSmooth = scrollU(); // si la pagina carga a mitad del recorrido, sin carreras
   rafId = requestAnimationFrame(frame);
   // re-muestrear la palabra cuando las tipografias web ya cargaron
@@ -832,12 +849,10 @@ function pickAt(x: number, y: number): Hover {
       destino.removeEventListener(tipo, fn);
     }
     oyentes.length = 0;
-    const w = window as unknown as {
-      __qa?: unknown;
-      __alCambiarIdioma?: unknown;
-    };
+    // __alCambiarIdioma ya no se publica: idiomas.js lo llamaba para
+    // reescribir el DOM al vuelo, y aquí el idioma viaja en la URL.
+    const w = window as unknown as { __qa?: unknown };
     if (w.__qa === qa) delete w.__qa;
-    if (w.__alCambiarIdioma === alCambiarIdioma) delete w.__alCambiarIdioma;
   }
 
   return { destruir };

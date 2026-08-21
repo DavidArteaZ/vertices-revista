@@ -119,6 +119,8 @@ export default function FondoFlujo() {
       raf = requestAnimationFrame(ciclo);
     }
 
+    let primerArranque = true;
+
     function arranca() {
       cancelAnimationFrame(raf);
       // Gancho de QA, del mismo tipo que window.__qa del motor (spec §4.1).
@@ -131,7 +133,16 @@ export default function FondoFlujo() {
       // dentro de un efecto, después de que React hidrata. Sin resembrar aquí,
       // las dos siembras arrancan en puntos distintos del flujo y salen dos
       // mapas distintos, ambos plausibles y ninguno comparable.
-      (window as { __resembrar?: () => void }).__resembrar?.();
+      //
+      // SÓLO en el primer arranque. El legado no resiembra al redimensionar, y
+      // una captura de página completa redimensiona el viewport: si aquí se
+      // resembrara otra vez, los dos lados volverían a divergir justo antes
+      // de la foto. Se notó en lineamientos, la página más alta, donde el
+      // rebote de 200 ms del resize alcanza a dispararse.
+      if (primerArranque) {
+        (window as { __resembrar?: () => void }).__resembrar?.();
+        primerArranque = false;
+      }
       medir();
       siembra();
       if (quieto) {

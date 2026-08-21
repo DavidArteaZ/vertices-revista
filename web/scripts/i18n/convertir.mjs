@@ -19,10 +19,17 @@
 import { readFileSync, writeFileSync, existsSync } from "node:fs";
 import path from "node:path";
 import ts from "typescript";
-import { claveDe } from "./claves.mjs";
+import { claveDe, hashDe } from "./claves.mjs";
 import { norma, DIR_WEB } from "./dicts.mjs";
 
 const ATRIBUTOS = new Set(["placeholder", "aria-label", "title", "alt"]);
+
+/**
+ * Sin una sola letra no hay nada que traducir: "27", "✕", "←", "·", "?".
+ * El sitio legado tampoco los traduce — no están en ningún diccionario — así
+ * que meterlos al catálogo sólo añade claves que siempre valen lo mismo.
+ */
+const traducible = (s) => /\p{L}/u.test(s);
 const RUTA_CLAVES = path.join(DIR_WEB, "scripts/i18n/claves.json");
 
 /** El algoritmo de JSX para colapsar el texto crudo en lo que React renderiza. */
@@ -46,7 +53,7 @@ function recolecta(codigo, ruta) {
     if (ts.isJsxText(n)) {
       const v = textoRenderizado(n.getFullText());
       const nucleo = v.trim();
-      if (nucleo) {
+      if (nucleo && traducible(nucleo)) {
         ediciones.push({
           tipo: "texto",
           // pos/end, no getStart: en JsxText el espacio inicial no es trivia,
@@ -65,7 +72,7 @@ function recolecta(codigo, ruta) {
       ATRIBUTOS.has(n.name.getText(fuente))
     ) {
       const v = norma(n.initializer.text);
-      if (v) {
+      if (v && traducible(v)) {
         ediciones.push({
           tipo: "atributo",
           inicio: n.initializer.getStart(fuente),
@@ -101,13 +108,14 @@ function main() {
 
   // Dos textos idénticos en el mismo componente comparten clave a propósito:
   // el sitio actual también los traduce con la misma entrada del diccionario.
+  //
+  // Dos textos DISTINTOS pueden caer en el mismo slug — "tu correo" y
+  // "Tu correo" son el placeholder y el aria-label del mismo input, y el
+  // diccionario legado los traduce por separado. Se desempatan con el hash.
   for (const e of ediciones) {
-    e.clave = claveDe(e.espanol);
-    const previo = claves[espacio][e.clave];
-    if (previo !== undefined && previo !== e.espanol) {
-      console.error(`COLISIÓN en ${espacio}.${e.clave}:\n  ${previo}\n  ${e.espanol}`);
-      process.exit(1);
-    }
+    const base = claveDe(e.espanol);
+    const previo = claves[espacio][base];
+    e.clave = previo === undefined || previo === e.espanol ? base : `${base}_${hashDe(e.espanol)}`;
     claves[espacio][e.clave] = e.espanol;
   }
 

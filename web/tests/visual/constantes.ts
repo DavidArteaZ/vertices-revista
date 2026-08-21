@@ -35,6 +35,36 @@ export const SATELITES = [
  */
 export const MOVIMIENTO_SATELITE = { reducedMotion: "reduce" } as const;
 
+/** El rebote del listener de resize en fondo-flujo.js:137. */
+const REBOTE_RESIZE_MS = 200;
+
+/**
+ * Deja una página satélite lista para fotografiar, con el fondo ya asentado.
+ *
+ * Una captura fullPage agranda el viewport a la altura del documento, y eso
+ * dispara el `resize` de fondo-flujo.js, que tras 200 ms vuelve a sembrar el
+ * campo de flujo. Si eso ocurre mientras se toma la foto —y ocurre o no según
+ * lo que tarde la página, en los dos sitios— la imagen sale de un estado
+ * distinto cada vez. Se vio como fallos que cambiaban de idioma entre
+ * corridas: es, it y ru en una; ninguno de esos tres en la siguiente.
+ *
+ * La solución es provocar el resize a propósito, esperar a que el rebote pase
+ * y sólo entonces disparar. Al llegar a toHaveScreenshot el viewport ya mide
+ * lo que mide el documento, así que fullPage no vuelve a redimensionar nada y
+ * los dos lados han pasado por exactamente un reinicio.
+ */
+export async function preparaSatelite(page: import("@playwright/test").Page) {
+  await page.evaluate(() => document.fonts.ready);
+  const alto = await page.evaluate(() => document.documentElement.scrollHeight);
+  await page.setViewportSize({ width: 1440, height: alto });
+  await page.waitForTimeout(REBOTE_RESIZE_MS + 300);
+  await page.evaluate(() => document.fonts.ready);
+  // el revelado por scroll deja elementos en opacity:0; forzarlos visibles
+  await page.evaluate(() =>
+    document.querySelectorAll(".rev").forEach((e) => e.classList.add("rev-on")),
+  );
+}
+
 export const nombreU = (u: number) => String(u).replace(".", "_");
 
 /**

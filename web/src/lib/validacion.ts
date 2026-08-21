@@ -4,7 +4,13 @@
  * Se extrae a módulo puro por dos razones: la etapa 4 vuelve a validar en el
  * servidor con estas mismas reglas, y así se puede probar sin DOM. El
  * original lee cada campo con document.getElementById; aquí llegan en un
- * objeto. Los mensajes se conservan carácter por carácter.
+ * objeto.
+ *
+ * Desde la etapa 2 no devuelve texto español sino la clave del aviso y sus
+ * parámetros. El original llamaba TR() sobre el literal, que es el mismo
+ * mecanismo; separar el mensaje del juicio también le sirve al servidor de la
+ * etapa 4, que tiene que redactar el error en el idioma del autor y no en el
+ * de la petición. El texto en sí vive en el catálogo, bajo `avisos.*`.
  */
 
 export type DatosEnvio = {
@@ -40,42 +46,58 @@ export const CORREO = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 const v = (s: string) => s.trim();
 
+/** Clave dentro del espacio `avisos` más, si lleva, sus parámetros ICU. */
+export type Aviso = { clave: string; valores?: Record<string, string | number> };
+
+const AVISO = {
+  nombre: "escribe_tu_nombre_completo",
+  correo: "escribe_un_correo_de_contacto_valido",
+  perfil: "elige_tu_perfil_de_autor",
+  afiliacion: "indica_tu_institucion_o_afiliacion",
+  titulo: "tu_manuscrito_necesita_un_titulo",
+  formato: "elige_el_formato_de_tu_pieza",
+  seccion: "elige_la_seccion_que_mejor_le_queda_a_tu_trabajo",
+  tema: "elige_el_tema_principal",
+  resumenCorto: "el_resumen_lleva_n_palabras_se_piden_al_menos_10_c4d7",
+  resumenLargo: "el_resumen_lleva_n_palabras_el_maximo_es_300",
+  claves: "escribe_de_3_a_5_palabras_clave_separadas_por_co_414e",
+  archivos: "adjunta_tu_manuscrito_en_docx_o_pdf",
+  usoIA: "indica_si_usaste_herramientas_de_inteligencia_ar_1e5d",
+  declaraciones: "confirma_las_cuatro_declaraciones_para_poder_env_9d6c",
+  extension: "a_no_es_pdf_ni_docx",
+  peso: "a_pesa_mas_de_20_mb",
+} as const;
+
+export { AVISO };
+
 export function validarPaso(
   i: number,
   d: DatosEnvio,
   archivos: ArchivoLike[],
-): string | null {
+): Aviso | null {
   if (i === 0) {
-    if (!v(d.nombre)) return "Escribe tu nombre completo.";
-    if (!CORREO.test(v(d.correo))) return "Escribe un correo de contacto válido.";
-    if (!v(d.perfil)) return "Elige tu perfil de autor.";
-    if (!v(d.afiliacion)) return "Indica tu institución o afiliación.";
+    if (!v(d.nombre)) return { clave: AVISO.nombre };
+    if (!CORREO.test(v(d.correo))) return { clave: AVISO.correo };
+    if (!v(d.perfil)) return { clave: AVISO.perfil };
+    if (!v(d.afiliacion)) return { clave: AVISO.afiliacion };
   }
   if (i === 1) {
-    if (!v(d.titulo)) return "Tu manuscrito necesita un título.";
-    if (!v(d.formato)) return "Elige el formato de tu pieza.";
-    if (!v(d.seccion)) return "Elige la sección que mejor le queda a tu trabajo.";
-    if (!v(d.tema)) return "Elige el tema principal.";
+    if (!v(d.titulo)) return { clave: AVISO.titulo };
+    if (!v(d.formato)) return { clave: AVISO.formato };
+    if (!v(d.seccion)) return { clave: AVISO.seccion };
+    if (!v(d.tema)) return { clave: AVISO.tema };
     const palabras = v(d.resumen).split(/\s+/).filter(Boolean).length;
-    if (palabras < 100) {
-      return "El resumen lleva {n} palabras; se piden al menos 100.".replace("{n}", String(palabras));
-    }
-    if (palabras > 300) {
-      return "El resumen lleva {n} palabras; el máximo es 300.".replace("{n}", String(palabras));
-    }
+    if (palabras < 100) return { clave: AVISO.resumenCorto, valores: { n: palabras } };
+    if (palabras > 300) return { clave: AVISO.resumenLargo, valores: { n: palabras } };
     const claves = v(d.claves).split(",").map((s) => s.trim()).filter(Boolean);
-    if (claves.length < 3 || claves.length > 5) {
-      return "Escribe de 3 a 5 palabras clave separadas por comas.";
-    }
+    if (claves.length < 3 || claves.length > 5) return { clave: AVISO.claves };
   }
   if (i === 2) {
-    if (!archivos.length) return "Adjunta tu manuscrito en .docx o .pdf.";
+    if (!archivos.length) return { clave: AVISO.archivos };
   }
   if (i === 3) {
-    if (!v(d.usoIA)) return "Indica si usaste herramientas de inteligencia artificial.";
-    if (!(d.d1 && d.d2 && d.d3 && d.d4)) {
-      return "Confirma las cuatro declaraciones para poder enviar.";
-    }
+    if (!v(d.usoIA)) return { clave: AVISO.usoIA };
+    if (!(d.d1 && d.d2 && d.d3 && d.d4)) return { clave: AVISO.declaraciones };
   }
   return null;
 }

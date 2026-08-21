@@ -1,6 +1,8 @@
 "use client";
 
 import { useRef, useState } from "react";
+import { useTranslations } from "next-intl";
+import { useCatalogo } from "@/i18n/catalogo";
 import { SECTIONS } from "@/lib/datos/secciones";
 import { TOPICS } from "@/lib/datos/temas";
 import {
@@ -9,6 +11,8 @@ import {
   pesoTexto,
   EXT_OK,
   MAX_BYTES,
+  AVISO,
+  type Aviso,
   type DatosEnvio,
 } from "@/lib/validacion";
 
@@ -22,13 +26,17 @@ import {
  * elimina, no se arrastra.
  */
 
-const PASOS = ["Autoría", "Manuscrito", "Archivos", "Declaración"];
+/** Rótulos de los cuatro pasos, en el orden de index.html:719-724. */
+const PASOS = ["autoria", "manuscrito", "archivos", "declaracion"] as const;
 
 export default function FormularioEnvio() {
+  const t = useTranslations("formularioenvio");
+  const tAviso = useTranslations("avisos");
+  const { tema, seccion } = useCatalogo();
   const [paso, setPaso] = useState(0);
   const [datos, setDatos] = useState<DatosEnvio>(vacio);
   const [archivos, setArchivos] = useState<File[]>([]);
-  const [error, setError] = useState("");
+  const [error, setError] = useState<Aviso | null>(null);
   const [enviado, setEnviado] = useState(false);
   const [sobre, setSobre] = useState(false);
   const input = useRef<HTMLInputElement>(null);
@@ -39,19 +47,19 @@ export default function FormularioEnvio() {
   const palabras = datos.resumen.trim().split(/\s+/).filter(Boolean).length;
 
   function agregarArchivos(lista: FileList | File[]) {
-    let err = "";
+    let err: Aviso | null = null;
     const siguientes = [...archivos];
     for (const f of Array.from(lista)) {
       if (!EXT_OK.test(f.name)) {
-        err = `"${f.name}" no es .pdf ni .docx.`;
+        err = { clave: AVISO.extension, valores: { a: f.name } };
         continue;
       }
       if (f.size > MAX_BYTES) {
-        err = `"${f.name}" pesa más de 20 MB.`;
+        err = { clave: AVISO.peso, valores: { a: f.name } };
         continue;
       }
       if (!siguientes.some((x) => x.name === f.name && x.size === f.size)) siguientes.push(f);
-      err = "";
+      err = null;
     }
     setArchivos(siguientes);
     setError(err);
@@ -60,7 +68,7 @@ export default function FormularioEnvio() {
   function continuar() {
     const err = validarPaso(paso, datos, archivos);
     if (err) { setError(err); return; }
-    if (paso < 3) { setPaso(paso + 1); setError(""); return; }
+    if (paso < 3) { setPaso(paso + 1); setError(null); return; }
     setEnviado(true);
   }
 
@@ -68,24 +76,24 @@ export default function FormularioEnvio() {
     setDatos(vacio);
     setArchivos([]);
     setPaso(0);
-    setError("");
+    setError(null);
     setEnviado(false);
   }
 
   if (enviado) {
     return (
       <div id="confirmacion">
-        <p className="ceja">Envío registrado</p>
-        <h3>Gracias por confiar en Vértices</h3>
-        <p>Tu manuscrito quedó registrado con el folio <strong id="folio">VTX-2026-000</strong>. Guárdalo: con él y tu correo puedes consultar el avance en <a href="#estado" data-ir="estado">Estado de tu envío</a>. Tu pieza entrará al proceso de dictaminación de su sección y el comité editorial te escribirá al correo que registraste.</p>
-        <p className="ayuda">El registro todavía no está conectado: esta pantalla es sólo la interfaz.</p>
+        <p className="ceja">{t("envio_registrado")}</p>
+        <h3>{t("gracias_por_confiar_en_vertices")}</h3>
+        <p>{t("tu_manuscrito_quedo_registrado_con_el_folio")}{" "}<strong id="folio">{t("vtx_2026_000")}</strong>{t("guardalo_con_el_y_tu_correo_puedes_consultar_el_e92d")}{" "}<a href="#estado" data-ir="estado">{t("estado_de_tu_envio")}</a>{t("tu_pieza_entrara_al_proceso_de_dictaminacion_de_79ea")}</p>
+        <p className="ayuda">{t("el_registro_todavia_no_esta_conectado_esta_panta_558b")}</p>
         <dl>
-          <dt>Título</dt><dd id="resTitulo">{datos.titulo}</dd>
-          <dt>Autoría</dt><dd id="resAutor">{datos.nombre}{datos.coautores ? `, ${datos.coautores}` : ""}</dd>
-          <dt>Formato</dt><dd id="resFormato">{datos.formato}</dd>
-          <dt>Sección</dt><dd id="resSeccion">{datos.seccion}</dd>
+          <dt>{t("titulo")}</dt><dd id="resTitulo">{datos.titulo}</dd>
+          <dt>{t("autoria")}</dt><dd id="resAutor">{datos.nombre}{datos.coautores ? `, ${datos.coautores}` : ""}</dd>
+          <dt>{t("formato")}</dt><dd id="resFormato">{datos.formato}</dd>
+          <dt>{t("seccion")}</dt><dd id="resSeccion">{datos.seccion}</dd>
         </dl>
-        <button type="button" className="boton" id="otroEnvio" onClick={otroEnvio}>Enviar otro manuscrito</button>
+        <button type="button" className="boton" id="otroEnvio" onClick={otroEnvio}>{t("enviar_otro_manuscrito")}</button>
       </div>
     );
   }
@@ -98,110 +106,116 @@ export default function FormularioEnvio() {
             key={p}
             className={k === paso ? "activo" : k < paso ? "hecho" : undefined}
             data-paso={k}
-            onClick={() => { if (k < paso) { setPaso(k); setError(""); } }}
+            onClick={() => { if (k < paso) { setPaso(k); setError(null); } }}
           >
-            <i>{k + 1}</i>{p}
+            <i>{k + 1}</i>{t(`paso_${p}`)}
           </li>
         ))}
       </ol>
 
       <fieldset className={`paso${paso === 0 ? " activo" : ""}`} data-paso="0">
-        <legend>Datos de autoría</legend>
+        <legend>{t("datos_de_autoria")}</legend>
         <div className="campo">
-          <label htmlFor="nombre">Nombre completo *</label>
+          <label htmlFor="nombre">{t("nombre_completo")}</label>
           <input type="text" id="nombre" name="nombre" autoComplete="name" value={datos.nombre} onChange={(e) => set("nombre", e.target.value)} />
         </div>
         <div className="fila2 campo">
           <div>
-            <label htmlFor="correo">Correo de contacto *</label>
-            <input type="email" id="correo" name="correo" placeholder="tucorreo@ejemplo.com" autoComplete="email" value={datos.correo} onChange={(e) => set("correo", e.target.value)} />
+            <label htmlFor="correo">{t("correo_de_contacto")}</label>
+            <input type="email" id="correo" name="correo" placeholder={t("tucorreo_ejemplo_com")} autoComplete="email" value={datos.correo} onChange={(e) => set("correo", e.target.value)} />
           </div>
           <div>
-            <label htmlFor="perfil">Perfil de autor *</label>
+            <label htmlFor="perfil">{t("perfil_de_autor")}</label>
             <select id="perfil" name="perfil" value={datos.perfil} onChange={(e) => set("perfil", e.target.value)}>
-              <option value="">Elige tu perfil</option>
-              <option value="Estudiante de licenciatura en Economía">Estudiante de licenciatura en Economía</option>
-              <option value="Estudiante de otra licenciatura">Estudiante de otra licenciatura</option>
-              <option value="Economista titulado (licenciatura, maestría o doctorado)">Economista titulado (licenciatura, maestría o doctorado)</option>
-              <option value="Científico(a) de datos">Científico(a) de datos</option>
-              <option value="Científico(a) social">Científico(a) social</option>
-              <option value="Otro perfil interesado en la economía">Otro perfil interesado en la economía</option>
+              <option value="">{t("elige_tu_perfil")}</option>
+              <option value="Estudiante de licenciatura en Economía">{t("estudiante_de_licenciatura_en_economia")}</option>
+              <option value="Estudiante de otra licenciatura">{t("estudiante_de_otra_licenciatura")}</option>
+              <option value="Economista titulado (licenciatura, maestría o doctorado)">{t("economista_titulado_licenciatura_maestria_o_doct_baa0")}</option>
+              <option value="Científico(a) de datos">{t("cientifico_a_de_datos")}</option>
+              <option value="Científico(a) social">{t("cientifico_a_social")}</option>
+              <option value="Otro perfil interesado en la economía">{t("otro_perfil_interesado_en_la_economia")}</option>
             </select>
           </div>
         </div>
         <div className="fila2 campo">
           <div>
-            <label htmlFor="afiliacion">Institución o afiliación *</label>
-            <input type="text" id="afiliacion" name="afiliacion" placeholder="Universidad, industria, gobierno, independiente..." value={datos.afiliacion} onChange={(e) => set("afiliacion", e.target.value)} />
+            <label htmlFor="afiliacion">{t("institucion_o_afiliacion")}</label>
+            <input type="text" id="afiliacion" name="afiliacion" placeholder={t("universidad_industria_gobierno_independiente")} value={datos.afiliacion} onChange={(e) => set("afiliacion", e.target.value)} />
           </div>
           <div>
-            <label htmlFor="coautores">Coautores (opcional)</label>
-            <input type="text" id="coautores" name="coautores" placeholder="Nombres separados por comas, máximo dos" value={datos.coautores} onChange={(e) => set("coautores", e.target.value)} />
+            <label htmlFor="coautores">{t("coautores_opcional")}</label>
+            <input type="text" id="coautores" name="coautores" placeholder={t("nombres_separados_por_comas_maximo_dos")} value={datos.coautores} onChange={(e) => set("coautores", e.target.value)} />
           </div>
         </div>
         <div className="campo">
-          <label htmlFor="genero">Género (opcional, para el registro de equidad de autoría)</label>
+          <label htmlFor="genero">{t("genero_opcional_para_el_registro_de_equidad_de_a_970a")}</label>
           <select id="genero" name="genero" value={datos.genero} onChange={(e) => set("genero", e.target.value)}>
-            <option value="">Prefiero no responder aquí</option>
-            <option value="Femenino">Femenino</option>
-            <option value="Masculino">Masculino</option>
-            <option value="Otro">Otro</option>
-            <option value="Prefiere no decir">Prefiere no decir</option>
+            <option value="">{t("prefiero_no_responder_aqui")}</option>
+            <option value="Femenino">{t("femenino")}</option>
+            <option value="Masculino">{t("masculino")}</option>
+            <option value="Otro">{t("otro")}</option>
+            <option value="Prefiere no decir">{t("prefiere_no_decir")}</option>
           </select>
         </div>
       </fieldset>
 
       <fieldset className={`paso${paso === 1 ? " activo" : ""}`} data-paso="1">
-        <legend>Sobre el manuscrito</legend>
+        <legend>{t("sobre_el_manuscrito")}</legend>
         <div className="campo">
-          <label htmlFor="tituloArt">Título del trabajo *</label>
+          <label htmlFor="tituloArt">{t("titulo_del_trabajo")}</label>
           <input type="text" id="tituloArt" name="titulo" value={datos.titulo} onChange={(e) => set("titulo", e.target.value)} />
         </div>
         <div className="campo">
-          <label htmlFor="formato">Formato de la pieza *</label>
+          <label htmlFor="formato">{t("formato_de_la_pieza")}</label>
           <select id="formato" name="formato" value={datos.formato} onChange={(e) => set("formato", e.target.value)}>
-            <option value="">Elige un formato</option>
-            <option value="Paper o abstract de investigación">Paper o abstract de investigación</option>
-            <option value="Artículo con datos o visualización">Artículo con datos o visualización</option>
-            <option value="Entrevista o artículo de opinión verificado">Entrevista o artículo de opinión verificado</option>
-            <option value="Cápsula breve">Cápsula breve</option>
-            <option value="Otro formato">Otro formato</option>
+            <option value="">{t("elige_un_formato")}</option>
+            <option value="Paper o abstract de investigación">{t("paper_o_abstract_de_investigacion")}</option>
+            <option value="Artículo con datos o visualización">{t("articulo_con_datos_o_visualizacion")}</option>
+            <option value="Entrevista o artículo de opinión verificado">{t("entrevista_o_articulo_de_opinion_verificado")}</option>
+            <option value="Cápsula breve">{t("capsula_breve")}</option>
+            <option value="Otro formato">{t("otro_formato")}</option>
           </select>
         </div>
         <div className="fila2 campo">
           <div>
-            <label htmlFor="seccion">Sección sugerida *</label>
+            <label htmlFor="seccion">{t("seccion_sugerida")}</label>
             <select id="seccion" name="seccion" value={datos.seccion} onChange={(e) => set("seccion", e.target.value)}>
-              <option value="">Elige una sección</option>
-              {SECTIONS.map((s) => <option key={s.label} value={s.label}>{s.label}</option>)}
-              <option value="Aún no lo decido">Aún no lo decido</option>
+              <option value="">{t("elige_una_seccion")}</option>
+              {SECTIONS.map((s) => <option key={s.label} value={s.label}>{seccion(s.label)}</option>)}
+              <option value="Aún no lo decido">{t("aun_no_lo_decido")}</option>
             </select>
           </div>
           <div>
-            <label htmlFor="tema">Tema principal *</label>
+            <label htmlFor="tema">{t("tema_principal")}</label>
             <select id="tema" name="tema" value={datos.tema} onChange={(e) => set("tema", e.target.value)}>
-              <option value="">Elige un tema</option>
-              {TOPICS.map((t) => <option key={t} value={t}>{t}</option>)}
-              <option value="Otro tema">Otro tema</option>
+              <option value="">{t("elige_un_tema")}</option>
+              {TOPICS.map((x) => <option key={x} value={x}>{tema(x)}</option>)}
+              <option value="Otro tema">{t("otro_tema")}</option>
             </select>
           </div>
         </div>
         <div className="campo">
-          <label htmlFor="resumen">Resumen *</label>
-          <textarea id="resumen" name="resumen" rows={6} placeholder="¿Qué pregunta respondes, con qué método y qué encontraste?" value={datos.resumen} onChange={(e) => set("resumen", e.target.value)} />
+          <label htmlFor="resumen">{t("resumen")}</label>
+          <textarea id="resumen" name="resumen" rows={6} placeholder={t("que_pregunta_respondes_con_que_metodo_y_que_enco_a6c1")} value={datos.resumen} onChange={(e) => set("resumen", e.target.value)} />
           <p className="ayuda contador" id="contadorResumen">
-            {palabras === 1 ? "1 palabra · se piden entre 100 y 300" : `${palabras} palabras · se piden entre 100 y 300`}
+            {/* La rama singular/plural se conserva tal cual del original
+                (index.html:2219). No se convierte a `plural` de ICU: el ruso
+                tiene tres formas y el portugués otra regla, así que ICU
+                produciría textos que el sitio actual nunca muestra. */}
+            {palabras === 1
+              ? t("contador_singular", { n: palabras })
+              : t("contador_plural", { n: palabras })}
           </p>
         </div>
         <div className="campo">
-          <label htmlFor="claves">Palabras clave *</label>
-          <input type="text" id="claves" name="claves" placeholder="inflación, política monetaria, expectativas" value={datos.claves} onChange={(e) => set("claves", e.target.value)} />
-          <p className="ayuda">De 3 a 5, separadas por comas.</p>
+          <label htmlFor="claves">{t("palabras_clave")}</label>
+          <input type="text" id="claves" name="claves" placeholder={t("inflacion_politica_monetaria_expectativas")} value={datos.claves} onChange={(e) => set("claves", e.target.value)} />
+          <p className="ayuda">{t("de_3_a_5_separadas_por_comas")}</p>
         </div>
       </fieldset>
 
       <fieldset className={`paso${paso === 2 ? " activo" : ""}`} data-paso="2">
-        <legend>Archivos del trabajo</legend>
+        <legend>{t("archivos_del_trabajo")}</legend>
         <label
           className={`zona-archivo${sobre ? " sobre" : ""}`}
           id="zonaArchivo"
@@ -211,8 +225,8 @@ export default function FormularioEnvio() {
           onDragLeave={(e) => { e.preventDefault(); setSobre(false); }}
           onDrop={(e) => { e.preventDefault(); setSobre(false); agregarArchivos(e.dataTransfer.files); }}
         >
-          <strong>Arrastra tu manuscrito aquí</strong>
-          <span>o haz clic para buscarlo · .docx o .pdf · máximo 20 MB</span>
+          <strong>{t("arrastra_tu_manuscrito_aqui")}</strong>
+          <span>{t("o_haz_clic_para_buscarlo_docx_o_pdf_maximo_20_mb")}</span>
         </label>
         <input
           type="file"
@@ -231,34 +245,34 @@ export default function FormularioEnvio() {
               <button
                 type="button"
                 data-quitar={i}
-                aria-label="Quitar archivo"
+                aria-label={t("quitar_archivo")}
                 onClick={() => setArchivos(archivos.filter((_, k) => k !== i))}
               >✕</button>
             </li>
           ))}
         </ul>
-        <p className="ayuda">Si tu trabajo incluye gráficas o tablas, adjunta también el archivo editable con los datos.</p>
+        <p className="ayuda">{t("si_tu_trabajo_incluye_graficas_o_tablas_adjunta_550d")}</p>
       </fieldset>
 
       <fieldset className={`paso${paso === 3 ? " activo" : ""}`} data-paso="3">
-        <legend>Declaración de autoría</legend>
+        <legend>{t("declaracion_de_autoria")}</legend>
         <div className="campo">
-          <label htmlFor="usoIA">Uso de inteligencia artificial *</label>
+          <label htmlFor="usoIA">{t("uso_de_inteligencia_artificial")}</label>
           <select id="usoIA" name="usoIA" value={datos.usoIA} onChange={(e) => set("usoIA", e.target.value)}>
-            <option value="">Elige una opción</option>
-            <option value="No">No usé herramientas de IA en este trabajo</option>
-            <option value="Sí">Usé IA como apoyo (estilo, código o revisión) y lo declaro en el manuscrito</option>
+            <option value="">{t("elige_una_opcion")}</option>
+            <option value="No">{t("no_use_herramientas_de_ia_en_este_trabajo")}</option>
+            <option value="Sí">{t("use_ia_como_apoyo_estilo_codigo_o_revision_y_lo_c38c")}</option>
           </select>
         </div>
-        <label className="decl"><input type="checkbox" id="d1" checked={datos.d1} onChange={(e) => set("d1", e.target.checked)} /><span>El trabajo es original y fue escrito por quienes aparecen como autores.</span></label>
-        <label className="decl"><input type="checkbox" id="d2" checked={datos.d2} onChange={(e) => set("d2", e.target.checked)} /><span>No está publicado ni en revisión en otro medio.</span></label>
-        <label className="decl"><input type="checkbox" id="d3" checked={datos.d3} onChange={(e) => set("d3", e.target.checked)} /><span>Acepto el proceso de dictaminación doble ciego y los ajustes editoriales que resulten.</span></label>
-        <label className="decl"><input type="checkbox" id="d4" checked={datos.d4} onChange={(e) => set("d4", e.target.checked)} /><span>Autorizo la publicación del texto en la edición en PDF y en el sitio web de Vértices.</span></label>
+        <label className="decl"><input type="checkbox" id="d1" checked={datos.d1} onChange={(e) => set("d1", e.target.checked)} /><span>{t("el_trabajo_es_original_y_fue_escrito_por_quienes_8339")}</span></label>
+        <label className="decl"><input type="checkbox" id="d2" checked={datos.d2} onChange={(e) => set("d2", e.target.checked)} /><span>{t("no_esta_publicado_ni_en_revision_en_otro_medio")}</span></label>
+        <label className="decl"><input type="checkbox" id="d3" checked={datos.d3} onChange={(e) => set("d3", e.target.checked)} /><span>{t("acepto_el_proceso_de_dictaminacion_doble_ciego_y_53cf")}</span></label>
+        <label className="decl"><input type="checkbox" id="d4" checked={datos.d4} onChange={(e) => set("d4", e.target.checked)} /><span>{t("autorizo_la_publicacion_del_texto_en_la_edicion_adff")}</span></label>
       </fieldset>
 
-      <p id="formError" role="alert">{error}</p>
+      <p id="formError" role="alert">{error ? tAviso(error.clave, error.valores) : ""}</p>
       <div className="wiz-acciones">
-        <button type="button" className="boton" id="atras" disabled={paso === 0} onClick={() => { if (paso > 0) { setPaso(paso - 1); setError(""); } }}>Regresar</button>
+        <button type="button" className="boton" id="atras" disabled={paso === 0} onClick={() => { if (paso > 0) { setPaso(paso - 1); setError(null); } }}>{t("regresar")}</button>
         <button type="button" className="boton boton--lleno" id="continuar" onClick={continuar}>
           {paso === 3 ? "Enviar manuscrito" : "Continuar"}
         </button>

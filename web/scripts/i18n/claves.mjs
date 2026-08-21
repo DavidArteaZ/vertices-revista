@@ -13,6 +13,9 @@ import { norma } from "./dicts.mjs";
  * Los párrafos largos se truncan a 48 caracteres y llevan un hash de cuatro
  * dígitos del texto completo, para que sigan siendo únicos y estables.
  */
+export const hashDe = (texto) =>
+  createHash("sha1").update(norma(texto)).digest("hex").slice(0, 4);
+
 export function claveDe(texto) {
   const limpio = norma(texto)
     .normalize("NFD")

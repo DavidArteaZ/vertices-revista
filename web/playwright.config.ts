@@ -8,6 +8,18 @@ export default defineConfig({
   // cada toHaveScreenshot espera a que el cuadro se estabilice. Los 30 s por
   // defecto se agotan en la séptima.
   timeout: 180_000,
+  expect: {
+    /**
+     * toHaveScreenshot reintenta hasta que dos cuadros seguidos salen iguales,
+     * y por defecto se rinde a los 5 s. En una máquina cargada eso caduca sin
+     * que haya un solo píxel distinto: se vio como cuatro fallos por
+     * "Timeout 5000ms exceeded", ninguno con diferencia de imagen, en una
+     * corrida que compartía CPU con otra. Subir la espera no afloja la
+     * comparación — la tolerancia de píxeles sigue igual —, sólo evita
+     * confundir una máquina ocupada con una regresión.
+     */
+    timeout: 30_000,
+  },
   // Ambos specs resuelven al mismo directorio dorado, para que la corrida de
   // paridad compare contra las capturas del sitio legado y no contra sí misma.
   snapshotPathTemplate: "{testDir}/baseline/{arg}{ext}",

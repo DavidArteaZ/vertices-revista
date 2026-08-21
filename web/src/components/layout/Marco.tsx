@@ -1,8 +1,11 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import Link from "next/link";
+import { useLocale, useTranslations } from "next-intl";
+import { Link } from "@/i18n/navegacion";
+import { LOCALE_POR_DEFECTO } from "@/i18n/rutas";
 import SelectorIdioma from "./SelectorIdioma";
+import Emblema from "./Emblema";
 
 /**
  * Marco fijo: marca y navegación en los márgenes.
@@ -16,13 +19,18 @@ export default function Marco({
   satelite = false,
   style,
 }: { satelite?: boolean; style?: React.CSSProperties } = {}) {
+  const t = useTranslations("marco");
   const [abierto, setAbierto] = useState(false);
   const nav = useRef<HTMLElement>(null);
 
   // En la landing las anclas llevan data-u / data-ir y las gobierna el motor.
   // En las páginas satélite no hay motor, así que apuntan a la raíz con hash
   // (lineamientos.html:244-266).
-  const a = (hash: string) => (satelite ? `/${hash}` : hash);
+  // En satélite el ancla vuelve a la portada, y tiene que conservar el idioma:
+  // "/#temas" en español, "/en#temas" en inglés.
+  const locale = useLocale();
+  const raiz = locale === LOCALE_POR_DEFECTO ? "" : `/${locale}`;
+  const a = (hash: string) => (satelite ? `${raiz || "/"}${hash}` : hash);
   const datos = (d: Record<string, string>) => (satelite ? {} : d);
 
   useEffect(() => {
@@ -35,22 +43,26 @@ export default function Marco({
 
   return (
     <header className="marco" style={style}>
-      <a className="marca" href={satelite ? "/" : "#"} {...datos({ "data-u": "0" })}>
-        <svg className="emblema" viewBox="0 0 40 40" aria-hidden="true">
-          <path d="M20 5 L35 32 L5 32 Z" fill="none" stroke="currentColor" strokeWidth="1.2" />
-          <path d="M20 5 L21.5 22.5 M5 32 L21.5 22.5 M35 32 L21.5 22.5" fill="none" stroke="currentColor" strokeWidth="1.2" opacity="0.55" />
-        </svg>
-        <span>Vértices</span>
-      </a>
-      <nav ref={nav} aria-label="Navegación principal" className={abierto ? "abierto" : undefined}>
-        <Link className="enlace enlace-bar" href="/quienes-somos">Acerca de</Link>
-        <Link className="boton boton-bar" href="/equipo">Conoce al equipo</Link>
-        <a className="boton boton--lleno" href={a("#envio")} {...datos({ "data-ir": "envio" })}>Publica tu artículo</a>
+      {satelite ? (
+        <Link className="marca" href="/">
+          <Emblema />
+          <span>{t("vertices")}</span>
+        </Link>
+      ) : (
+        <a className="marca" href="#" data-u="0">
+          <Emblema />
+          <span>{t("vertices")}</span>
+        </a>
+      )}
+      <nav ref={nav} aria-label={t("navegacion_principal")} className={abierto ? "abierto" : undefined}>
+        <Link className="enlace enlace-bar" href="/quienes-somos">{t("acerca_de")}</Link>
+        <Link className="boton boton-bar" href="/equipo">{t("conoce_al_equipo")}</Link>
+        <a className="boton boton--lleno" href={a("#envio")} {...datos({ "data-ir": "envio" })}>{t("publica_tu_articulo")}</a>
         <SelectorIdioma />
         <button
           className="menu-boton"
           type="button"
-          aria-label="Menú"
+          aria-label={t("menu")}
           aria-expanded={abierto}
           aria-controls="menuPanel"
           onClick={() => setAbierto((v) => !v)}
@@ -58,13 +70,13 @@ export default function Marco({
           <i></i><i></i><i></i>
         </button>
         <div className="menu-panel" id="menuPanel" onClick={() => setAbierto(false)}>
-          <a className="enlace" href={a("#temas")} {...datos({ "data-u": "0.48" })}>Temas</a>
-          <a className="enlace" href={a("#secciones")} {...datos({ "data-u": "0.75" })}>Secciones</a>
-          <a className="enlace" href={a("#convocatoria")} {...datos({ "data-ir": "convocatoria" })}>Convocatoria</a>
-          <Link className="enlace" href="/lineamientos">Lineamientos</Link>
-          <a className="enlace" href={a("#estado")} {...datos({ "data-ir": "estado" })}>Estado de tu envío</a>
-          <Link className="enlace solo-angosto" href="/quienes-somos">Acerca de</Link>
-          <Link className="enlace solo-angosto" href="/equipo">Conoce al equipo</Link>
+          <a className="enlace" href={a("#temas")} {...datos({ "data-u": "0.48" })}>{t("temas")}</a>
+          <a className="enlace" href={a("#secciones")} {...datos({ "data-u": "0.75" })}>{t("secciones")}</a>
+          <a className="enlace" href={a("#convocatoria")} {...datos({ "data-ir": "convocatoria" })}>{t("convocatoria")}</a>
+          <Link className="enlace" href="/lineamientos">{t("lineamientos")}</Link>
+          <a className="enlace" href={a("#estado")} {...datos({ "data-ir": "estado" })}>{t("estado_de_tu_envio")}</a>
+          <Link className="enlace solo-angosto" href="/quienes-somos">{t("acerca_de")}</Link>
+          <Link className="enlace solo-angosto" href="/equipo">{t("conoce_al_equipo")}</Link>
         </div>
       </nav>
     </header>

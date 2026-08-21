@@ -15,14 +15,14 @@
  */
 
 export const PARAMETRIZADOS = {
-  "panel.n_de_m_temas": ["n", "m"],
-  "panel.n_articulos": ["n"],
-  "avisos.el_resumen_lleva_n_palabras_se_piden_al_menos_100": ["n"],
+  "panelarticulos.n_de_m_temas": ["n", "m"],
+  "panelarticulos.n_articulos": ["n"],
+  "avisos.el_resumen_lleva_n_palabras_se_piden_al_menos_10_c4d7": ["n"],
   "avisos.el_resumen_lleva_n_palabras_el_maximo_es_300": ["n"],
   "avisos.a_no_es_pdf_ni_docx": ["a"],
   "avisos.a_pesa_mas_de_20_mb": ["a"],
-  "formulario.n_palabra_se_piden_entre_100_y_300": ["n"],
-  "formulario.n_palabras_se_piden_entre_100_y_300": ["n"],
+  "formularioenvio.contador_singular": ["n"],
+  "formularioenvio.contador_plural": ["n"],
 };
 
 export function verificaParametros(claves) {

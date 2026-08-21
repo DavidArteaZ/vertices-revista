@@ -1,11 +1,18 @@
 import type { Metadata } from "next";
+import { getTranslations, setRequestLocale } from "next-intl/server";
 import Marco from "@/components/layout/Marco";
 import Pie from "@/components/layout/Pie";
 import FondoFlujo from "@/components/satelite/FondoFlujo";
 import Revelar from "@/components/satelite/Revelar";
 import "./quienes-somos.css";
 
-export const metadata: Metadata = { title: "Acerca de · Vértices" };
+type Props = { params: Promise<{ locale: string }> };
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "quienessomos" });
+  return { title: t("titulo_documento") };
+}
 
 /**
  * Contenido portado de quienes-somos.html:240-335, convertido a JSX sin
@@ -21,7 +28,11 @@ export const metadata: Metadata = { title: "Acerca de · Vértices" };
  */
 const EN_FLUJO = { position: "relative", zIndex: 1 } as const;
 
-export default function Pagina() {
+export default async function Pagina({ params }: Props) {
+  const { locale } = await params;
+  setRequestLocale(locale);
+  const t = await getTranslations("quienessomos");
+
   return (
     <>
       <FondoFlujo />
@@ -29,97 +40,97 @@ export default function Pagina() {
       <main style={EN_FLUJO}>
         <div className="hero-qs">
           <div className="hero-cont">
-            <p className="ceja">Vértices · Revista académica de economía</p>
-            <h1>Acerca de</h1>
-            <p className="qs-lema">El punto donde las ideas se conectan</p>
+            <p className="ceja">{t("vertices_revista_academica_de_economia")}</p>
+            <h1>{t("acerca_de")}</h1>
+            <p className="qs-lema">{t("el_punto_donde_las_ideas_se_conectan")}</p>
             <div className="entrada">
-              <p>Vértices es la revista estudiantil de economía del Tecnológico de Monterrey, Campus Ciudad de México, creada por y para la comunidad de la Licenciatura en Economía (LEC). Nace de una idea sencilla: una revista <em>de economistas para economistas</em>, rigurosa en la evidencia y amable en la lectura.</p>
-              <p>Somos un espacio de encuentro y convergencia de ideas, donde el pensamiento crítico, la pluralidad de perspectivas y la conexión entre la teoría económica y los problemas que nos rodean se expresan con claridad, sin jerga innecesaria.</p>
+              <p>{t("vertices_es_la_revista_estudiantil_de_economia_d_54c4")}{" "}<em>{t("de_economistas_para_economistas")}</em>{t("rigurosa_en_la_evidencia_y_amable_en_la_lectura")}</p>
+              <p>{t("somos_un_espacio_de_encuentro_y_convergencia_de_8b80")}</p>
             </div>
           </div>
         </div>
       
       
         <section id="mision">
-          <p className="ceja"><i className="nodo" style={{ background: 'var(--indigo)' }}></i>Misión</p>
-          <h2>El punto de encuentro del rigor y las ideas</h2>
-          <p className="texto">Ser el punto de encuentro y convergencia de ideas y rigor académico, impulsando espacios que contribuyan a la formación de la comunidad estudiantil, en donde se transforma el conocimiento en nuevas perspectivas que cuestionan, debaten y proponen soluciones a los retos económicos del mundo actual.</p>
+          <p className="ceja"><i className="nodo" style={{ background: 'var(--indigo)' }}></i>{t("mision")}</p>
+          <h2>{t("el_punto_de_encuentro_del_rigor_y_las_ideas")}</h2>
+          <p className="texto">{t("ser_el_punto_de_encuentro_y_convergencia_de_idea_9c89")}</p>
         </section>
       
       
         <section id="vision">
-          <p className="ceja"><i className="nodo" style={{ background: 'var(--perla)' }}></i>Visión</p>
-          <h2>La revista de economía referente a nivel universitario</h2>
-          <p className="texto">Consolidarnos como la revista estudiantil de economía referente a nivel universitario, reconocida por su pensamiento crítico, su pluralidad de ideas y su capacidad para conectar la teoría económica con los retos mundiales contemporáneos.</p>
+          <p className="ceja"><i className="nodo" style={{ background: 'var(--perla)' }}></i>{t("vision")}</p>
+          <h2>{t("la_revista_de_economia_referente_a_nivel_univers_c9bd")}</h2>
+          <p className="texto">{t("consolidarnos_como_la_revista_estudiantil_de_eco_1c57")}</p>
         </section>
       
       
         <section id="valores">
-          <p className="ceja"><i className="nodo" style={{ background: 'var(--ambar)' }}></i>Valores</p>
-          <h2>Los valores que compartimos con el Tec</h2>
-          <p className="texto">Como proyecto de la comunidad del Tecnológico de Monterrey, Vértices hace suyos los valores institucionales y los lleva a la práctica editorial en cada número.</p>
+          <p className="ceja"><i className="nodo" style={{ background: 'var(--ambar)' }}></i>{t("valores")}</p>
+          <h2>{t("los_valores_que_compartimos_con_el_tec")}</h2>
+          <p className="texto">{t("como_proyecto_de_la_comunidad_del_tecnologico_de_4dae")}</p>
           <div className="valores">
             <article className="valor">
               <i style={{ background: 'var(--indigo)' }}></i>
-              <h3>Innovación</h3>
-              <p>Nos apasiona la disrupción que genera valor: buscamos formatos y preguntas que renueven la conversación económica.</p>
+              <h3>{t("innovacion")}</h3>
+              <p>{t("nos_apasiona_la_disrupcion_que_genera_valor_busc_f317")}</p>
             </article>
             <article className="valor">
               <i style={{ background: 'var(--perla)' }}></i>
-              <h3>Integridad</h3>
-              <p>Ejercemos la libertad con responsabilidad: cada afirmación publicada tiene fuente, método y autoría transparentes.</p>
+              <h3>{t("integridad")}</h3>
+              <p>{t("ejercemos_la_libertad_con_responsabilidad_cada_a_afaf")}</p>
             </article>
             <article className="valor">
               <i style={{ background: 'var(--pizarra)' }}></i>
-              <h3>Colaboración</h3>
-              <p>Juntos alcanzamos la visión: la revista es obra de estudiantes, docentes y profesionales que revisan y construyen en equipo.</p>
+              <h3>{t("colaboracion")}</h3>
+              <p>{t("juntos_alcanzamos_la_vision_la_revista_es_obra_d_b168")}</p>
             </article>
             <article className="valor">
               <i style={{ background: 'var(--coral)' }}></i>
-              <h3>Empatía e inclusión</h3>
-              <p>Ponemos siempre en primer lugar a las personas: escribimos para quien quiera entender y buscamos la equidad en nuestras autorías.</p>
+              <h3>{t("empatia_e_inclusion")}</h3>
+              <p>{t("ponemos_siempre_en_primer_lugar_a_las_personas_e_8d06")}</p>
             </article>
             <article className="valor">
               <i style={{ background: 'var(--ambar)' }}></i>
-              <h3>Ciudadanía global</h3>
-              <p>Trabajamos por un mundo sostenible: conectamos los fenómenos globales con sus efectos en la economía local.</p>
+              <h3>{t("ciudadania_global")}</h3>
+              <p>{t("trabajamos_por_un_mundo_sostenible_conectamos_lo_7c95")}</p>
             </article>
           </div>
-          <p className="fuente-nota">Valores institucionales del <a href="https://tec.mx/es/conocenos/principios-valores-y-vision" target="_blank" rel="noopener">Tecnológico de Monterrey</a>.</p>
+          <p className="fuente-nota">{t("valores_institucionales_del")}{" "}<a href="https://tec.mx/es/conocenos/principios-valores-y-vision" target="_blank" rel="noopener">{t("tecnologico_de_monterrey")}</a>.</p>
         </section>
       
       
         <section id="integridad">
-          <p className="ceja"><i className="nodo" style={{ background: 'var(--coral)' }}></i>Integridad académica</p>
-          <h2>Cómo cuidamos el rigor de lo que publicamos</h2>
+          <p className="ceja"><i className="nodo" style={{ background: 'var(--coral)' }}></i>{t("integridad_academica")}</p>
+          <h2>{t("como_cuidamos_el_rigor_de_lo_que_publicamos")}</h2>
           <ul className="integridad">
             <li>
-              <strong>Dictaminación</strong>
-              <p>Tres niveles de revisión según el tipo de pieza. La investigación pasa por dictamen doble ciego: dos personas evalúan el manuscrito anonimizado con una rúbrica común.</p>
+              <strong>{t("dictaminacion")}</strong>
+              <p>{t("tres_niveles_de_revision_segun_el_tipo_de_pieza_4de8")}</p>
             </li>
             <li>
-              <strong>Antiplagio</strong>
-              <p>Los trabajos de investigación pasan por una verificación antiplagio con Turnitin antes del dictamen, y toda pieza con datos, citas o imágenes atribuye correctamente sus fuentes.</p>
+              <strong>{t("antiplagio")}</strong>
+              <p>{t("los_trabajos_de_investigacion_pasan_por_una_veri_375b")}</p>
             </li>
             <li>
-              <strong>Fuentes y datos</strong>
-              <p>Todo dato lleva fuente y fecha. Las piezas con datos incluyen una nota metodológica breve y, cuando es posible, enlazan el repositorio con el código o los datos usados. Citamos en estilo Chicago.</p>
+              <strong>{t("fuentes_y_datos")}</strong>
+              <p>{t("todo_dato_lleva_fuente_y_fecha_las_piezas_con_da_1d5e")}</p>
             </li>
             <li>
-              <strong>Uso de IA</strong>
-              <p>Las herramientas de inteligencia artificial se permiten solo como apoyo declarado (corrección de estilo, programación, revisión metodológica). En la investigación dictaminada por pares no se permite IA generativa para elaborar el contenido del manuscrito.</p>
+              <strong>{t("uso_de_ia")}</strong>
+              <p>{t("las_herramientas_de_inteligencia_artificial_se_p_dfef")}</p>
             </li>
             <li>
-              <strong>Equidad de género</strong>
-              <p>Buscamos de manera activa la participación homogénea y registramos el balance de autoría en cada número.</p>
+              <strong>{t("equidad_de_genero")}</strong>
+              <p>{t("buscamos_de_manera_activa_la_participacion_homog_acb4")}</p>
             </li>
           </ul>
-          <p className="fuente-nota">El detalle completo vive en los <a href="lineamientos.html">lineamientos editoriales</a>.</p>
+          <p className="fuente-nota">{t("el_detalle_completo_vive_en_los")}{" "}<a href="lineamientos.html">{t("lineamientos_editoriales")}</a>.</p>
         </section>
       
         <div className="cierre">
-          <p>La convocatoria está abierta: estudiantes de Economía, economistas titulados, científicos de datos y científicos sociales.</p>
-          <a className="boton boton--lleno" href="index.html#envio">Publica tu artículo</a>
+          <p>{t("la_convocatoria_esta_abierta_estudiantes_de_econ_094a")}</p>
+          <a className="boton boton--lleno" href="index.html#envio">{t("publica_tu_articulo")}</a>
         </div>
       </main>      <Pie satelite style={EN_FLUJO} />
       <Revelar />

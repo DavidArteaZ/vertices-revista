@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { CORREO } from "@/lib/validacion";
 
 /**
@@ -17,35 +18,37 @@ import { CORREO } from "@/lib/validacion";
 const FOLIO = /^VTX-\d{4}-\d{1,4}$/;
 
 export default function EstadoEnvio() {
+  const t = useTranslations("estadoenvio");
+  const tAviso = useTranslations("avisos");
   const [folio, setFolio] = useState("");
   const [correo, setCorreo] = useState("");
-  const [res, setRes] = useState<{ texto: string; err: boolean }>({ texto: "", err: false });
+  const [res, setRes] = useState<{ clave: string | null; err: boolean }>({ clave: null, err: false });
 
   function consultar(e: React.FormEvent) {
     e.preventDefault();
     const f = folio.trim().toUpperCase();
     const c = correo.trim().toLowerCase();
     if (!FOLIO.test(f)) {
-      setRes({ texto: "Escribe tu folio completo, por ejemplo VTX-2026-001.", err: true });
+      setRes({ clave: "escribe_tu_folio_completo_por_ejemplo_vtx_2026_0_b793", err: true });
       return;
     }
     if (!CORREO.test(c)) {
-      setRes({ texto: "Escribe el correo con el que registraste tu pieza.", err: true });
+      setRes({ clave: "escribe_el_correo_con_el_que_registraste_tu_piez_29f8", err: true });
       return;
     }
-    setRes({ texto: "Consultando…", err: false });
+    setRes({ clave: "consultando", err: false });
   }
 
   return (
     <div id="estado" className="estado-bloque">
-      <h3>Estado de tu envío</h3>
-      <p className="estado-intro">Consulta en qué etapa va tu pieza con tu folio y el correo que registraste.</p>
+      <h3>{t("estado_de_tu_envio")}</h3>
+      <p className="estado-intro">{t("consulta_en_que_etapa_va_tu_pieza_con_tu_folio_y_9379")}</p>
       <form className="estado-form" id="estadoForm" onSubmit={consultar}>
         <input
           type="text"
           id="estadoFolio"
-          placeholder="Folio (VTX-2026-001)"
-          aria-label="Folio"
+          placeholder={t("folio_vtx_2026_001")}
+          aria-label={t("folio")}
           autoComplete="off"
           value={folio}
           onChange={(e) => setFolio(e.target.value)}
@@ -53,15 +56,15 @@ export default function EstadoEnvio() {
         <input
           type="email"
           id="estadoCorreo"
-          placeholder="Correo registrado"
-          aria-label="Correo registrado"
+          placeholder={t("correo_registrado")}
+          aria-label={t("correo_registrado")}
           value={correo}
           onChange={(e) => setCorreo(e.target.value)}
         />
-        <button className="boton" type="submit">Consultar</button>
+        <button className="boton" type="submit">{t("consultar")}</button>
       </form>
       <div className={`estado-res${res.err ? " err" : ""}`} id="estadoRes" aria-live="polite">
-        {res.texto}
+        {res.clave ? tAviso(res.clave) : ""}
       </div>
     </div>
   );

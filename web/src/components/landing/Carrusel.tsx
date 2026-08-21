@@ -1,8 +1,10 @@
 "use client";
 
 import { useRef } from "react";
+import { useTranslations } from "next-intl";
 import { ARTICULOS } from "@/lib/datos/articulos";
 import { slug } from "@/lib/texto";
+import { useCatalogo } from "@/i18n/catalogo";
 
 /**
  * Carrusel de artículos destacados. Marcado de index.html:662-671,
@@ -16,6 +18,8 @@ import { slug } from "@/lib/texto";
 const DESTACADOS = ARTICULOS.filter((a) => a.dest);
 
 export default function Carrusel() {
+  const t = useTranslations("carrusel");
+  const cat = useCatalogo();
   const pista = useRef<HTMLDivElement>(null);
 
   const desplazar = (px: number) =>
@@ -24,34 +28,30 @@ export default function Carrusel() {
   return (
     <div className="carrusel-zona">
       <div className="carrusel-cab">
-        <p className="ceja">Artículos destacados</p>
+        <p className="ceja">{t("articulos_destacados")}</p>
         <div className="flechas">
           <button
             className="flecha"
             id="cPrev"
             type="button"
-            aria-label="Anterior"
+            aria-label={t("anterior")}
             onClick={() => desplazar(-320)}
-          >
-            ←
-          </button>
+          >←</button>
           <button
             className="flecha"
             id="cSig"
             type="button"
-            aria-label="Siguiente"
+            aria-label={t("siguiente")}
             onClick={() => desplazar(320)}
-          >
-            →
-          </button>
+          >→</button>
         </div>
       </div>
       <div className="carrusel" id="carrusel" ref={pista}>
         {DESTACADOS.map((a) => (
           <a className="tarjeta" key={a.t} href={`#articulo-${slug(a.t)}`}>
-            <span className="tarjeta-sec">{a.s}</span>
+            <span className="tarjeta-sec">{cat.seccion(a.s)}</span>
             <h4>{a.t}</h4>
-            <p>{a.a} · {a.min} min de lectura</p>
+            <p>{a.a}{" "}·{" "}{a.min}{" "}{t("min_de_lectura")}</p>
           </a>
         ))}
       </div>

@@ -1,9 +1,11 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useTranslations } from "next-intl";
 import { ARTICULOS } from "@/lib/datos/articulos";
 import { TOPICS } from "@/lib/datos/temas";
 import { norm, slug } from "@/lib/texto";
+import { useCatalogo } from "@/i18n/catalogo";
 import type { TipoNodo } from "@/lib/motor/motor";
 
 /**
@@ -21,7 +23,16 @@ export type ModoPanel = TipoNodo | "indice";
 
 export type EstadoPanel = {
   tipo: ModoPanel;
+  /** Lo que se muestra: traducido. */
   valor: string | null;
+  /**
+   * El literal español con el que están indexados ARTICULOS.tm y .s. El
+   * original sólo lleva el traducido (index.html:1920) y por eso, en
+   * cualquier idioma que no sea español, articulosDe() no empareja nada y
+   * todo tema se ve vacío. Se corrige aquí porque en la etapa 6 el panel lee
+   * de la base de datos, donde el defecto dejaría de ser cosmético.
+   */
+  valor0: string | null;
   desdeIndice: boolean;
 };
 
@@ -39,19 +50,29 @@ export default function PanelArticulos({
 }: {
   estado: EstadoPanel | null;
   onCerrar: () => void;
-  onAbrirTema: (tema: string) => void;
+  onAbrirTema: (traducido: string, espanol: string) => void;
   onVolverIndice: () => void;
 }) {
+  const t = useTranslations("panelarticulos");
+  const cat = useCatalogo();
   const [filtro, setFiltro] = useState("");
   const busqueda = useRef<HTMLInputElement>(null);
   const abierto = estado !== null;
 
-  // al abrir: limpiar el filtro y enfocar la búsqueda sin arrastrar el scroll
-  useEffect(() => {
-    if (!abierto) return;
+  // Al cambiar de objetivo se limpia el filtro. Es el patrón de ajustar
+  // estado durante el render que documenta React, no un efecto: llamar a
+  // setState dentro de un efecto encadena un render de más.
+  const objetivo = estado ? `${estado.tipo}|${estado.valor ?? ""}` : "";
+  const [ultimoObjetivo, setUltimoObjetivo] = useState(objetivo);
+  if (objetivo !== ultimoObjetivo) {
+    setUltimoObjetivo(objetivo);
     setFiltro("");
-    busqueda.current?.focus({ preventScroll: true });
-  }, [abierto, estado?.tipo, estado?.valor]);
+  }
+
+  // enfocar la búsqueda al abrir, sin arrastrar el scroll
+  useEffect(() => {
+    if (abierto) busqueda.current?.focus({ preventScroll: true });
+  }, [abierto, objetivo]);
 
   useEffect(() => {
     document.body.classList.toggle("panel-abierto", abierto);
@@ -72,21 +93,27 @@ export default function PanelArticulos({
   const ceja = !estado
     ? ""
     : estado.tipo === "indice"
-      ? "Índice de temas"
+      ? t("indice_de_temas")
       : estado.tipo === "tema"
-        ? "Tema"
-        : "Sección de la revista";
-  const titulo = !estado ? "" : estado.tipo === "indice" ? "Todos los temas" : estado.valor!;
+        ? t("tema")
+        : t("seccion_de_la_revista");
+  const titulo = !estado ? "" : estado.tipo === "indice" ? t("todos_los_temas") : estado.valor!;
 
-  const temas = esIndice ? TOPICS.filter((t) => !f || norm(t).includes(f)) : [];
-  let items = estado && !esIndice ? articulosDe(estado.tipo, estado.valor) : [];
+  // El filtro corre sobre el texto que la persona está leyendo, no sobre el
+  // español que guarda el dato: buscar "trade" en inglés tiene que encontrar
+  // Comercio Internacional.
+  const temas = esIndice
+    ? TOPICS.filter((x) => !f || norm(cat.tema(x)).includes(f))
+    : [];
+  let items = estado && !esIndice ? articulosDe(estado.tipo, estado.valor0) : [];
   if (f && !esIndice) items = items.filter((a) => norm(a.t + " " + a.a).includes(f));
 
+  const cuentaArticulos = (n: number) =>
+    n === 1 ? t("un_articulo") : t("n_articulos", { n });
+
   const meta = esIndice
-    ? `${temas.length} de ${TOPICS.length} temas`
-    : items.length === 1
-      ? "1 artículo"
-      : `${items.length} artículos`;
+    ? t("n_de_m_temas", { n: temas.length, m: TOPICS.length })
+    : cuentaArticulos(items.length);
 
   return (
     <>
@@ -97,15 +124,15 @@ export default function PanelArticulos({
             <p className="ceja" id="panelCeja">{ceja}</p>
             <h3 id="panelTitulo">{titulo}</h3>
           </div>
-          <button className="cierre" id="cerrarPanel" type="button" aria-label="Cerrar panel" onClick={onCerrar}>✕</button>
+          <button className="cierre" id="cerrarPanel" type="button" aria-label={t("cerrar_panel")} onClick={onCerrar}>✕</button>
         </header>
         <div className="panel-busca">
           <input
             type="text"
             id="panelBusqueda"
             ref={busqueda}
-            placeholder={esIndice ? "Buscar un tema" : "Buscar por título o autor"}
-            aria-label="Buscar artículos"
+            placeholder={esIndice ? t("buscar_un_tema") : t("buscar_por_titulo_o_autor")}
+            aria-label={t("buscar_articulos")}
             value={filtro}
             onChange={(e) => setFiltro(e.target.value)}
           />
@@ -113,12 +140,12 @@ export default function PanelArticulos({
         <p className="panel-meta" id="panelMeta">{estado ? meta : ""}</p>
         <div id="panelLista">
           {esIndice &&
-            temas.map((t) => {
-              const n = articulosDe("tema", t).length;
+            temas.map((tema) => {
+              const n = articulosDe("tema", tema).length;
               return (
-                <button className="ind" key={t} data-tema={t} onClick={() => onAbrirTema(t)}>
-                  <span>{t}</span>
-                  <span className="cuenta">{n === 1 ? "1 artículo" : `${n} artículos`}</span>
+                <button className="ind" key={tema} data-tema={tema} onClick={() => onAbrirTema(cat.tema(tema), tema)}>
+                  <span>{cat.tema(tema)}</span>
+                  <span className="cuenta">{cuentaArticulos(n)}</span>
                 </button>
               );
             })}
@@ -126,17 +153,17 @@ export default function PanelArticulos({
           {estado && !esIndice && (
             <>
               {estado.desdeIndice && (
-                <button className="regresa" id="regresaIndice" onClick={onVolverIndice}>← Regresar al índice</button>
+                <button className="regresa" id="regresaIndice" onClick={onVolverIndice}>{t("regresar_al_indice")}</button>
               )}
               {items.length === 0 ? (
                 <div className="vacio">
-                  <p>Aún no hay artículos publicados aquí.</p>
-                  <p>Sé la primera persona en escribir sobre {estado.valor}. La convocatoria está abierta y el comité editorial te acompaña en el proceso.</p>
+                  <p>{t("aun_no_hay_articulos_publicados_aqui")}</p>
+                  <p>{t("se_la_primera_persona_en_escribir_sobre")}{" "}{estado.valor}{t("la_convocatoria_esta_abierta_y_el_comite_editori_c7be")}</p>
                 </div>
               ) : (
                 items.map((a) => (
                   <a className="art" key={a.t} href={`#articulo-${slug(a.t)}`}>
-                    <span className="art-sec">{a.s} · {a.min} min de lectura</span>
+                    <span className="art-sec">{cat.seccion(a.s)}{" "}·{" "}{a.min}{" "}{t("min_de_lectura")}</span>
                     <strong>{a.t}</strong>
                     <span className="art-aut">{a.a}</span>
                   </a>
@@ -146,7 +173,7 @@ export default function PanelArticulos({
           )}
         </div>
         <footer className="panel-pie">
-          <button className="boton boton--lleno" data-ir="envio" type="button">Publica sobre este tema</button>
+          <button className="boton boton--lleno" data-ir="envio" type="button">{t("publica_sobre_este_tema")}</button>
         </footer>
       </aside>
     </>

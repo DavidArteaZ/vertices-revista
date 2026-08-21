@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useState } from "react";
+import { useTranslations } from "next-intl";
 import "./globals.css";
 import Lienzo from "@/components/landing/Lienzo";
 import Carrusel from "@/components/landing/Carrusel";
@@ -14,24 +15,25 @@ import Pie from "@/components/layout/Pie";
 import type { TipoNodo } from "@/lib/motor/motor";
 
 export default function Home() {
+  const t = useTranslations("portada");
   const [panel, setPanel] = useState<EstadoPanel | null>(null);
 
-  const abrirPanel = useCallback((tipo: TipoNodo, valor: string) => {
-    setPanel({ tipo, valor, desdeIndice: false });
+  const abrirPanel = useCallback((tipo: TipoNodo, valor: string, valor0: string) => {
+    setPanel({ tipo, valor, valor0, desdeIndice: false });
   }, []);
   const cerrarPanel = useCallback(() => setPanel(null), []);
   const verIndice = useCallback(() => {
-    setPanel({ tipo: "indice", valor: null, desdeIndice: false });
+    setPanel({ tipo: "indice", valor: null, valor0: null, desdeIndice: false });
   }, []);
-  const abrirTema = useCallback((tema: string) => {
-    setPanel({ tipo: "tema", valor: tema, desdeIndice: true });
+  // El índice lista los temas en español (son los datos); el título del panel
+  // los muestra traducidos.
+  const abrirTema = useCallback((traducido: string, espanol: string) => {
+    setPanel({ tipo: "tema", valor: traducido, valor0: espanol, desdeIndice: true });
   }, []);
 
   return (
     <>
-      <h1 className="sr-solo">
-        Vértices, revista académica de economía del Tecnológico de Monterrey, Campus Ciudad de México
-      </h1>
+      <h1 className="sr-solo">{t("vertices_revista_academica_de_economia_del_tecno_4187")}</h1>
 
       <Marco />
 
@@ -49,8 +51,8 @@ export default function Home() {
         <section className="portal-seccion" id="envio">
           <div className="tablero">
             <div className="panel-envio">
-              <p className="ceja">Portal de envíos</p>
-              <h2>Envío de manuscritos</h2>
+              <p className="ceja">{t("portal_de_envios")}</p>
+              <h2>{t("envio_de_manuscritos")}</h2>
               <FormularioEnvio />
             </div>
             <Lateral />
@@ -69,9 +71,7 @@ export default function Home() {
       />
 
       <noscript>
-        <p style={{ position: "fixed", inset: "auto 0 0", padding: 16, textAlign: "center", background: "#342b40", color: "#E7DECB", zIndex: 99 }}>
-          Esta página necesita JavaScript para mostrar la red de partículas y el portal de envíos.
-        </p>
+        <p style={{ position: "fixed", inset: "auto 0 0", padding: 16, textAlign: "center", background: "#342b40", color: "#E7DECB", zIndex: 99 }}>{t("esta_pagina_necesita_javascript_para_mostrar_la_9e0c")}</p>
       </noscript>
     </>
   );

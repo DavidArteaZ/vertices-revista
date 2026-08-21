@@ -10,6 +10,7 @@ import {
   guionSemilla,
   guionSinRaf,
   MOVIMIENTO_SATELITE,
+  preparaSatelite,
 } from "./constantes";
 
 /**
@@ -106,10 +107,7 @@ test.describe("satélites", () => {
         (l) => l === "es" || Boolean((window as unknown as { __dicc?: unknown }).__dicc),
         locale,
       );
-      // el revelado por scroll deja elementos en opacity:0; forzarlos visibles
-      await page.evaluate(() =>
-        document.querySelectorAll(".rev").forEach((e) => e.classList.add("rev-on")),
-      );
+      await preparaSatelite(page);
       await expect(page).toHaveScreenshot(`${nombre}-${locale}.png`, {
         fullPage: true,
         maxDiffPixelRatio: 0,

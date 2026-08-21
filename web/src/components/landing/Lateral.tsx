@@ -1,38 +1,42 @@
+"use client";
+
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 
 /** Lineamientos para autores y preguntas frecuentes. index.html:866-898. */
 export default function Lateral() {
+  const t = useTranslations("lateral");
   return (
     <aside className="lateral">
       <div className="lineamientos" id="lineamientos">
-        <h3>Lineamientos para autores</h3>
+        <h3>{t("lineamientos_para_autores")}</h3>
         <ul>
-          <li>Se reciben papers y abstracts de investigación, artículos con datos, entrevistas y cápsulas breves.</li>
-          <li>Formato .docx o .pdf, interlineado 1.5 y letra Times New Roman de 12 puntos.</li>
-          <li>Citación en estilo Chicago; todo dato y toda gráfica indican su fuente y fecha.</li>
-          <li>Las piezas de investigación suman resumen y de 3 a 5 palabras clave, y pasan por verificación antiplagio.</li>
-          <li>El uso de inteligencia artificial se declara.</li>
-          <li>Decisiones posibles: aceptado, revisiones menores, revisiones mayores o rechazado.</li>
+          <li>{t("se_reciben_papers_y_abstracts_de_investigacion_a_e2b9")}</li>
+          <li>{t("formato_docx_o_pdf_interlineado_1_5_y_letra_time_f362")}</li>
+          <li>{t("citacion_en_estilo_chicago_todo_dato_y_toda_graf_3036")}</li>
+          <li>{t("las_piezas_de_investigacion_suman_resumen_y_de_3_44bf")}</li>
+          <li>{t("el_uso_de_inteligencia_artificial_se_declara")}</li>
+          <li>{t("decisiones_posibles_aceptado_revisiones_menores_c91a")}</li>
         </ul>
-        <p className="linea-completa"><Link href="/lineamientos">Consulta los lineamientos completos por sección</Link></p>
+        <p className="linea-completa"><Link href="/lineamientos">{t("consulta_los_lineamientos_completos_por_seccion")}</Link></p>
       </div>
       <div>
-        <h3>Preguntas frecuentes</h3>
+        <h3>{t("preguntas_frecuentes")}</h3>
         <details>
-          <summary>¿Quién puede publicar?</summary>
-          <p>Quien sea. La convocatoria es abierta: puede publicar cualquier persona mientras su investigación, artículo, documento o entrevista tenga una pregunta económica.</p>
+          <summary>{t("quien_puede_publicar")}</summary>
+          <p>{t("quien_sea_la_convocatoria_es_abierta_puede_publi_99fd")}</p>
         </details>
         <details>
-          <summary>¿Cómo se revisa mi trabajo?</summary>
-          <p>Según el tipo de pieza: la investigación pasa por dictaminación doble ciego (dos dictaminadores evalúan tu manuscrito anonimizado con la rúbrica del Dictamen Maestro), las piezas con datos por una revisión reforzada con verificación de fuentes, y el resto por edición y fact-check. Recibes un dictamen formal con fortalezas y áreas de mejora.</p>
+          <summary>{t("como_se_revisa_mi_trabajo")}</summary>
+          <p>{t("segun_el_tipo_de_pieza_la_investigacion_pasa_por_f7f7")}</p>
         </details>
         <details>
-          <summary>¿Puedo escribir desde fuera del Tec o en otro idioma?</summary>
-          <p>Sí. La revista nace en el Tec de Monterrey CCM, pero recibe autores externos y universidades internacionales; Miradas Económicas incluye una subsección de investigaciones del extranjero, con trabajos en otro idioma.</p>
+          <summary>{t("puedo_escribir_desde_fuera_del_tec_o_en_otro_idi_7141")}</summary>
+          <p>{t("si_la_revista_nace_en_el_tec_de_monterrey_ccm_pe_abfc")}</p>
         </details>
         <details>
-          <summary>¿Puedo proponer un tema nuevo?</summary>
-          <p>Sí. Los 27 temas de la constelación son un mapa, no una jaula. Elige el más cercano en el formulario y cuéntanos tu propuesta en el resumen.</p>
+          <summary>{t("puedo_proponer_un_tema_nuevo")}</summary>
+          <p>{t("si_los_27_temas_de_la_constelacion_son_un_mapa_n_30c2")}</p>
         </details>
       </div>
     </aside>
