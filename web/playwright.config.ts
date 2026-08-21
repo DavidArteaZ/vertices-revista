@@ -14,9 +14,11 @@ export default defineConfig({
   use: {
     viewport: { width: 1440, height: 900 },
     deviceScaleFactor: 1,
-    // El motor lee prefers-reduced-motion al arrancar: la animación debe
-    // correr. El determinismo lo da __qa.runTo, no la desactivación.
-    reducedMotion: "no-preference",
+    // Sin reducedMotion explícito: el valor por defecto ya es
+    // "no-preference", que es lo que hace falta. El motor lee
+    // prefers-reduced-motion al arrancar (REDUCIDO, index.html:1088) y con
+    // "reduce" desactivaría la animación entera. El determinismo lo da
+    // __qa.runTo más el guionSemilla, no la desactivación del movimiento.
   },
   projects: [{ name: "chromium", use: { browserName: "chromium" } }],
 });
