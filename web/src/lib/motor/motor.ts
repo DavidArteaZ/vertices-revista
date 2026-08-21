@@ -59,6 +59,7 @@ export type MotorOpciones = {
   ficha: { raiz: HTMLElement; nombre: HTMLElement; desc: HTMLElement };
   rielBotones: HTMLElement[];
   alAbrirPanel: (tipo: TipoNodo, label: string) => void;
+  alCerrarPanel: () => void;
 };
 
 export type Motor = { destruir: () => void };
@@ -738,6 +739,24 @@ function pickAt(x: number, y: number): Hover {
     if (dragMoved > 6) { dragMoved = 0; return; }
     const h = hover || pickAt(ev.clientX, ev.clientY);
     if (h) o.alAbrirPanel(h.tipo, h.label);
+  }) as EventListener);
+
+  /* ------- navegacion por scroll (marco, riel, botones) ------- */
+  // index.html:2006-2021. Vive aquí porque necesita limiteRecorrido().
+
+  function irAU(u: number) {
+    window.scrollTo({ top: u * limiteRecorrido(), behavior: REDUCIDO ? "auto" : "smooth" });
+  }
+  function irA(id: string) {
+    document.getElementById(id)?.scrollIntoView({ behavior: REDUCIDO ? "auto" : "smooth" });
+  }
+  escuchar(document, "click", ((ev: MouseEvent) => {
+    const b = (ev.target as HTMLElement | null)?.closest<HTMLElement>("[data-u], [data-ir]");
+    if (!b) return;
+    ev.preventDefault();
+    o.alCerrarPanel();
+    if (b.dataset.u !== undefined) irAU(parseFloat(b.dataset.u));
+    else irA(b.dataset.ir!);
   }) as EventListener);
 
   /* ------- gancho de idioma: etiquetas del canvas y subtitulo ------- */
