@@ -11,6 +11,30 @@ export const SATELITES = [
   { ruta: "/equipo", legado: "equipo-ds.html", nombre: "equipo-ds" },
 ] as const;
 
+/**
+ * Las páginas satélite se capturan con prefers-reduced-motion: reduce.
+ *
+ * La etapa 1 asumió que su fondo animado era estable "porque el velo por
+ * cuadro cambia menos de un paso de cuantización". Medido, es falso: dos
+ * capturas seguidas de la misma página, con el generador ya sembrado, difieren
+ * en ~140 000 píxeles. El campo de flujo acumula una estela por cuadro y el
+ * número de cuadros antes de la captura depende de cuánto tardó la carga —
+ * exactamente el mismo defecto que autoAng en el landing. La compuerta de la
+ * etapa 1 pasó por suerte.
+ *
+ * La rama de movimiento reducido de fondo-flujo.js (líneas 126-130 del puerto)
+ * corre 1100 pasos síncronos de dt fijo y se detiene, sin tocar rAF nunca. Con
+ * el generador sembrado eso es bit a bit reproducible: legado contra legado da
+ * 0 píxeles de diferencia. Y no es una rama muerta que sólo existe para las
+ * pruebas: es lo que ve cualquier persona con el sistema en movimiento
+ * reducido, así que la compuerta cubre código real.
+ *
+ * revelar.js:23 también sale temprano con movimiento reducido, de modo que
+ * nunca añade la clase .rev y el contenido queda visible desde el principio —
+ * el mismo estado final que forzar .rev-on.
+ */
+export const MOVIMIENTO_SATELITE = { reducedMotion: "reduce" } as const;
+
 export const nombreU = (u: number) => String(u).replace(".", "_");
 
 /**

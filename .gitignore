@@ -4,3 +4,6 @@
 # Editorial workbook — contains real author names, emails and manuscript links
 Vertices_BaseDatos_Editorial.xlsx
 *.xlsx
+
+# Skills instaladas por `npx skills add` — se reinstalan con ese mismo comando
+.agents/

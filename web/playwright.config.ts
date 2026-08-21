@@ -14,11 +14,20 @@ export default defineConfig({
   use: {
     viewport: { width: 1440, height: 900 },
     deviceScaleFactor: 1,
-    // Sin reducedMotion explícito: el valor por defecto ya es
-    // "no-preference", que es lo que hace falta. El motor lee
-    // prefers-reduced-motion al arrancar (REDUCIDO, index.html:1088) y con
-    // "reduce" desactivaría la animación entera. El determinismo lo da
-    // __qa.runTo más el guionSemilla, no la desactivación del movimiento.
+    // Sin reducedMotion aquí: es el valor que necesita el LANDING. El motor
+    // lee prefers-reduced-motion al arrancar (REDUCIDO, index.html:1088) y
+    // con "reduce" desactivaría la animación entera; su determinismo lo dan
+    // __qa.runTo y el guionSemilla. Las páginas satélite hacen justo lo
+    // contrario y lo declaran ellas mismas — ver SATELITES en constantes.ts.
+  },
+  // La suite corre contra una build de producción, no contra `next dev`.
+  // El indicador de desarrollo de Next se dibuja encima de la página y sale
+  // en las capturas; además el HTML de dev trae nodos que la build no emite.
+  webServer: {
+    command: "npm run build && npm run start",
+    url: "http://localhost:3100",
+    reuseExistingServer: !process.env.CI,
+    timeout: 240_000,
   },
   projects: [{ name: "chromium", use: { browserName: "chromium" } }],
 });

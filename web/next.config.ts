@@ -1,5 +1,8 @@
 import type { NextConfig } from "next";
 import path from "node:path";
+import createNextIntlPlugin from "next-intl/plugin";
+
+const conIntl = createNextIntlPlugin("./src/i18n/peticion.ts");
 
 const nextConfig: NextConfig = {
   // Hay un package-lock.json suelto en el directorio padre, fuera del repo.
@@ -20,4 +23,4 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
+export default conIntl(nextConfig);

@@ -50,3 +50,6 @@ next-env.d.ts
 #   npm run baseline -- --update-snapshots
 # Son 68 MB y deterministas, no vale la pena versionarlas.
 /tests/visual/baseline/
+
+# Andamio temporal de la migración de i18n
+/.i18n-tmp/

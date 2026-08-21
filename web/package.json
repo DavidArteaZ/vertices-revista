@@ -8,17 +8,21 @@
     "start": "next start -p 3100",
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run",
+    "i18n:generar": "node scripts/i18n/generar.mjs",
+    "i18n:verificar": "node scripts/i18n/verificar.mjs",
+    "test": "node scripts/i18n/verificar.mjs && vitest run",
     "test:watch": "vitest",
     "baseline": "playwright test capturar-baseline",
     "visual": "playwright test paridad"
   },
   "dependencies": {
     "next": "16.3.1",
+    "next-intl": "^4.13.7",
     "react": "19.2.8",
     "react-dom": "19.2.8"
   },
   "devDependencies": {
+    "@formatjs/icu-messageformat-parser": "^3.5.17",
     "@playwright/test": "^1.62.1",
     "@types/node": "^20",
     "@types/react": "^19",
@@ -26,7 +30,14 @@
     "@vitest/coverage-v8": "^4.1.11",
     "eslint": "^9",
     "eslint-config-next": "16.3.1",
+    "pngjs": "^7.0.0",
     "typescript": "^5",
     "vitest": "^4.1.11"
-  }
+  },
+  "browserslist": [
+    "chrome >= 111",
+    "safari >= 16.4",
+    "firefox >= 128",
+    "edge >= 111"
+  ]
 }

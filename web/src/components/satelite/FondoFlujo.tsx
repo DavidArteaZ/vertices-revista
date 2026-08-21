@@ -121,6 +121,17 @@ export default function FondoFlujo() {
 
     function arranca() {
       cancelAnimationFrame(raf);
+      // Gancho de QA, del mismo tipo que window.__qa del motor (spec §4.1).
+      // Sólo existe cuando la prueba visual lo inyecta; en producción esto es
+      // una llamada a undefined que el encadenamiento opcional descarta.
+      //
+      // Hace falta porque el campo de flujo se siembra con Math.random y su
+      // resultado depende de cuántos números se consumieron antes. En el sitio
+      // legado fondo-flujo.js corre casi al principio del documento; aquí corre
+      // dentro de un efecto, después de que React hidrata. Sin resembrar aquí,
+      // las dos siembras arrancan en puntos distintos del flujo y salen dos
+      // mapas distintos, ambos plausibles y ninguno comparable.
+      (window as { __resembrar?: () => void }).__resembrar?.();
       medir();
       siembra();
       if (quieto) {

@@ -9,6 +9,7 @@ import {
   PUERTO_LEGADO,
   guionSemilla,
   guionSinRaf,
+  MOVIMIENTO_SATELITE,
 } from "./constantes";
 
 /**
@@ -86,15 +87,16 @@ for (const locale of LOCALES) {
   });
 }
 
-for (const locale of LOCALES) {
+test.describe("satélites", () => {
+  // Ver MOVIMIENTO_SATELITE en constantes.ts: es lo que hace estas capturas
+  // reproducibles. Sin esto el campo de flujo acumula una estela por cuadro y
+  // dos corridas seguidas difieren en ~140 000 píxeles.
+  test.use(MOVIMIENTO_SATELITE);
+
+  for (const locale of LOCALES) {
   for (const { legado, nombre } of SATELITES) {
     test(`baseline ${nombre} ${locale}`, async ({ page }) => {
       // fondo-flujo.js también usa Math.random para sus partículas.
-      // Aquí NO se anula rAF: sin bucle, el campo de flujo no alcanza a
-      // dibujar ninguna estela y el fondo saldría crema liso, que no es lo
-      // que muestra el sitio. Estas capturas ya son estables sin anularlo,
-      // porque el velo por cuadro (VELO = 0.002) cambia menos de un paso de
-      // cuantización.
       await page.addInitScript(guionSemilla);
       await page.goto(`${BASE}/${legado}`);
       await page.evaluate((l) => localStorage.setItem("vertices_lang", l), locale);
@@ -114,4 +116,5 @@ for (const locale of LOCALES) {
       });
     });
   }
-}
+  }
+});

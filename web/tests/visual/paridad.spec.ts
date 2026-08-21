@@ -5,6 +5,7 @@ import {
   nombreU,
   guionSemilla,
   PUERTO_APP,
+  MOVIMIENTO_SATELITE,
 } from "./constantes";
 
 /**
@@ -54,7 +55,10 @@ test("landing es matches the legacy baseline at every phase", async ({ page }) =
   });
 });
 
-for (const { ruta, nombre } of SATELITES) {
+test.describe("satélites", () => {
+  test.use(MOVIMIENTO_SATELITE);
+
+  for (const { ruta, nombre } of SATELITES) {
   test(`${nombre} es matches the legacy baseline`, async ({ page }) => {
     await page.addInitScript(guionSemilla);
     await page.goto(BASE + ruta);
@@ -67,4 +71,5 @@ for (const { ruta, nombre } of SATELITES) {
       ...TOL,
     });
   });
-}
+  }
+});

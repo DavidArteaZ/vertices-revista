@@ -1,4 +1,8 @@
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
+import { hasLocale, NextIntlClientProvider } from "next-intl";
+import { getTranslations, setRequestLocale } from "next-intl/server";
+import { routing } from "@/i18n/rutas";
 import "./selector-idioma.css";
 
 /**
@@ -18,29 +22,52 @@ import "./selector-idioma.css";
 const FAVICON =
   "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cg fill='none' stroke='%232d232e' stroke-width='1.6'%3E%3Cpath d='M16 4 L28 26 L4 26 Z'/%3E%3Cpath d='M16 4 L17 18.5 M4 26 L17 18.5 M28 26 L17 18.5' opacity='.55'/%3E%3C/g%3E%3C/svg%3E";
 
-export const metadata: Metadata = {
-  title: "Vértices · Revista académica de economía · Sistema de diseño",
-  description:
-    "Vértices es la revista académica de economía creada por la comunidad estudiantil de la Licenciatura en Economía del Tec de Monterrey, Campus Ciudad de México. Rigurosa en evidencia y amable en lectura. Explora por tema y sección, y publica tu trabajo.",
-  openGraph: {
-    title: "Vértices · Revista académica de economía",
-    description:
-      "El punto donde las ideas se conectan. Explora la revista y publica tu trabajo.",
-  },
-  icons: { icon: FAVICON },
-};
+export function generateStaticParams() {
+  return routing.locales.map((locale) => ({ locale }));
+}
 
-export default function RootLayout({
+/**
+ * El sitio actual traduce también <title> (idiomas.js:61) y por eso el título
+ * en español está en los cinco diccionarios. Aquí se resuelve por idioma en
+ * el servidor, así que desaparece el parpadeo.
+ */
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "meta" });
+
+  return {
+    title: t("titulo"),
+    description: t("descripcion"),
+    openGraph: { title: t("og_titulo"), description: t("og_descripcion") },
+    icons: { icon: FAVICON },
+  };
+}
+
+export default async function RootLayout({
   children,
-}: Readonly<{ children: React.ReactNode }>) {
+  params,
+}: Readonly<{
+  children: React.ReactNode;
+  params: Promise<{ locale: string }>;
+}>) {
+  const { locale } = await params;
+  if (!hasLocale(routing.locales, locale)) notFound();
+  setRequestLocale(locale);
+
   return (
-    <html lang="es">
+    <html lang={locale}>
       <head>
         <link rel="preload" href="/fonts/NeueMontreal-Medium.woff2" as="font" type="font/woff2" crossOrigin="" />
         <link rel="preload" href="/fonts/NeueMontreal-Bold.woff2" as="font" type="font/woff2" crossOrigin="" />
         <link rel="preload" href="/fonts/Garet-Book.woff2" as="font" type="font/woff2" crossOrigin="" />
       </head>
-      <body>{children}</body>
+      <body>
+        <NextIntlClientProvider>{children}</NextIntlClientProvider>
+      </body>
     </html>
   );
 }
