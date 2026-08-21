@@ -29,6 +29,19 @@ export const SEMILLA = 0x5eed1234;
 export const guionSemilla = `
 (() => {
   let a = ${SEMILLA} >>> 0;
+
+  // Reinicia el generador. __qa.runTo llama a resize() y por tanto a
+  // buildParticles(), así que resembrar justo antes de cada captura
+  // reconstruye TODAS las partículas desde un estado conocido.
+  //
+  // Hace falta porque la posición de cada partícula depende de cuántos
+  // números aleatorios se consumieron antes, y eso varía entre el sitio
+  // legado y el puerto: el original muestrea la palabra una vez con la
+  // tipografía de reserva y otra cuando cargan las fuentes, y cada muestreo
+  // produce un número distinto de puntos. Sin resembrar, la nube de
+  // partículas de las fases de disolución nunca coincide.
+  window.__resembrar = function () { a = ${SEMILLA} >>> 0; };
+
   Math.random = function () {
     a |= 0; a = (a + 0x6D2B79F5) | 0;
     let t = Math.imul(a ^ (a >>> 15), 1 | a);

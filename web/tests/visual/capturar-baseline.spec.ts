@@ -63,6 +63,8 @@ for (const locale of LOCALES) {
     // captura de body ahoga la animación en un 10% del cuadro y vuelve
     // inservible cualquier tolerancia por proporción de píxeles.
     for (const u of PUNTOS_U) {
+      // resembrar antes de cada captura: runTo reconstruye las partículas
+      await page.evaluate(() => (window as unknown as { __resembrar: () => void }).__resembrar());
       await page.evaluate(
         (uu) => (window as unknown as { __qa: { runTo: (u: number, s: number) => void } }).__qa.runTo(uu, 3),
         u,

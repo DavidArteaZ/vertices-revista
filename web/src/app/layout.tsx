@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import "./selector-idioma.css";
 
 // Emblema de Vértices en línea, igual que en el sitio original (index.html:10)
 const FAVICON =

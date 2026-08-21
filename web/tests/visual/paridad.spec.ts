@@ -32,6 +32,8 @@ test("landing es matches the legacy baseline at every phase", async ({ page }) =
   await page.evaluate(() => document.fonts.ready);
 
   for (const u of PUNTOS_U) {
+    // resembrar antes de cada captura: runTo reconstruye las partículas
+    await page.evaluate(() => (window as unknown as { __resembrar: () => void }).__resembrar());
     await page.evaluate(
       (uu) => (window as unknown as { __qa: { runTo: (u: number, s: number) => void } }).__qa.runTo(uu, 3),
       u,

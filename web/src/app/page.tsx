@@ -3,6 +3,8 @@
 import { useCallback, useState } from "react";
 import Lienzo from "@/components/landing/Lienzo";
 import Carrusel from "@/components/landing/Carrusel";
+import Marco from "@/components/layout/Marco";
+import Pie from "@/components/layout/Pie";
 import type { TipoNodo } from "@/lib/motor/motor";
 
 type EstadoPanel = { tipo: TipoNodo | "indice"; valor: string | null; desdeIndice: boolean } | null;
@@ -24,6 +26,8 @@ export default function Home() {
         Vértices, revista académica de economía del Tecnológico de Monterrey, Campus Ciudad de México
       </h1>
 
+      <Marco />
+
       <Lienzo
         onAbrirPanel={abrirPanel}
         onCerrarPanel={cerrarPanel}
@@ -31,7 +35,9 @@ export default function Home() {
         carrusel={<Carrusel />}
       />
 
-      <main id="portal"></main>
+      <main id="portal">
+        <Pie />
+      </main>
 
       <noscript>
         <p style={{ position: "fixed", inset: "auto 0 0", padding: 16, textAlign: "center", background: "#342b40", color: "#E7DECB", zIndex: 99 }}>
