@@ -1,0 +1,6 @@
+# Claude-workflow hub-managed config — re-create with: claude-hub install <profile>
+.claude/
+
+# Editorial workbook — contains real author names, emails and manuscript links
+Vertices_BaseDatos_Editorial.xlsx
+*.xlsx
