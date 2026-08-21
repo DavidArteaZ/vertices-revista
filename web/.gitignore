@@ -45,3 +45,8 @@ next-env.d.ts
 /playwright-report/
 /blob-report/
 /playwright/.cache/
+
+# Imágenes doradas: se regeneran desde el sitio legado con
+#   npm run baseline -- --update-snapshots
+# Son 68 MB y deterministas, no vale la pena versionarlas.
+/tests/visual/baseline/
