@@ -54,7 +54,7 @@ test("la ceguera se levanta al enviar el dictamen, y sólo para quien lo envió"
 
   // Asignarse a sí misma. El selector de candidatos existe justamente para
   // esto y no hay nada que lo impida: estar asignada no es ver al autor.
-  await page.selectOption("#revisor", { label: "Ana de Prueba" });
+  await page.selectOption("#revisor", { label: e.ana.nombre });
   await page.click('form:has(#revisor) button[type=submit]');
   // Se afirma sobre la fila, no sobre el mensaje: cuando ya no queda nadie a
   // quien asignar el formulario desaparece y se lleva su aviso consigo. La
@@ -63,16 +63,16 @@ test("la ceguera se levanta al enviar el dictamen, y sólo para quien lo envió"
   // Con margen: la acción va al servidor, revalida la ruta y vuelve a
   // renderizar. Los 5 s por defecto se quedan cortos en una máquina cargada, y
   // eso sale como un fallo que no lo es.
-  await expect(page.getByRole("cell", { name: /Ana de Prueba/ })).toBeVisible({ timeout: 30_000 });
+  await expect(page.getByRole("cell", { name: new RegExp(e.ana.nombre) })).toBeVisible({ timeout: 30_000 });
 
   // Sigue ciega después de asignarse.
   await page.reload();
   expect(await page.content()).not.toContain(AUTOR);
 
   // También hay que asignar a Beto, para el paso 3.
-  await page.selectOption("#revisor", { label: "Beto de Prueba" });
+  await page.selectOption("#revisor", { label: e.beto.nombre });
   await page.click('form:has(#revisor) button[type=submit]');
-  await expect(page.getByRole("cell", { name: "Beto de Prueba" })).toBeVisible({ timeout: 30_000 });
+  await expect(page.getByRole("cell", { name: e.beto.nombre })).toBeVisible({ timeout: 30_000 });
 
   // ------------------------------------------------------------ 2. dictamen
   await page.reload();
@@ -116,7 +116,7 @@ test("la ceguera se levanta al enviar el dictamen, y sólo para quien lo envió"
 
   // Está asignado y ve que el dictamen de Ana existe, con su puntaje. Lo que
   // no ve es al autor: el desvelado es por persona, no por envío.
-  expect(await page.content()).toContain("Ana de Prueba");
+  expect(await page.content()).toContain(e.ana.nombre);
   expect(await page.content()).not.toContain(AUTOR);
   expect(await page.content()).not.toContain(e.correoAutor);
   await expect(page.getByText("Oculta.")).toBeVisible();
@@ -130,7 +130,7 @@ test("la ceguera se levanta al enviar el dictamen, y sólo para quien lo envió"
   await page.click('form:has(#decision) button[type=submit]');
   // Otra vez el formulario desaparece al tener éxito —la sección pasa a
   // mostrar la decisión grabada—, así que lo que se afirma es el resultado.
-  await expect(page.getByText(/Grabada por Ana de Prueba/)).toBeVisible({ timeout: 30_000 });
+  await expect(page.getByText(new RegExp(`Grabada por ${e.ana.nombre}`))).toBeVisible({ timeout: 30_000 });
 
   await sale(page);
 

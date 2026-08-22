@@ -31,8 +31,8 @@ export type Escenario = {
   envioId: string;
   folio: string;
   correoAutor: string;
-  ana: { id: string; correo: string };
-  beto: { id: string; correo: string };
+  ana: { id: string; correo: string; nombre: string };
+  beto: { id: string; correo: string; nombre: string };
 };
 
 export async function monta(): Promise<Escenario> {
@@ -41,9 +41,14 @@ export async function monta(): Promise<Escenario> {
     auth: { persistSession: false },
   });
 
+  // El nombre lleva la marca de la corrida, no sólo el correo. Sin eso, dos
+  // archivos de prueba crean sendas "Ana de Prueba" y selectOption({label})
+  // puede elegir la de otra corrida: la asignación acaba siendo de otra
+  // persona, el botón de dictamen no aparece y el fallo parece un problema de
+  // la aplicación. Pasó exactamente así.
   const marca = `pw${Date.now()}`;
-  const ana = await creaPersona(admin, `ana.${marca}@prueba.test`, "Ana de Prueba");
-  const beto = await creaPersona(admin, `beto.${marca}@prueba.test`, "Beto de Prueba");
+  const ana = await creaPersona(admin, `ana.${marca}@prueba.test`, `Ana ${marca}`);
+  const beto = await creaPersona(admin, `beto.${marca}@prueba.test`, `Beto ${marca}`);
 
   // Un envío que ya viene triado, para que la prueba se concentre en la
   // ceguera y no en el triaje. Miradas Económicas es Nivel A: 5 puertas y 5
@@ -90,7 +95,7 @@ async function creaPersona(admin: SupabaseClient, correo: string, nombre: string
   if (error || !data.user) throw new Error(`no se pudo crear ${correo}: ${error?.message}`);
 
   await admin.from("usuarios").insert({ id: data.user.id, nombre, email: correo });
-  return { id: data.user.id, correo };
+  return { id: data.user.id, correo, nombre };
 }
 
 /**
@@ -162,29 +167,43 @@ export function urlPrivadaSinFirmar(ruta: string): string {
   return `${entorno().SUPABASE_URL}/storage/v1/object/public/manuscritos/${ruta}`;
 }
 
+/** Cada paso va aparte: si uno falla, los demás tienen que correr igual —
+ *  si no, una prueba rota deja usuarios y envíos que envenenan la siguiente. */
+async function intenta(paso: string, fn: () => PromiseLike<unknown>) {
+  try {
+    await fn();
+  } catch (err) {
+    console.error(`limpieza: falló ${paso}:`, (err as Error).message);
+  }
+}
+
 export async function desmonta(e: Escenario) {
   // Los artículos son ON DELETE SET NULL respecto al envío, así que hay que
   // borrarlos aparte o quedarían huérfanos en la portada.
-  const { data: arts } = await e.admin.from("articulos").select("id").eq("envio_id", e.envioId);
-  if (arts?.length) await e.admin.from("articulos").delete().in("id", arts.map((a) => a.id));
-  await e.admin.from("ediciones").delete().gte("numero", 900);
+  await intenta("artículos", async () => {
+    const { data: arts } = await e.admin.from("articulos").select("id").eq("envio_id", e.envioId);
+    if (arts?.length) await e.admin.from("articulos").delete().in("id", arts.map((a) => a.id));
+  });
+  await intenta("ediciones", () => e.admin.from("ediciones").delete().gte("numero", 900));
 
-  const { data: objetos } = await e.admin.storage.from("manuscritos").list("", { limit: 1000 });
-  if (objetos?.length) {
-    await e.admin.storage.from("manuscritos").remove(objetos.map((o) => o.name));
-  }
-  for (const bucket of ["publicaciones"]) {
-    const { data: carpetas } = await e.admin.storage.from(bucket).list("", { limit: 1000 });
+  await intenta("bucket privado", async () => {
+    const { data: objetos } = await e.admin.storage.from("manuscritos").list("", { limit: 1000 });
+    if (objetos?.length) {
+      await e.admin.storage.from("manuscritos").remove(objetos.map((o) => o.name));
+    }
+  });
+  await intenta("bucket público", async () => {
+    const { data: carpetas } = await e.admin.storage.from("publicaciones").list("", { limit: 1000 });
     for (const c of carpetas ?? []) {
-      const { data: dentro } = await e.admin.storage.from(bucket).list(c.name, { limit: 1000 });
+      const { data: dentro } = await e.admin.storage.from("publicaciones").list(c.name, { limit: 1000 });
       if (dentro?.length) {
-        await e.admin.storage.from(bucket).remove(dentro.map((o) => `${c.name}/${o.name}`));
+        await e.admin.storage.from("publicaciones").remove(dentro.map((o) => `${c.name}/${o.name}`));
       }
     }
-  }
+  });
 
-  await e.admin.from("envios").delete().eq("id", e.envioId);
-  await e.admin.from("usuarios").delete().in("id", [e.ana.id, e.beto.id]);
-  await e.admin.auth.admin.deleteUser(e.ana.id);
-  await e.admin.auth.admin.deleteUser(e.beto.id);
+  await intenta("envío", () => e.admin.from("envios").delete().eq("id", e.envioId));
+  await intenta("usuarios", () => e.admin.from("usuarios").delete().in("id", [e.ana.id, e.beto.id]));
+  await intenta("cuenta de ana", () => e.admin.auth.admin.deleteUser(e.ana.id));
+  await intenta("cuenta de beto", () => e.admin.auth.admin.deleteUser(e.beto.id));
 }

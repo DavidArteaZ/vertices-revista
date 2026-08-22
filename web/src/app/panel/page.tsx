@@ -84,7 +84,21 @@ export default async function Cola() {
         </>
       )}
 
-      <h3>Todos los envíos</h3>
+      <h3>
+        Todos los envíos{" "}
+        {/* §12: el export respeta la ceguera de quien lo pide — las columnas de
+            autoría salen vacías en lo que aún no ha dictaminado — y deja una
+            fila en envio_eventos. No es una vía para rodear el ciego.
+
+            <a> y no <Link>: /panel/exportar devuelve un .xlsx con
+            Content-Disposition, y una navegación de cliente intentaría
+            interpretarlo como una página. La regla de lint no distingue un
+            route handler de una página. */}
+        {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
+        <a href="/panel/exportar" style={{ float: "right", textTransform: "none", letterSpacing: 0 }}>
+          Descargar el Registro (.xlsx)
+        </a>
+      </h3>
       <div className="tarjeta">
         {lista.length === 0 ? (
           <p className="nota">Todavía no hay envíos.</p>
