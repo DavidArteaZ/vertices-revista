@@ -1,78 +1,36 @@
-"use client";
-
-import { useCallback, useState } from "react";
-import { useTranslations } from "next-intl";
+import { setRequestLocale } from "next-intl/server";
 import "./globals.css";
-import Lienzo from "@/components/landing/Lienzo";
-import Carrusel from "@/components/landing/Carrusel";
-import Convocatoria from "@/components/landing/Convocatoria";
-import FormularioEnvio from "@/components/landing/FormularioEnvio";
-import Lateral from "@/components/landing/Lateral";
-import EstadoEnvio from "@/components/landing/EstadoEnvio";
-import PanelArticulos, { type EstadoPanel } from "@/components/landing/PanelArticulos";
-import Marco from "@/components/layout/Marco";
-import Pie from "@/components/layout/Pie";
-import type { TipoNodo } from "@/lib/motor/motor";
+import Portada from "@/components/landing/Portada";
+import { cargaArticulos } from "@/lib/datos/cargar-articulos";
+import { routing } from "@/i18n/rutas";
 
-export default function Home() {
-  const t = useTranslations("portada");
-  const [panel, setPanel] = useState<EstadoPanel | null>(null);
+/**
+ * La portada, ahora con los artículos leídos de la base (spec §5.5).
+ *
+ * Es un componente de servidor que sólo carga datos y se los pasa a `Portada`,
+ * que es el archivo que había aquí antes. La página en sí no dibuja nada: así
+ * el lienzo, el carrusel y el panel de descubrimiento siguen siendo
+ * exactamente el mismo código que la compuerta visual ya aprobó.
+ *
+ * `revalidate` en lugar de renderizar en cada petición: la portada es lo más
+ * visitado del sitio y su contenido cambia cuando el comité publica un número,
+ * no cuando alguien la abre. Cinco minutos de desfase entre publicar y verlo
+ * es un precio razonable por servir HTML estático.
+ *
+ * A cambio, el build necesita alcanzar la base para prerrenderizar. Es la
+ * primera dependencia de ese tipo en el proyecto y conviene tenerla presente.
+ */
 
-  const abrirPanel = useCallback((tipo: TipoNodo, valor: string, valor0: string) => {
-    setPanel({ tipo, valor, valor0, desdeIndice: false });
-  }, []);
-  const cerrarPanel = useCallback(() => setPanel(null), []);
-  const verIndice = useCallback(() => {
-    setPanel({ tipo: "indice", valor: null, valor0: null, desdeIndice: false });
-  }, []);
-  // El índice lista los temas en español (son los datos); el título del panel
-  // los muestra traducidos.
-  const abrirTema = useCallback((traducido: string, espanol: string) => {
-    setPanel({ tipo: "tema", valor: traducido, valor0: espanol, desdeIndice: true });
-  }, []);
+export const revalidate = 300;
 
-  return (
-    <>
-      <h1 className="sr-solo">{t("vertices_revista_academica_de_economia_del_tecno_4187")}</h1>
+export function generateStaticParams() {
+  return routing.locales.map((locale) => ({ locale }));
+}
 
-      <Marco />
+export default async function Home({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
+  setRequestLocale(locale);
 
-      <Lienzo
-        onAbrirPanel={abrirPanel}
-        onCerrarPanel={cerrarPanel}
-        onVerIndice={verIndice}
-        carrusel={<Carrusel />}
-      />
-
-      {/* ------- portal editorial (la palabra sigue al fondo, difuminada) ------- */}
-      <main id="portal">
-        <Convocatoria />
-
-        <section className="portal-seccion" id="envio">
-          <div className="tablero">
-            <div className="panel-envio">
-              <p className="ceja">{t("portal_de_envios")}</p>
-              <h2>{t("envio_de_manuscritos")}</h2>
-              <FormularioEnvio />
-            </div>
-            <Lateral />
-            <EstadoEnvio />
-          </div>
-        </section>
-
-        <Pie />
-      </main>
-
-      <PanelArticulos
-        estado={panel}
-        onCerrar={cerrarPanel}
-        onAbrirTema={abrirTema}
-        onVolverIndice={verIndice}
-      />
-
-      <noscript>
-        <p style={{ position: "fixed", inset: "auto 0 0", padding: 16, textAlign: "center", background: "#342b40", color: "#E7DECB", zIndex: 99 }}>{t("esta_pagina_necesita_javascript_para_mostrar_la_9e0c")}</p>
-      </noscript>
-    </>
-  );
+  const articulos = await cargaArticulos();
+  return <Portada articulos={articulos} />;
 }

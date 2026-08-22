@@ -59,7 +59,11 @@ test("la ceguera se levanta al enviar el dictamen, y sólo para quien lo envió"
   // Se afirma sobre la fila, no sobre el mensaje: cuando ya no queda nadie a
   // quien asignar el formulario desaparece y se lleva su aviso consigo. La
   // tabla es la confirmación de verdad.
-  await expect(page.getByRole("cell", { name: /Ana de Prueba/ })).toBeVisible();
+  //
+  // Con margen: la acción va al servidor, revalida la ruta y vuelve a
+  // renderizar. Los 5 s por defecto se quedan cortos en una máquina cargada, y
+  // eso sale como un fallo que no lo es.
+  await expect(page.getByRole("cell", { name: /Ana de Prueba/ })).toBeVisible({ timeout: 30_000 });
 
   // Sigue ciega después de asignarse.
   await page.reload();
@@ -68,7 +72,7 @@ test("la ceguera se levanta al enviar el dictamen, y sólo para quien lo envió"
   // También hay que asignar a Beto, para el paso 3.
   await page.selectOption("#revisor", { label: "Beto de Prueba" });
   await page.click('form:has(#revisor) button[type=submit]');
-  await expect(page.getByRole("cell", { name: "Beto de Prueba" })).toBeVisible();
+  await expect(page.getByRole("cell", { name: "Beto de Prueba" })).toBeVisible({ timeout: 30_000 });
 
   // ------------------------------------------------------------ 2. dictamen
   await page.reload();

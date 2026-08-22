@@ -563,5 +563,17 @@
     "el_comite_registro_decision": "El comité registró una decisión sobre «{titulo}»: {decision}.",
     "puedes_consultarlo_cuando_quieras": "Puedes volver a consultar el estado de tu envío cuando quieras con tu folio y este correo.",
     "gracias_por_enviar_a_vertices": "Gracias por enviar tu trabajo a Vértices."
+  },
+  "articulo": {
+    "min_de_lectura": "min de lectura",
+    "descargar_el_pdf": "Descargar el PDF",
+    "volver_a_la_portada": "← Volver a la portada",
+    "temas": "Темы",
+    "seccion": "Раздел",
+    "numero_n": "Número {n}",
+    "pieza_de_muestra": "Esta es una pieza de muestra: existe para que el índice de temas y el recorrido por secciones funcionen desde el primer día. No hay documento que descargar.",
+    "la_convocatoria_esta_abierta": "La convocatoria está abierta.",
+    "enviar_un_manuscrito": "Enviar un manuscrito",
+    "no_encontramos_esa_pieza": "No encontramos esa pieza."
   }
 }

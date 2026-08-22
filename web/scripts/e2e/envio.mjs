@@ -59,9 +59,14 @@ const pide = async (ruta, cuerpo) => {
 };
 
 // ------------------------------------------------------------------ arranque
-// El límite de tasa es real y esta prueba lo agota en dos corridas seguidas.
-await sb.rpc("limitar", { p_clave: "descartar", p_segundos: 1, p_max: 1 });
-await sb.schema("privado").from("golpes").delete().neq("id", 0).then(() => {}, () => {});
+//
+// El límite de tasa es real: diez envíos por hora y por IP. Esta prueba gasta
+// uno cada vez que se corre, y desde localhost todas las corridas comparten
+// huella. No se puede reiniciar desde aquí —privado no está expuesto por
+// PostgREST y no debe estarlo—, así que lo que se hace es detectarlo y
+// decirlo, en vez de informar de un 429 como si fuera un fallo del código:
+//
+//     delete from privado.golpes;   -- en el SQL editor, para volver a correr
 
 const pdf = await PDFDocument.create();
 pdf.addPage();
@@ -106,6 +111,15 @@ const datos = {
 
 const archivos = [{ path: firmada.path, nombre: "Mi Manuscrito.PDF", bytes: bytes.length }];
 const [sEnvio, creado] = await pide("/api/envios", { datos, locale: "es", archivos });
+
+if (sEnvio === 429) {
+  console.log(
+    "\nlímite de tasa agotado para esta IP (10 envíos por hora, y es a propósito).\n" +
+      "Para volver a correr la prueba:  delete from privado.golpes;",
+  );
+  process.exit(2);
+}
+
 comprueba("POST /api/envios responde 200", sEnvio, 200);
 comprueba("y devuelve un folio con el formato que el sitio pide teclear", /^VTX-\d{4}-\d{3}$/.test(creado.folio ?? ""), true);
 
@@ -132,7 +146,16 @@ comprueba("el nombre público no viene del nombre original", adjuntos[0].nombre_
 const { data: blob } = await sb.storage.from("manuscritos").download(adjuntos[0].storage_path);
 const guardado = Buffer.from(await blob.arrayBuffer());
 comprueba("el archivo almacenado NO lleva el nombre del autor", contieneAutor(guardado), false);
-comprueba("la ruta sucia original ya no existe en el bucket", (await sb.storage.from("manuscritos").download(firmada.path)).error !== null, true);
+// Se pregunta al LISTADO y no a download(): descargar pasa por el CDN, que
+// puede seguir sirviendo una copia de un objeto ya borrado. Es la misma
+// trampa que escondió el fallo de los metadatos, sólo que aquí engañaría en
+// la dirección contraria. El listado sí lee storage.objects.
+const { data: enBucket } = await sb.storage.from("manuscritos").list("", { limit: 1000 });
+comprueba(
+  "la ruta sucia original ya no existe en el bucket",
+  (enBucket ?? []).some((o) => o.name === firmada.path),
+  false,
+);
 
 // -------------------------------------------------------------------- estado
 comprueba("estado con el correo correcto, en otras mayúsculas", (await pide("/api/estado", { folio: creado.folio, correo: "  NO-EXISTE-esta-direccion@example.invalid " }))[1].estado, "ok");

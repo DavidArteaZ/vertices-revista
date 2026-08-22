@@ -32,6 +32,7 @@ export const PARAMETRIZADOS = {
   "correo.tu_folio_es_folio": ["folio"],
   "correo.asunto_decision": ["folio"],
   "correo.el_comite_registro_decision": ["titulo", "decision"],
+  "articulo.numero_n": ["n"],
 };
 
 export function verificaParametros(claves) {

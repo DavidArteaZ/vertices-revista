@@ -31,6 +31,7 @@ export function Cabecera({ quien }: { quien: Personal }) {
       <span className="panel-quien">{quien.nombre}</span>
       <nav>
         <Link href="/panel">Cola</Link>
+        <Link href="/panel/ediciones">Números</Link>
         <Link href="/panel/equipo">Equipo</Link>
         <form action={salir}>
           <button type="submit">Salir</button>

@@ -1,10 +1,11 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Link from "next/link";
 import { useTranslations } from "next-intl";
-import { ARTICULOS } from "@/lib/datos/articulos";
+import type { Articulo } from "@/lib/datos/articulos";
 import { TOPICS } from "@/lib/datos/temas";
-import { norm, slug } from "@/lib/texto";
+import { norm } from "@/lib/texto";
 import { useCatalogo } from "@/i18n/catalogo";
 import type { TipoNodo } from "@/lib/motor/motor";
 
@@ -36,18 +37,20 @@ export type EstadoPanel = {
   desdeIndice: boolean;
 };
 
-function articulosDe(tipo: ModoPanel, valor: string | null) {
-  if (tipo === "tema") return ARTICULOS.filter((a) => a.tm.includes(valor!));
-  if (tipo === "seccion") return ARTICULOS.filter((a) => a.s === valor);
-  return ARTICULOS.slice();
+function articulosDe(articulos: Articulo[], tipo: ModoPanel, valor: string | null) {
+  if (tipo === "tema") return articulos.filter((a) => a.tm.includes(valor!));
+  if (tipo === "seccion") return articulos.filter((a) => a.s === valor);
+  return articulos.slice();
 }
 
 export default function PanelArticulos({
+  articulos,
   estado,
   onCerrar,
   onAbrirTema,
   onVolverIndice,
 }: {
+  articulos: Articulo[];
   estado: EstadoPanel | null;
   onCerrar: () => void;
   onAbrirTema: (traducido: string, espanol: string) => void;
@@ -105,7 +108,7 @@ export default function PanelArticulos({
   const temas = esIndice
     ? TOPICS.filter((x) => !f || norm(cat.tema(x)).includes(f))
     : [];
-  let items = estado && !esIndice ? articulosDe(estado.tipo, estado.valor0) : [];
+  let items = estado && !esIndice ? articulosDe(articulos, estado.tipo, estado.valor0) : [];
   if (f && !esIndice) items = items.filter((a) => norm(a.t + " " + a.a).includes(f));
 
   const cuentaArticulos = (n: number) =>
@@ -141,7 +144,7 @@ export default function PanelArticulos({
         <div id="panelLista">
           {esIndice &&
             temas.map((tema) => {
-              const n = articulosDe("tema", tema).length;
+              const n = articulosDe(articulos, "tema", tema).length;
               return (
                 <button className="ind" key={tema} data-tema={tema} onClick={() => onAbrirTema(cat.tema(tema), tema)}>
                   <span>{cat.tema(tema)}</span>
@@ -162,11 +165,11 @@ export default function PanelArticulos({
                 </div>
               ) : (
                 items.map((a) => (
-                  <a className="art" key={a.t} href={`#articulo-${slug(a.t)}`}>
+                  <Link className="art" key={a.slug} href={`/articulos/${a.slug}`}>
                     <span className="art-sec">{cat.seccion(a.s)}{" "}·{" "}{a.min}{" "}{t("min_de_lectura")}</span>
                     <strong>{a.t}</strong>
                     <span className="art-aut">{a.a}</span>
-                  </a>
+                  </Link>
                 ))
               )}
             </>

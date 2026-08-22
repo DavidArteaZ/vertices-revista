@@ -1,0 +1,88 @@
+/* Página de artículo.
+ *
+ * Hoja propia, como cada página satélite: globals.css es la hoja de la portada
+ * y sus clases (.cierre, .paso, .art) tienen ahí significados distintos. Lo que
+ * se reutiliza son los valores del sistema de diseño, para que la página se lea
+ * como parte de la misma revista.
+ *
+ * Los @font-face y el bloque :root se repiten aquí por la misma razón que en
+ * quienes-somos.css y lineamientos.css: cada satélite es autónomo. */
+
+@font-face{ font-family:"Neue Montreal"; src:url("/fonts/NeueMontreal-Regular.woff2") format("woff2"); font-weight:400; font-display:swap; }
+@font-face{ font-family:"Neue Montreal"; src:url("/fonts/NeueMontreal-Medium.woff2") format("woff2"); font-weight:500 600; font-display:swap; }
+@font-face{ font-family:"Neue Montreal"; src:url("/fonts/NeueMontreal-Bold.woff2") format("woff2"); font-weight:700 800; font-display:swap; }
+@font-face{ font-family:"Garet"; src:url("/fonts/Garet-Book.woff2") format("woff2"); font-weight:400 600; font-display:swap; }
+
+:root{
+  --negro:#E7DECB;
+  --crema:#2d232e;
+  --hueso:#433947;
+  --texto:#4d4252;
+  --gris:#776d80;
+  --indigo:#4d4dfa;
+  --naranja:#fd6343;
+  --linea:rgba(45,35,46,.18);
+  --linea-fuerte:rgba(45,35,46,.45);
+  --f-ui:"Neue Montreal",Arial,"Helvetica Neue",sans-serif;
+  --f-sub:"Garet",Arial,"Helvetica Neue",sans-serif;
+}
+
+html,body{ margin:0; background:var(--negro); }
+body{ font:400 16px/1.7 var(--f-ui); color:var(--texto); -webkit-font-smoothing:antialiased; }
+
+.art-pagina{ padding:clamp(90px,12vh,150px) 24px 0; }
+.art-cuerpo{ max-width:660px; margin:0 auto; }
+
+.art-cuerpo .ceja{
+  font:500 11px var(--f-ui); letter-spacing:.22em; text-transform:uppercase;
+  color:var(--gris); margin:0 0 14px;
+}
+
+.art-cuerpo h1{
+  font:600 clamp(30px,4.4vw,46px)/1.15 var(--f-ui);
+  color:var(--crema); margin:0 0 14px; letter-spacing:-.015em;
+}
+
+.art-autor{ font:400 17px var(--f-sub); color:var(--hueso); margin:0; }
+
+.art-edicion{
+  font:400 14px var(--f-sub); color:var(--gris); margin:6px 0 0;
+}
+
+.art-acciones{ margin:34px 0 0; }
+
+.boton{
+  display:inline-block; font:500 11.5px var(--f-ui); letter-spacing:.14em;
+  text-transform:uppercase; color:var(--crema); text-decoration:none;
+  background:transparent; border:1px solid var(--linea); border-radius:999px;
+  padding:11px 22px;
+}
+.boton:hover{ border-color:var(--linea-fuerte); }
+.boton--lleno{ background:var(--naranja); color:#2d232e; border-color:var(--naranja); }
+.boton--lleno:hover{ background:#ee5333; border-color:#ee5333; }
+
+/* El vacío definido de §5.5: una pieza de muestra no tiene documento, y eso
+   se dice, en lugar de dejar la página a medias o enseñar un enlace roto. */
+.art-vacio{
+  margin:34px 0 0; padding:22px 24px;
+  background:rgba(252,248,240,.55);
+  border:1px solid var(--linea); border-radius:14px;
+}
+.art-vacio p{ margin:0; }
+.art-vacio p + p{ margin-top:10px; color:var(--gris); font-family:var(--f-sub); }
+.art-vacio a{ color:var(--indigo); }
+
+.art-temas{ margin:40px 0 0; padding-top:26px; border-top:1px solid var(--linea); }
+.art-temas ul{ list-style:none; margin:0; padding:0; display:flex; flex-wrap:wrap; gap:8px; }
+.art-temas li{
+  font:500 11px var(--f-ui); letter-spacing:.12em; text-transform:uppercase;
+  color:var(--hueso); border:1px solid var(--linea); border-radius:999px;
+  padding:6px 13px;
+}
+
+.art-volver{ margin:46px 0 70px; }
+.art-volver a{
+  font:500 11.5px var(--f-ui); letter-spacing:.16em; text-transform:uppercase;
+  color:var(--hueso); text-decoration:none;
+}
+.art-volver a:hover{ color:var(--crema); }

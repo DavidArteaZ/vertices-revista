@@ -93,7 +93,96 @@ async function creaPersona(admin: SupabaseClient, correo: string, nombre: string
   return { id: data.user.id, correo };
 }
 
+/**
+ * Un envío listo para publicar: con PDF en el bucket privado y con una
+ * decisión ACEPTANTE grabada. Es la precondición de §9.2 — sólo se publica lo
+ * que el comité aceptó — y montarla con la clave de servicio evita tener que
+ * recorrer todo el dictamen otra vez para probar la publicación.
+ */
+export async function preparaParaPublicar(
+  e: Escenario,
+  pdf: Uint8Array,
+): Promise<{ storagePath: string; decision: string }> {
+  const ruta = crypto.randomUUID();
+
+  await e.admin.storage.from("manuscritos").upload(ruta, pdf, {
+    contentType: "application/pdf",
+    cacheControl: "0",
+  });
+
+  await e.admin.from("envio_archivos").insert({
+    envio_id: e.envioId,
+    storage_path: ruta,
+    nombre_publico: "prueba-01.pdf",
+    mime: "application/pdf",
+    bytes: pdf.byteLength,
+    es_principal: true,
+  });
+
+  const { data: envio } = await e.admin
+    .from("envios")
+    .select("seccion_dictamen_id")
+    .eq("id", e.envioId)
+    .single();
+
+  const { data: rubrica } = await e.admin
+    .from("rubrica_versiones")
+    .select("id")
+    .eq("seccion_id", envio!.seccion_dictamen_id)
+    .eq("vigente", true)
+    .single();
+
+  const { data: decision } = await e.admin
+    .from("decisiones")
+    .select("id, etiqueta")
+    .eq("rubrica_version_id", rubrica!.id)
+    .eq("es_aceptante", true)
+    .order("orden")
+    .limit(1)
+    .single();
+
+  await e.admin
+    .from("envios")
+    .update({
+      decision_id: decision!.id,
+      decision_final_por: e.ana.id,
+      decision_final_at: new Date().toISOString(),
+      estado: "decidido",
+    })
+    .eq("id", e.envioId);
+
+  return { storagePath: ruta, decision: decision!.etiqueta };
+}
+
+export function urlPublica(bucket: string, ruta: string): string {
+  return `${entorno().SUPABASE_URL}/storage/v1/object/public/${bucket}/${ruta}`;
+}
+
+export function urlPrivadaSinFirmar(ruta: string): string {
+  return `${entorno().SUPABASE_URL}/storage/v1/object/public/manuscritos/${ruta}`;
+}
+
 export async function desmonta(e: Escenario) {
+  // Los artículos son ON DELETE SET NULL respecto al envío, así que hay que
+  // borrarlos aparte o quedarían huérfanos en la portada.
+  const { data: arts } = await e.admin.from("articulos").select("id").eq("envio_id", e.envioId);
+  if (arts?.length) await e.admin.from("articulos").delete().in("id", arts.map((a) => a.id));
+  await e.admin.from("ediciones").delete().gte("numero", 900);
+
+  const { data: objetos } = await e.admin.storage.from("manuscritos").list("", { limit: 1000 });
+  if (objetos?.length) {
+    await e.admin.storage.from("manuscritos").remove(objetos.map((o) => o.name));
+  }
+  for (const bucket of ["publicaciones"]) {
+    const { data: carpetas } = await e.admin.storage.from(bucket).list("", { limit: 1000 });
+    for (const c of carpetas ?? []) {
+      const { data: dentro } = await e.admin.storage.from(bucket).list(c.name, { limit: 1000 });
+      if (dentro?.length) {
+        await e.admin.storage.from(bucket).remove(dentro.map((o) => `${c.name}/${o.name}`));
+      }
+    }
+  }
+
   await e.admin.from("envios").delete().eq("id", e.envioId);
   await e.admin.from("usuarios").delete().in("id", [e.ana.id, e.beto.id]);
   await e.admin.auth.admin.deleteUser(e.ana.id);

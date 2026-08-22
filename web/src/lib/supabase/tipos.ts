@@ -327,6 +327,17 @@ export type Database = {
         Returns: undefined;
       };
       vincular_revision: { Args: { p_envio: string; p_original: string }; Returns: undefined };
+      adjuntar_articulo: {
+        Args: {
+          p_envio: string;
+          p_edicion: number;
+          p_minutos?: number | null;
+          p_temas?: number[];
+        };
+        Returns: number;
+      };
+      publicar_edicion: { Args: { p_edicion: number }; Returns: number };
+      unaccent_simple: { Args: { t: string }; Returns: string };
     };
     Enums: Record<never, never>;
     CompositeTypes: Record<never, never>;

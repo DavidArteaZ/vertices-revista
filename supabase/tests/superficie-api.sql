@@ -41,16 +41,19 @@ begin
              --                                 es_staff() por dentro y sólo
              --                                 devuelve id y nombre
              --   enviar_dictamen, registrar_decision, marcar_anonimizacion,
-             --   vincular_revision             SECURITY INVOKER: RLS sigue
+             --   vincular_revision, adjuntar_articulo, publicar_edicion
+             --                                 SECURITY INVOKER: RLS sigue
              --                                 aplicándose dentro. Existen para
              --                                 que el UPDATE y su fila en
              --                                 envio_eventos vayan en la misma
              --                                 transacción
+             --   unaccent_simple               pura, sin acceso a datos
              or (a.grantee = 'authenticated'::regrole
                  and p.proname not in (
                    'es_staff', 'puede_ver_autoria', 'candidatos_asignacion',
                    'enviar_dictamen', 'registrar_decision',
-                   'marcar_anonimizacion', 'vincular_revision'))
+                   'marcar_anonimizacion', 'vincular_revision',
+                   'adjuntar_articulo', 'publicar_edicion', 'unaccent_simple'))
        ));
 
   if abiertas > 0 then
@@ -205,8 +208,23 @@ begin
   end;
   reset role;
 
+  -- ==================================== y publicar tampoco lo alcanza el público
+  set local role anon;
+  begin
+    -- Sería publicar un número entero, con sus PDF, sin ser del comité.
+    perform public.publicar_edicion(1);
+    raise exception 'FALLO: anon puede publicar una edición';
+  exception when insufficient_privilege then afirmaciones := afirmaciones + 1;
+  end;
+  begin
+    perform public.adjuntar_articulo(gen_random_uuid(), 1);
+    raise exception 'FALLO: anon puede colgar piezas de un número';
+  exception when insufficient_privilege then afirmaciones := afirmaciones + 1;
+  end;
+  reset role;
+
   raise notice 'superficie de API: % afirmaciones, todas pasaron', afirmaciones;
-  if afirmaciones <> 17 then
-    raise exception 'se esperaban 17 afirmaciones y corrieron %', afirmaciones;
+  if afirmaciones <> 19 then
+    raise exception 'se esperaban 19 afirmaciones y corrieron %', afirmaciones;
   end if;
 end $$;

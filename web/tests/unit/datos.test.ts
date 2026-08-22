@@ -2,7 +2,17 @@ import { describe, it, expect } from "vitest";
 import { slug } from "@/lib/texto";
 import { TOPICS } from "@/lib/datos/temas";
 import { SECTIONS, SEC_EDGES } from "@/lib/datos/secciones";
-import { ARTICULOS } from "@/lib/datos/articulos";
+// La semilla es un .mjs sin tipos; se le pone forma abajo.
+import { ARTICULOS as MUESTRA, slug as slugSemilla } from "../../scripts/articulos/muestra.mjs";
+
+/**
+ * Los artículos ya no son un arreglo de la aplicación: viven en la base desde
+ * la etapa 6. Lo que se sigue comprobando aquí es la SEMILLA, porque un fallo
+ * en ella no lo atrapa ninguna otra prueba — la migración cuenta filas, no
+ * comprueba que cada tema exista ni que los slugs no choquen.
+ */
+type Muestra = { t: string; a: string; s: string; tm: string[]; min: number; dest?: boolean };
+const ARTICULOS = MUESTRA as Muestra[];
 
 describe("temas", () => {
   it("has the 27 topics the site advertises", () => {
@@ -33,7 +43,14 @@ describe("secciones", () => {
   });
 });
 
-describe("articulos", () => {
+describe("la semilla de artículos", () => {
+  it("usa el mismo slug que la aplicación", () => {
+    // El slug de la semilla se calcula en un .mjs y el de la aplicación en
+    // src/lib/texto.ts. Si divergieran, los enlaces del carrusel apuntarían a
+    // páginas que no existen.
+    for (const a of ARTICULOS) expect(slugSemilla(a.t)).toBe(slug(a.t));
+  });
+
   it("has 26 articles, 9 of them featured", () => {
     expect(ARTICULOS).toHaveLength(26);
     expect(ARTICULOS.filter((a) => a.dest)).toHaveLength(9);
