@@ -30,6 +30,8 @@ export const PARAMETRIZADOS = {
   "correo.hola_nombre": ["nombre"],
   "correo.registramos_tu_manuscrito_titulo": ["titulo"],
   "correo.tu_folio_es_folio": ["folio"],
+  "correo.asunto_decision": ["folio"],
+  "correo.el_comite_registro_decision": ["titulo", "decision"],
 };
 
 export function verificaParametros(claves) {

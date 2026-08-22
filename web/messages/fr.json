@@ -558,6 +558,10 @@
     "entra_a_dictaminacion": "Tu pieza entra ahora al proceso de dictaminación a doble ciego. Te escribiremos en cuanto el comité registre una decisión.",
     "consultar_el_estado": "Consultar el estado de mi envío",
     "firma": "Revista Vértices",
-    "no_respondas_a_este_correo": "Este mensaje es automático; para cualquier duda responde al correo del comité editorial."
+    "no_respondas_a_este_correo": "Este mensaje es automático; para cualquier duda responde al correo del comité editorial.",
+    "asunto_decision": "Hay una decisión sobre tu manuscrito — {folio}",
+    "el_comite_registro_decision": "El comité registró una decisión sobre «{titulo}»: {decision}.",
+    "puedes_consultarlo_cuando_quieras": "Puedes volver a consultar el estado de tu envío cuando quieras con tu folio y este correo.",
+    "gracias_por_enviar_a_vertices": "Gracias por enviar tu trabajo a Vértices."
   }
 }

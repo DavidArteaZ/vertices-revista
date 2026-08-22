@@ -26,6 +26,13 @@ type Fila<R, I = R, U = Partial<R>> = {
   Relationships: [];
 };
 
+/**
+ * Insert con las columnas que la base rellena sola marcadas como opcionales:
+ * identidades, `default now()` y demás. Sin esto, insertar una asignación
+ * exigiría inventarse un `id` y un `asignado_at`.
+ */
+type Auto<R, K extends keyof R> = Omit<R, K> & Partial<Pick<R, K>>;
+
 export type Database = {
   public: {
     Tables: {
@@ -43,14 +50,17 @@ export type Database = {
       }>;
       temas: Fila<{ id: number; nombre: string; slug: string; orden: number }>;
       tipos_pieza: Fila<{ id: number; nombre: string; orden: number }>;
-      usuarios: Fila<{
-        id: string;
-        nombre: string;
-        email: string;
-        activo: boolean;
-        created_at: string;
-      }>;
-      usuario_correos: Fila<{ id: number; usuario_id: string; correo: string }>;
+      usuarios: Fila<
+        { id: string; nombre: string; email: string; activo: boolean; created_at: string },
+        Auto<
+          { id: string; nombre: string; email: string; activo: boolean; created_at: string },
+          "activo" | "created_at"
+        >
+      >;
+      usuario_correos: Fila<
+        { id: number; usuario_id: string; correo: string },
+        Auto<{ id: number; usuario_id: string; correo: string }, "id">
+      >;
       rubrica_versiones: Fila<{
         id: number;
         seccion_id: number;
@@ -143,14 +153,27 @@ export type Database = {
         created_at: string;
       }>;
       envio_archivo_nombres: Fila<{ archivo_id: string; nombre_original: string }>;
-      asignaciones: Fila<{
-        id: number;
-        envio_id: string;
-        revisor_id: string;
-        asignado_por: string | null;
-        asignado_at: string;
-      }>;
-      dictamenes: Fila<{
+      asignaciones: Fila<
+        {
+          id: number;
+          envio_id: string;
+          revisor_id: string;
+          asignado_por: string | null;
+          asignado_at: string;
+        },
+        Auto<
+          {
+            id: number;
+            envio_id: string;
+            revisor_id: string;
+            asignado_por: string | null;
+            asignado_at: string;
+          },
+          "id" | "asignado_at" | "asignado_por"
+        >
+      >;
+      dictamenes: Fila<
+        {
         id: string;
         envio_id: string;
         revisor_id: string;
@@ -166,7 +189,25 @@ export type Database = {
         enviado_at: string | null;
         created_at: string;
         updated_at: string;
-      }>;
+        },
+        {
+          id?: string;
+          envio_id: string;
+          revisor_id: string;
+          rubrica_version_id: number;
+          estado?: string;
+          sin_conflicto?: boolean;
+          comentarios?: string | null;
+          puntaje?: number | null;
+          maximo?: number | null;
+          puertas_ok?: boolean | null;
+          criticos_ok?: boolean | null;
+          decision_sugerida_id?: number | null;
+          enviado_at?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        }
+      >;
       dictamen_puertas: Fila<{
         dictamen_id: string;
         puerta_id: number;
@@ -177,15 +218,26 @@ export type Database = {
         dimension_id: number;
         valor: number | null;
       }>;
-      ediciones: Fila<{
-        id: number;
-        numero: number;
-        titulo: string;
-        estado: string;
-        publicada_at: string | null;
-        created_at: string;
-      }>;
-      articulos: Fila<{
+      ediciones: Fila<
+        {
+          id: number;
+          numero: number;
+          titulo: string;
+          estado: string;
+          publicada_at: string | null;
+          created_at: string;
+        },
+        {
+          id?: number;
+          numero: number;
+          titulo: string;
+          estado?: string;
+          publicada_at?: string | null;
+          created_at?: string;
+        }
+      >;
+      articulos: Fila<
+        {
         id: number;
         envio_id: string | null;
         edicion_id: number | null;
@@ -199,7 +251,23 @@ export type Database = {
         es_placeholder: boolean;
         orden: number | null;
         created_at: string;
-      }>;
+        },
+        {
+          id?: number;
+          envio_id?: string | null;
+          edicion_id?: number | null;
+          titulo: string;
+          autor: string;
+          seccion_id: number;
+          minutos_lectura?: number | null;
+          destacado?: boolean;
+          slug: string;
+          pdf_publico_path?: string | null;
+          es_placeholder?: boolean;
+          orden?: number | null;
+          created_at?: string;
+        }
+      >;
       articulo_temas: Fila<{ articulo_id: number; tema_id: number }>;
       envio_eventos: Fila<
         {
@@ -237,6 +305,28 @@ export type Database = {
         Returns: { storage_path: string; at: string }[];
       };
       olvidar_subida: { Args: { p_path: string }; Returns: undefined };
+      candidatos_asignacion: {
+        Args: { p_envio: string };
+        Returns: { id: string; nombre: string }[];
+      };
+      enviar_dictamen: {
+        Args: {
+          p_dictamen: string;
+          p_puntaje: number;
+          p_maximo: number;
+          p_puertas_ok: boolean;
+          p_criticos_ok: boolean;
+          p_decision: number;
+          p_comentarios: string | null;
+        };
+        Returns: undefined;
+      };
+      registrar_decision: { Args: { p_envio: string; p_decision: number }; Returns: undefined };
+      marcar_anonimizacion: {
+        Args: { p_envio: string; p_antiplagio?: string | null };
+        Returns: undefined;
+      };
+      vincular_revision: { Args: { p_envio: string; p_original: string }; Returns: undefined };
     };
     Enums: Record<never, never>;
     CompositeTypes: Record<never, never>;

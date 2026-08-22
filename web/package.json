@@ -14,9 +14,11 @@
     "test:watch": "vitest",
     "e2e": "node scripts/e2e/envio.mjs",
     "baseline": "playwright test capturar-baseline",
-    "visual": "playwright test paridad"
+    "visual": "playwright test paridad",
+    "panel": "playwright test --config playwright.panel.config.ts"
   },
   "dependencies": {
+    "@supabase/ssr": "^0.12.4",
     "@supabase/supabase-js": "^2.112.3",
     "fflate": "^0.8.3",
     "next": "16.3.1",

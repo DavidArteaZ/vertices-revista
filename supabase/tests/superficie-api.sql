@@ -35,8 +35,22 @@ begin
          select 1 from aclexplode(p.proacl) a
           where a.grantee = 0                                   -- PUBLIC
              or a.grantee = 'anon'::regrole
+             -- Lo que SÍ puede llamar el personal, y por qué cada una.
+             --   es_staff / puede_ver_autoria  las usan las propias políticas
+             --   candidatos_asignacion         SECURITY DEFINER, pero comprueba
+             --                                 es_staff() por dentro y sólo
+             --                                 devuelve id y nombre
+             --   enviar_dictamen, registrar_decision, marcar_anonimizacion,
+             --   vincular_revision             SECURITY INVOKER: RLS sigue
+             --                                 aplicándose dentro. Existen para
+             --                                 que el UPDATE y su fila en
+             --                                 envio_eventos vayan en la misma
+             --                                 transacción
              or (a.grantee = 'authenticated'::regrole
-                 and p.proname not in ('es_staff', 'puede_ver_autoria'))
+                 and p.proname not in (
+                   'es_staff', 'puede_ver_autoria', 'candidatos_asignacion',
+                   'enviar_dictamen', 'registrar_decision',
+                   'marcar_anonimizacion', 'vincular_revision'))
        ));
 
   if abiertas > 0 then
@@ -175,8 +189,24 @@ begin
   end if;
   afirmaciones := afirmaciones + 1;
 
+  -- ============================== y las del panel no las alcanza el público
+  set local role anon;
+  begin
+    perform public.registrar_decision(gen_random_uuid(), 1);
+    raise exception 'FALLO: anon puede grabar decisiones';
+  exception when insufficient_privilege then afirmaciones := afirmaciones + 1;
+  end;
+  begin
+    -- Sería un oráculo de autoría: la función compara el correo del autor con
+    -- los del personal, y quien la llama no puede ver ese correo.
+    perform public.candidatos_asignacion(gen_random_uuid());
+    raise exception 'FALLO: anon puede listar candidatos';
+  exception when insufficient_privilege then afirmaciones := afirmaciones + 1;
+  end;
+  reset role;
+
   raise notice 'superficie de API: % afirmaciones, todas pasaron', afirmaciones;
-  if afirmaciones <> 15 then
-    raise exception 'se esperaban 15 afirmaciones y corrieron %', afirmaciones;
+  if afirmaciones <> 17 then
+    raise exception 'se esperaban 17 afirmaciones y corrieron %', afirmaciones;
   end if;
 end $$;
