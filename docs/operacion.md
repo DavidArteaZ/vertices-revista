@@ -60,6 +60,31 @@ incluida gente que sigue ciega para ese envío; un aviso con el destinatario
 dentro sería una puerta trasera a la autoría. Se guarda el tipo de evento y el
 id de Resend, y el folio sale del asunto.
 
+Los mismos cuatro eventos alimentan además el estado de las invitaciones al
+comité. Ésas no llevan folio —no cuelgan de ningún envío—, así que se casan por
+`usuarios.invitacion_email_id`, que es el id que Resend devolvió al mandarlas.
+Un correo de invitación que rebota se ve en `/panel/equipo` como «Correo
+rebotado»; antes no se veía en ninguna parte.
+
+---
+
+## 2 bis. Caducidad del enlace de invitación
+
+En el dashboard de Supabase: **Authentication → Sign In / Providers → Email →
+`Email OTP expiration`**. No está en la página de plantillas, que es donde se
+busca por instinto.
+
+El valor de fábrica es `3600` (una hora), y es corto para el uso real: se invita
+a alguien que abre el correo al día siguiente y llega a un enlace muerto.
+**Subirlo a `86400` (24 h).**
+
+No es la única causa de un enlace muerto, y por eso el ajuste no basta solo. El
+token es de un solo uso, y los escáneres de enlaces del correo institucional
+(Safe Links, los antivirus de la facultad) lo abren para comprobarlo antes que
+la persona. Por eso el enlace aterriza en `/panel/invitacion`, que no canjea
+nada hasta que alguien pulsa el botón, y por eso hay un botón de reenviar en
+`/panel/equipo`.
+
 ---
 
 ## 3. Tareas programadas

@@ -1,5 +1,6 @@
 import { servidor } from "@/lib/supabase/servidor";
 import { verificaSvix } from "@/lib/api/svix";
+import { estadoDeEvento } from "@/lib/invitaciones";
 import { bitacora, json } from "@/lib/api/peticion";
 
 /**
@@ -74,13 +75,15 @@ export async function POST(req: Request) {
     return json({ ok: true, ignorado: tipo });
   }
 
-  const folio = evento.data?.subject?.match(FOLIO)?.[0];
-  if (!folio) {
-    log.info("sin_folio", { tipo });
-    return json({ ok: true, sin_folio: true });
-  }
-
   const sb = servidor();
+  const folio = evento.data?.subject?.match(FOLIO)?.[0];
+
+  // Sin folio puede ser una invitación al comité: ésas no llevan folio porque
+  // no cuelgan de ningún envío. Se casan por el id que Resend devolvió al
+  // mandarlas, que es lo que guarda usuarios.invitacion_email_id — nunca por la
+  // dirección.
+  if (!folio) return invitacion(sb, evento, tipo, log);
+
   const { data: envio } = await sb.from("envios").select("id").eq("folio", folio).maybeSingle();
 
   if (!envio) {
@@ -106,5 +109,52 @@ export async function POST(req: Request) {
     return json({ error: "no se pudo registrar" }, 500);
   }
 
+  return json({ ok: true });
+}
+
+/**
+ * La otra clase de correo que manda la revista: la invitación al comité.
+ *
+ * No cuelga de ningún envío, así que no tiene folio ni fila en envio_eventos;
+ * el estado vive en la propia persona. La llave es el id de Resend guardado al
+ * mandarla, no la dirección — la regla de la cabecera de este archivo vale
+ * igual aquí.
+ *
+ * Sin esto, una invitación a una dirección mal tecleada se veía exactamente
+ * igual que una que la persona no ha abierto todavía.
+ */
+async function invitacion(
+  sb: ReturnType<typeof servidor>,
+  evento: Evento,
+  tipo: string,
+  log: ReturnType<typeof bitacora>,
+): Promise<Response> {
+  const emailId = evento.data?.email_id;
+  const estado = estadoDeEvento(tipo);
+
+  if (!emailId || !estado) {
+    log.info("sin_folio", { tipo });
+    return json({ ok: true, sin_folio: true });
+  }
+
+  const { data, error } = await sb
+    .from("usuarios")
+    .update({ invitacion_estado: estado })
+    .eq("invitacion_email_id", emailId)
+    .select("id");
+
+  if (error) {
+    log.error("invitacion_no_registrada", { error: error.message });
+    return json({ error: "no se pudo registrar" }, 500);
+  }
+
+  if (!data?.length) {
+    // Ni envío ni invitación: un correo que no manda esta aplicación, o uno
+    // anterior a que se guardaran los ids. No es un fallo.
+    log.info("email_id_desconocido", { tipo });
+    return json({ ok: true });
+  }
+
+  log.info("invitacion", { tipo, estado });
   return json({ ok: true });
 }

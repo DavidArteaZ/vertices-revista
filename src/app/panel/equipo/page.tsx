@@ -1,7 +1,8 @@
 import { sesion } from "@/lib/supabase/sesion";
+import { estadoDePersona } from "@/lib/invitaciones";
 import { exigePersonal, Cabecera } from "../guardia";
 import Accion from "../Accion";
-import { invitar, cambiarActivo } from "./acciones";
+import { invitar, reinvitar, cambiarActivo } from "./acciones";
 
 /**
  * El comité: quién entra.
@@ -22,7 +23,7 @@ export default async function Equipo() {
 
   const { data: personas } = await sb
     .from("usuarios")
-    .select("id, nombre, email, activo")
+    .select("id, nombre, email, activo, invitada_en, clave_fijada_en, invitacion_estado")
     .order("nombre");
 
   return (
@@ -45,31 +46,48 @@ export default async function Equipo() {
               <th>Correo</th>
               <th>Estado</th>
               <th />
+              <th />
             </tr>
           </thead>
           <tbody>
-            {(personas ?? []).map((p) => (
-              <tr key={p.id}>
-                <td>
-                  {p.nombre}
-                  {p.id === quien.id && <span className="nota"> · tú</span>}
-                </td>
-                <td>{p.email}</td>
-                <td>
-                  <span className={`etiqueta ${p.activo ? "etiqueta--lista" : "etiqueta--alerta"}`}>
-                    {p.activo ? "Activa" : "De baja"}
-                  </span>
-                </td>
-                <td style={{ textAlign: "right" }}>
-                  {p.id !== quien.id && (
-                    <Accion accion={cambiarActivo} etiqueta={p.activo ? "Dar de baja" : "Reactivar"}>
-                      <input type="hidden" name="usuario" value={p.id} />
-                      <input type="hidden" name="activo" value={p.activo ? "no" : "si"} />
-                    </Accion>
-                  )}
-                </td>
-              </tr>
-            ))}
+            {(personas ?? []).map((p) => {
+              const estado = estadoDePersona(p);
+              return (
+                <tr key={p.id}>
+                  <td>
+                    {p.nombre}
+                    {p.id === quien.id && <span className="nota"> · tú</span>}
+                  </td>
+                  <td>{p.email}</td>
+                  <td>
+                    <span className={`etiqueta ${estado.clase}`}>{estado.etiqueta}</span>
+                  </td>
+                  <td style={{ textAlign: "right" }}>
+                    {p.activo && (
+                      <Accion
+                        accion={reinvitar}
+                        etiqueta={
+                          p.clave_fijada_en ? "Mandar enlace de contraseña" : "Reenviar invitación"
+                        }
+                      >
+                        <input type="hidden" name="usuario" value={p.id} />
+                      </Accion>
+                    )}
+                  </td>
+                  <td style={{ textAlign: "right" }}>
+                    {p.id !== quien.id && (
+                      <Accion
+                        accion={cambiarActivo}
+                        etiqueta={p.activo ? "Dar de baja" : "Reactivar"}
+                      >
+                        <input type="hidden" name="usuario" value={p.id} />
+                        <input type="hidden" name="activo" value={p.activo ? "no" : "si"} />
+                      </Accion>
+                    )}
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>
@@ -89,8 +107,10 @@ export default async function Equipo() {
           </div>
         </Accion>
         <p className="nota">
-          Recibirá un enlace para elegir su contraseña. El enlace caduca; si expira,
-          vuelve a invitarla.
+          Recibirá un enlace para elegir su contraseña. Caduca: mientras siga como
+          «pendiente» en la tabla de arriba, el botón de reenviar le manda uno nuevo.
+          Si aparece «Correo rebotado», la dirección no existe — revísala antes de
+          insistir.
         </p>
       </div>
     </main>

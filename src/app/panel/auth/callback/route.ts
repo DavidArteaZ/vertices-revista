@@ -20,6 +20,11 @@ import { sesion } from "@/lib/supabase/sesion";
  * no tiene — que es justo el estado en el que llega quien acaba de ser
  * invitada. Nadie lo vio porque ninguna invitación había llegado nunca a
  * destino: el correo no salía del dominio de pruebas.
+ *
+ * Las invitaciones nuevas ya no pasan por aquí: van a /panel/invitacion, que
+ * canjea el token en un POST para que los escáneres de enlaces del correo
+ * institucional no lo gasten con su GET. La rama `token_hash` se queda para los
+ * enlaces viejos que sigan en circulación.
  */
 
 const TIPOS: readonly EmailOtpType[] = ["invite", "recovery", "signup", "email_change", "magiclink"];
@@ -35,7 +40,12 @@ export async function GET(req: NextRequest) {
   const crudo = url.searchParams.get("siguiente") ?? "/panel";
   const siguiente = crudo.startsWith("/") && !crudo.startsWith("//") ? crudo : "/panel";
 
-  const aEntrar = NextResponse.redirect(new URL("/panel/entrar", url.origin));
+  // Con motivo, no mudo. Éste es el redirect que dejaba a quien acababa de ser
+  // invitada frente a un formulario pidiéndole una contraseña que no tiene, sin
+  // decirle en ningún momento que su enlace había caducado.
+  const aEntrar = NextResponse.redirect(
+    new URL("/panel/entrar?motivo=enlace_caducado", url.origin),
+  );
   const sb = await sesion();
 
   if (code) {

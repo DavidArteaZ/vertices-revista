@@ -51,10 +51,35 @@ export type Database = {
       temas: Fila<{ id: number; nombre: string; slug: string; orden: number }>;
       tipos_pieza: Fila<{ id: number; nombre: string; orden: number }>;
       usuarios: Fila<
-        { id: string; nombre: string; email: string; activo: boolean; created_at: string },
+        {
+          id: string;
+          nombre: string;
+          email: string;
+          activo: boolean;
+          created_at: string;
+          invitada_en: string | null;
+          clave_fijada_en: string | null;
+          invitacion_email_id: string | null;
+          invitacion_estado: string | null;
+        },
         Auto<
-          { id: string; nombre: string; email: string; activo: boolean; created_at: string },
-          "activo" | "created_at"
+          {
+            id: string;
+            nombre: string;
+            email: string;
+            activo: boolean;
+            created_at: string;
+            invitada_en: string | null;
+            clave_fijada_en: string | null;
+            invitacion_email_id: string | null;
+            invitacion_estado: string | null;
+          },
+          | "activo"
+          | "created_at"
+          | "invitada_en"
+          | "clave_fijada_en"
+          | "invitacion_email_id"
+          | "invitacion_estado"
         >
       >;
       usuario_correos: Fila<

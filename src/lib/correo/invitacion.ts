@@ -25,7 +25,10 @@ export type Invitacion = {
   nombre: string;
   /** Quién invita, para que el correo no llegue de un desconocido. */
   invita: string;
-  /** El enlace ya armado, con token_hash. De un solo uso. */
+  /**
+   * El enlace ya armado, con token_hash. De un solo uso, pero apunta a la
+   * página puente: abrirlo no lo gasta, hay que pulsar el botón.
+   */
   enlace: string;
 };
 
@@ -37,10 +40,11 @@ export function enviarInvitacion(i: Invitacion): Promise<Envio> {
       "",
       `${i.invita} te dio de alta en el comité editorial de la Revista Vértices.`,
       "",
-      "Entra con este enlace y elige tu contraseña:",
+      "Abre este enlace y pulsa «Activar mi cuenta» para elegir tu contraseña:",
       i.enlace,
       "",
-      "Es de un solo uso y caduca. Si expira, pide que te vuelvan a invitar.",
+      "Caduca. Si al pulsar el botón te dice que ya no vale, pide que te vuelvan",
+      "a invitar: hay un botón para reenviarlo en la pantalla del comité.",
       "",
       "— Revista Vértices",
       "No respondas a este correo.",

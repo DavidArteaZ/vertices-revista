@@ -148,6 +148,21 @@ El sistema editorial en `/panel`. Interno, en español, fuera del enrutado por
 idioma.
 _Evitar_: admin, backoffice, dashboard.
 
+**Invitación**:
+El enlace de un solo uso con el que alguien entra al comité. No hay alta
+pública. Tiene tres estados que son tres preguntas distintas y no una sola:
+**pendiente** (salió el correo, nadie ha fijado contraseña), **activa**
+(`clave_fijada_en` tiene fecha) y **rebotada** (Resend dijo que la dirección no
+existe). **De baja** no es un cuarto estado de la invitación sino de la persona,
+y gana sobre los tres.
+_Evitar_: registro, sign-up, alta.
+
+**Página puente**:
+`/panel/invitacion`. Lo que el correo de invitación abre. No canjea el token al
+cargarse: hace falta pulsar un botón. Existe porque los escáneres de enlaces del
+correo institucional gastan un token de un solo uso con su GET.
+_Evitar_: landing de invitación, callback.
+
 **Compuerta visual**:
 La suite de Playwright que compara la portada y las satélites, en los seis
 idiomas, contra imágenes doradas capturadas del **sitio legado**. Es la que hace

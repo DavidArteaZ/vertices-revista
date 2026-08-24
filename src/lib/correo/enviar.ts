@@ -17,7 +17,13 @@ import { LOCALES, LOCALE_POR_DEFECTO, type Locale } from "@/i18n/rutas";
  *     motivo en envio_eventos y sigue.
  */
 
-export type Envio = { enviado: boolean; motivo?: string };
+/**
+ * `id` es el que devuelve Resend. Se guarda para poder casar sus webhooks con
+ * lo que se mandó: la invitación al comité no lleva folio en el asunto, así que
+ * sin este id no habría forma de saber a quién rebotó un correo sin guardar la
+ * dirección.
+ */
+export type Envio = { enviado: boolean; id?: string; motivo?: string };
 
 const esLocale = (x: string): x is Locale => (LOCALES as readonly string[]).includes(x);
 
@@ -37,14 +43,14 @@ export async function mandar(a: string, locale: string, redacta: Redactor): Prom
 
     const { asunto, lineas } = redacta(t as Parameters<Redactor>[0]);
 
-    const { error } = await new Resend(clave).emails.send({
+    const { data, error } = await new Resend(clave).emails.send({
       from: process.env.CORREO_REMITENTE ?? "Revista Vértices <onboarding@resend.dev>",
       to: a,
       subject: asunto,
       text: lineas.join("\n"),
     });
 
-    return error ? { enviado: false, motivo: error.message } : { enviado: true };
+    return error ? { enviado: false, motivo: error.message } : { enviado: true, id: data?.id };
   } catch (e) {
     return { enviado: false, motivo: (e as Error).message };
   }
