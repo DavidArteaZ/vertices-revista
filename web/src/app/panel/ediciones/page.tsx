@@ -32,8 +32,7 @@ export default async function Ediciones() {
 
       <h2>Números</h2>
       <p className="nota">
-        Publicar enciende todas las piezas del número a la vez y copia sus PDF al
-        bucket público. Hasta entonces nada de esto es visible desde fuera.
+        Al publicar, los artículos de este número se harán públicos.
       </p>
 
       <h3>Publicados y en preparación</h3>
@@ -52,7 +51,7 @@ export default async function Ediciones() {
             </thead>
             <tbody>
               {(ediciones ?? []).map((e) => (
-                <tr key={e.id}>
+                <tr key={e.id} className="fila-enlace">
                   <td className="folio">
                     <Link href={`/panel/ediciones/${e.id}`}>{e.numero}</Link>
                   </td>

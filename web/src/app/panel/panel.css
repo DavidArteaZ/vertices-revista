@@ -89,6 +89,14 @@ td{ padding:11px 10px 11px 0; border-bottom:1px solid var(--linea); vertical-ali
 tr:last-child td{ border-bottom:0; }
 .folio{ font:500 13px var(--f-ui); letter-spacing:.04em; white-space:nowrap; }
 
+/* Fila completa clickeable: el enlace real vive en .folio pero se estira
+   sobre toda la fila con un ::after absoluto, así el resto de las celdas
+   también navegan sin duplicar el href en cada <td>. */
+tr.fila-enlace{ position:relative; cursor:pointer; }
+tr.fila-enlace:hover{ background:var(--papel-sombra, rgba(0,0,0,.025)); }
+tr.fila-enlace .folio a{ position:static; }
+tr.fila-enlace .folio a::after{ content:""; position:absolute; inset:0; }
+
 /* Los datos que la ceguera oculta se marcan, en vez de dejar un hueco: un
    campo vacío se lee como "no hay autor" y lo que pasa es que no se puede ver
    todavía. */

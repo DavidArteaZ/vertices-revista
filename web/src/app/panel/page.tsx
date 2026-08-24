@@ -150,7 +150,7 @@ function Tabla({
           const estado = ETIQUETA_ESTADO[e.estado] ?? { texto: e.estado, clase: "" };
           const asignados = porEnvio(e.id).length;
           return (
-            <tr key={e.id}>
+            <tr key={e.id} className="fila-enlace">
               <td className="folio">
                 <a href={`/panel/envios/${e.id}`}>{e.folio}</a>
               </td>

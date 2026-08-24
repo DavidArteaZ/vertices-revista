@@ -1,16 +1,17 @@
 import { sesion } from "@/lib/supabase/sesion";
 import { exigePersonal, Cabecera } from "../guardia";
 import Accion from "../Accion";
-import { invitar, cambiarActivo, anadirCorreo } from "./acciones";
+import { invitar, cambiarActivo } from "./acciones";
 
 /**
- * El comité: quién entra, y con qué correos.
+ * El comité: quién entra.
  *
- * Los correos alternos no son un adorno de la ficha. Son lo que hace utilizable
- * el chequeo de conflicto de interés: en los datos reales hay gente del comité
- * que envía desde direcciones personales además de la institucional, y si sólo
- * se mirara `usuarios.email` se le podría asignar el dictamen de su propia
- * pieza sin que nada lo notara (spec §7.3).
+ * El chequeo de conflicto de interés compara el correo de la autoría contra el
+ * del comité, y además contra `usuario_correos` — direcciones alternas de la
+ * misma persona (spec §7.3). Esa tabla se llenaba desde aquí y se quitó: la
+ * columna confundía más de lo que ayudaba. La comparación sigue en pie, pero
+ * hoy sólo cubre el correo con el que cada quien entra al panel; quien mande su
+ * artículo desde otra dirección puede acabar dictaminándose a sí mismo.
  */
 
 export const dynamic = "force-dynamic";
@@ -19,13 +20,10 @@ export default async function Equipo() {
   const quien = await exigePersonal();
   const sb = await sesion();
 
-  const [{ data: personas }, { data: correos }] = await Promise.all([
-    sb.from("usuarios").select("id, nombre, email, activo").order("nombre"),
-    sb.from("usuario_correos").select("usuario_id, correo"),
-  ]);
-
-  const alternos = (id: string) =>
-    (correos ?? []).filter((c) => c.usuario_id === id).map((c) => c.correo);
+  const { data: personas } = await sb
+    .from("usuarios")
+    .select("id, nombre, email, activo")
+    .order("nombre");
 
   return (
     <main className="panel-marco">
@@ -45,7 +43,6 @@ export default async function Equipo() {
             <tr>
               <th>Nombre</th>
               <th>Correo</th>
-              <th>Alternos</th>
               <th>Estado</th>
               <th />
             </tr>
@@ -58,24 +55,6 @@ export default async function Equipo() {
                   {p.id === quien.id && <span className="nota"> · tú</span>}
                 </td>
                 <td>{p.email}</td>
-                <td>
-                  {alternos(p.id).length ? (
-                    alternos(p.id).join(", ")
-                  ) : (
-                    <span className="ciego">ninguno</span>
-                  )}
-                  <div style={{ marginTop: 6 }}>
-                    <Accion accion={anadirCorreo} etiqueta="Añadir">
-                      <input type="hidden" name="usuario" value={p.id} />
-                      <input
-                        type="email"
-                        name="correo"
-                        placeholder="otro@correo"
-                        style={{ maxWidth: 200, marginBottom: 6 }}
-                      />
-                    </Accion>
-                  </div>
-                </td>
                 <td>
                   <span className={`etiqueta ${p.activo ? "etiqueta--lista" : "etiqueta--alerta"}`}>
                     {p.activo ? "Activa" : "De baja"}
