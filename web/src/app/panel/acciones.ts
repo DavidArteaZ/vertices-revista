@@ -252,6 +252,8 @@ export async function registrarDecision(datos: FormData): Promise<Resultado> {
     sb.from("decisiones").select("etiqueta").eq("id", decision).maybeSingle(),
   ]);
 
+  let avisado = false;
+
   if (pieza.data && autoria.data && etiqueta.data) {
     const aviso = await enviarDecision({
       a: autoria.data.correo,
@@ -264,6 +266,7 @@ export async function registrarDecision(datos: FormData): Promise<Resultado> {
 
     // Igual que con el acuse: un correo que no sale no invalida la decisión,
     // pero tiene que quedar anotado o nadie se entera de que el autor no supo.
+    avisado = aviso.enviado;
     if (!aviso.enviado) {
       await sb.from("envio_eventos").insert({
         envio_id: envio,
@@ -276,7 +279,17 @@ export async function registrarDecision(datos: FormData): Promise<Resultado> {
 
   revalidatePath(`/panel/envios/${envio}`);
   revalidatePath("/panel");
-  return { ok: true, mensaje: "Decisión registrada y avisada al autor." };
+
+  // La decisión queda grabada pase lo que pase con el correo, pero decir «y
+  // avisada al autor» cuando no salió deja al comité creyendo que la persona ya
+  // se enteró. Es el mismo defecto que motivó la reescritura, un paso más
+  // adelante: algo que se da por comunicado y no lo está.
+  return avisado
+    ? { ok: true, mensaje: "Decisión registrada y avisada al autor." }
+    : {
+        ok: true,
+        mensaje: "Decisión registrada, pero el aviso al autor NO salió. Queda en la bitácora; avísale por otra vía.",
+      };
 }
 
 // ---------------------------------------------------------------- revisiones
