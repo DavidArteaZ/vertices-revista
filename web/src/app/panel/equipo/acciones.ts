@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { sesion, personal } from "@/lib/supabase/sesion";
 import { servidor } from "@/lib/supabase/servidor";
 import { CORREO } from "@/lib/validacion";
+import { enviarInvitacion } from "@/lib/correo/invitacion";
 import type { Resultado } from "../acciones";
 
 /**
@@ -33,13 +34,34 @@ export async function invitar(datos: FormData): Promise<Resultado> {
   const admin = servidor();
   const origen = (await headers()).get("origin") ?? "";
 
-  const { data, error } = await admin.auth.admin.inviteUserByEmail(correo, {
-    redirectTo: `${origen}/panel/auth/callback?siguiente=/panel/clave`,
+  // El enlace se genera aquí y el correo lo manda la revista por Resend, en vez
+  // de dejárselo a inviteUserByEmail. Ver src/lib/correo/invitacion.ts: el
+  // correo de Supabase entrega la sesión en el fragmento de la URL y quien lo
+  // abre acaba en la pantalla de entrar sin contraseña que teclear.
+  const destino = { redirectTo: `${origen}/panel/clave` };
+
+  let { data, error } = await admin.auth.admin.generateLink({
+    type: "invite",
+    email: correo,
+    options: destino,
   });
+
+  // `invite` se niega si la cuenta ya existe, y volver a invitar es justo lo
+  // que dice la pantalla que se haga cuando el enlace caduca. Para ésas sirve
+  // el de recuperación: el mismo aterrizaje, la misma elección de contraseña.
+  if (error) {
+    ({ data, error } = await admin.auth.admin.generateLink({
+      type: "recovery",
+      email: correo,
+      options: destino,
+    }));
+  }
 
   if (error || !data.user) {
     return { ok: false, mensaje: error?.message ?? "No se pudo invitar." };
   }
+
+  const tipo = data.properties.verification_type === "recovery" ? "recovery" : "invite";
 
   // La fila en `usuarios` es lo que da acceso, no la cuenta de Auth: es lo que
   // mira privado.es_staff(). Una cuenta sin fila aquí puede iniciar sesión y
@@ -51,7 +73,29 @@ export async function invitar(datos: FormData): Promise<Resultado> {
   if (eFila) return { ok: false, mensaje: eFila.message };
 
   revalidatePath("/panel/equipo");
-  return { ok: true, mensaje: `Invitación enviada a ${correo}.` };
+
+  // El alta ya está hecha; el correo es lo que puede fallar. Decirlo es lo que
+  // permite reaccionar — quien invita puede pasar el enlace por otro lado en
+  // vez de esperar a que llegue algo que nunca salió.
+  const enlace =
+    `${origen}/panel/auth/callback?token_hash=${data.properties.hashed_token}` +
+    `&type=${tipo}&siguiente=/panel/clave`;
+
+  const correoEnviado = await enviarInvitacion({
+    a: correo,
+    nombre,
+    invita: quien.nombre,
+    enlace,
+  });
+
+  return correoEnviado.enviado
+    ? { ok: true, mensaje: `Invitación enviada a ${correo}.` }
+    : {
+        ok: true,
+        mensaje:
+          `${nombre} ya está en el comité, pero el correo no salió ` +
+          `(${correoEnviado.motivo}). Pásale este enlace: ${enlace}`,
+      };
 }
 
 /**
@@ -81,24 +125,6 @@ export async function cambiarActivo(datos: FormData): Promise<Resultado> {
 
   revalidatePath("/panel/equipo");
   return { ok: true, mensaje: activo ? "Reactivada." : "Dada de baja." };
-}
-
-/** Correos alternos: el chequeo de conflicto de interés los mira todos (§7.3). */
-export async function anadirCorreo(datos: FormData): Promise<Resultado> {
-  if (!(await personal())) return NO_AUTORIZADO;
-
-  const usuario = String(datos.get("usuario") ?? "");
-  const correo = String(datos.get("correo") ?? "").trim().toLowerCase();
-  if (!CORREO.test(correo)) return { ok: false, mensaje: "Ese correo no parece válido." };
-
-  const { error } = await servidor()
-    .from("usuario_correos")
-    .insert({ usuario_id: usuario, correo });
-
-  if (error) return { ok: false, mensaje: error.message };
-
-  revalidatePath("/panel/equipo");
-  return { ok: true, mensaje: "Correo añadido." };
 }
 
 /** Fijar la contraseña al aceptar la invitación. */

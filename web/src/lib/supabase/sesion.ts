@@ -34,7 +34,12 @@ export async function sesion(): Promise<SupabaseClient<Database>> {
       getAll: () => almacen.getAll(),
       setAll: (nuevas) => {
         try {
-          nuevas.forEach(({ name, value, options }) => almacen.set(name, value, options));
+          nuevas.forEach(({ name, value, options }) =>
+            // @supabase/ssr trae httpOnly en false porque su caso normal es que
+            // un cliente suyo en el navegador lea la cookie. Aquí no hay
+            // ninguno —§4.2— así que dejarlo legible por JavaScript regala el
+            // token de sesión a cualquier XSS y no compra nada.
+            almacen.set(name, value, { ...options, httpOnly: true, secure: true }));
         } catch {
           // Next no deja escribir cookies durante el render de un componente
           // de servidor. Da igual: el refresco de token lo hace el proxy antes

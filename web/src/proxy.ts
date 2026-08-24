@@ -45,7 +45,10 @@ async function sesionDelPanel(req: NextRequest) {
       setAll: (nuevas) => {
         nuevas.forEach(({ name, value }) => req.cookies.set(name, value));
         respuesta = NextResponse.next({ request: req });
-        nuevas.forEach(({ name, value, options }) => respuesta.cookies.set(name, value, options));
+        // httpOnly y secure a la fuerza, igual que en lib/supabase/sesion.ts:
+        // el refresco de token pasa por aquí y reescribe la misma cookie.
+        nuevas.forEach(({ name, value, options }) =>
+          respuesta.cookies.set(name, value, { ...options, httpOnly: true, secure: true }));
       },
     },
   });
