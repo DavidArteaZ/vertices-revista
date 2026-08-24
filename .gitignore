@@ -1,0 +1,15 @@
+# Claude-workflow hub-managed config — re-create with: claude-hub install <profile>
+.claude/
+
+# Editorial workbook — contains real author names, emails and manuscript links
+Vertices_BaseDatos_Editorial.xlsx
+*.xlsx
+
+# Skills instaladas por `npx skills add` — se reinstalan con ese mismo comando
+.agents/
+
+# Secretos. web/.gitignore ya ignora .env*, pero la raíz no lo hacía y aquí
+# viven SUPABASE_SERVICE_ROLE_KEY y RESEND_API_KEY. El ejemplo sí se versiona.
+.env
+.env.*
+!.env.example

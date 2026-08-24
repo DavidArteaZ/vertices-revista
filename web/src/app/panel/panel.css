@@ -1,0 +1,169 @@
+/* Hoja del panel editorial.
+ *
+ * Propia y no la de la landing, por el mismo motivo que cada satélite trae la
+ * suya: globals.css define clases como .cierre o .paso con significados de la
+ * portada, y cargarla aquí las haría chocar. Lo que se reutiliza son los
+ * valores —las mismas tipografías y la misma paleta—, para que el panel se
+ * lea como parte de la misma revista y no como otra aplicación.
+ *
+ * El panel es interno y va en español. No pasa por el enrutado por idioma:
+ * traducirlo a seis idiomas serían cientos de cadenas nuevas para un comité
+ * que trabaja en uno solo. */
+
+@font-face{ font-family:"Neue Montreal"; src:url("/fonts/NeueMontreal-Regular.woff2") format("woff2"); font-weight:400; font-display:swap; }
+@font-face{ font-family:"Neue Montreal"; src:url("/fonts/NeueMontreal-Medium.woff2") format("woff2"); font-weight:500 600; font-display:swap; }
+@font-face{ font-family:"Neue Montreal"; src:url("/fonts/NeueMontreal-Bold.woff2") format("woff2"); font-weight:700 800; font-display:swap; }
+@font-face{ font-family:"Garet"; src:url("/fonts/Garet-Book.woff2") format("woff2"); font-weight:400 600; font-display:swap; }
+
+:root{
+  --fondo:#E7DECB;
+  --tinta:#2d232e;
+  --hueso:#433947;
+  --texto:#4d4252;
+  --gris:#776d80;
+  --indigo:#4d4dfa;
+  --naranja:#fd6343;
+  --ambar:#c07515;
+  --verde:#3f7d54;
+  --linea:rgba(45,35,46,.18);
+  --linea-fuerte:rgba(45,35,46,.45);
+  --papel:rgba(252,248,240,.6);
+  --f-ui:"Neue Montreal",Arial,"Helvetica Neue",sans-serif;
+  --f-sub:"Garet",Arial,"Helvetica Neue",sans-serif;
+}
+
+*{ box-sizing:border-box; }
+html,body{ margin:0; background:var(--fondo); }
+body{ font:400 15px/1.6 var(--f-ui); color:var(--texto); -webkit-font-smoothing:antialiased; }
+a{ color:var(--indigo); text-decoration:none; }
+a:hover{ text-decoration:underline; }
+
+/* ---------------------------------------------------------------- estructura */
+.panel-marco{ max-width:1120px; margin:0 auto; padding:28px 24px 80px; }
+
+.panel-cabecera{
+  display:flex; align-items:baseline; gap:20px; flex-wrap:wrap;
+  padding-bottom:16px; margin-bottom:28px; border-bottom:1px solid var(--linea);
+}
+.panel-cabecera h1{
+  margin:0; font:600 15px var(--f-ui); letter-spacing:.3em; text-transform:uppercase;
+  color:var(--tinta);
+}
+.panel-cabecera nav{ display:flex; gap:18px; margin-left:auto; align-items:baseline; }
+.panel-cabecera nav a, .panel-cabecera nav button{
+  font:500 11.5px var(--f-ui); letter-spacing:.16em; text-transform:uppercase;
+  color:var(--hueso); background:none; border:0; padding:0; cursor:pointer;
+}
+.panel-quien{ font:400 12px var(--f-sub); color:var(--gris); }
+
+h2{ font:600 20px/1.3 var(--f-ui); color:var(--tinta); margin:0 0 4px; }
+h3{
+  font:500 11px var(--f-ui); letter-spacing:.22em; text-transform:uppercase;
+  color:var(--gris); margin:32px 0 12px;
+}
+
+/* -------------------------------------------------------------------- bloques */
+.tarjeta{
+  background:var(--papel); border:1px solid var(--linea); border-radius:14px;
+  padding:20px 22px; margin-bottom:18px;
+}
+
+.cifras{ display:flex; gap:10px; flex-wrap:wrap; margin-bottom:26px; }
+.cifra{
+  flex:1 1 130px; background:var(--papel); border:1px solid var(--linea);
+  border-radius:12px; padding:14px 16px;
+}
+.cifra b{ display:block; font:600 26px/1 var(--f-ui); color:var(--tinta); }
+.cifra span{
+  font:500 10px var(--f-ui); letter-spacing:.18em; text-transform:uppercase; color:var(--gris);
+}
+
+/* --------------------------------------------------------------------- tablas */
+table{ width:100%; border-collapse:collapse; }
+th{
+  text-align:left; font:500 10px var(--f-ui); letter-spacing:.18em;
+  text-transform:uppercase; color:var(--gris);
+  padding:0 10px 8px 0; border-bottom:1px solid var(--linea);
+}
+td{ padding:11px 10px 11px 0; border-bottom:1px solid var(--linea); vertical-align:top; }
+tr:last-child td{ border-bottom:0; }
+.folio{ font:500 13px var(--f-ui); letter-spacing:.04em; white-space:nowrap; }
+
+/* Fila completa clickeable: el enlace real vive en .folio pero se estira
+   sobre toda la fila con un ::after absoluto, así el resto de las celdas
+   también navegan sin duplicar el href en cada <td>. */
+tr.fila-enlace{ position:relative; cursor:pointer; }
+tr.fila-enlace:hover{ background:var(--papel-sombra, rgba(0,0,0,.025)); }
+tr.fila-enlace .folio a{ position:static; }
+tr.fila-enlace .folio a::after{ content:""; position:absolute; inset:0; }
+
+/* Los datos que la ceguera oculta se marcan, en vez de dejar un hueco: un
+   campo vacío se lee como "no hay autor" y lo que pasa es que no se puede ver
+   todavía. */
+.ciego{ font:400 12px var(--f-sub); color:var(--gris); font-style:italic; }
+
+.etiqueta{
+  display:inline-block; font:500 10px var(--f-ui); letter-spacing:.14em;
+  text-transform:uppercase; padding:3px 9px; border-radius:999px;
+  border:1px solid var(--linea-fuerte); color:var(--hueso); white-space:nowrap;
+}
+.etiqueta--pendiente{ border-color:var(--ambar); color:var(--ambar); }
+.etiqueta--curso{ border-color:var(--indigo); color:var(--indigo); }
+.etiqueta--lista{ border-color:var(--verde); color:var(--verde); }
+.etiqueta--alerta{ border-color:var(--naranja); color:var(--naranja); }
+
+/* ----------------------------------------------------------------- formulario */
+label{ display:block; font:500 11px var(--f-ui); letter-spacing:.14em;
+  text-transform:uppercase; color:var(--gris); margin-bottom:6px; }
+input[type=text], input[type=email], input[type=password], input[type=number], select, textarea{
+  width:100%; font:400 15px var(--f-ui); color:var(--texto);
+  background:rgba(252,248,240,.75); border:1px solid var(--linea);
+  border-radius:9px; padding:10px 12px;
+}
+input:focus, select:focus, textarea:focus{ outline:2px solid var(--indigo); outline-offset:1px; }
+textarea{ resize:vertical; min-height:96px; }
+.campo{ margin-bottom:16px; }
+.fila{ display:flex; gap:14px; flex-wrap:wrap; }
+.fila > *{ flex:1 1 200px; }
+
+.boton{
+  display:inline-block; font:500 11.5px var(--f-ui); letter-spacing:.14em;
+  text-transform:uppercase; color:var(--tinta); background:transparent;
+  border:1px solid var(--linea); border-radius:999px; padding:9px 18px; cursor:pointer;
+}
+.boton:hover{ border-color:var(--linea-fuerte); text-decoration:none; }
+.boton--lleno{ background:var(--naranja); border-color:var(--naranja); }
+.boton--lleno:hover{ background:#ee5333; border-color:#ee5333; }
+.boton:disabled{ opacity:.45; cursor:not-allowed; }
+
+.aviso{ font:400 14px var(--f-ui); color:var(--naranja); margin:10px 0 0; }
+.aviso--ok{ color:var(--verde); }
+.nota{ font:400 13px/1.55 var(--f-sub); color:var(--gris); margin:6px 0 0; }
+
+/* ------------------------------------------------------------------ dictamen */
+.rubrica-fila{
+  display:grid; grid-template-columns:1fr auto; gap:14px; align-items:center;
+  padding:12px 0; border-bottom:1px solid var(--linea);
+}
+.rubrica-fila:last-child{ border-bottom:0; }
+.rubrica-fila p{ margin:0; font:400 14px/1.45 var(--f-ui); color:var(--texto); }
+.rubrica-fila .critica{ color:var(--naranja); font-weight:500; }
+.opciones{ display:flex; gap:4px; }
+.opciones label{
+  margin:0; cursor:pointer; border:1px solid var(--linea); border-radius:8px;
+  padding:7px 11px; font:500 12px var(--f-ui); letter-spacing:0;
+  text-transform:none; color:var(--texto); background:rgba(252,248,240,.75);
+}
+.opciones input{ position:absolute; opacity:0; pointer-events:none; }
+.opciones input:checked + span{ color:var(--tinta); }
+.opciones label:has(input:checked){ border-color:var(--indigo); background:#fff; color:var(--indigo); }
+.opciones label:has(input:focus-visible){ outline:2px solid var(--indigo); outline-offset:1px; }
+
+.veredicto{
+  background:#fff; border:1px solid var(--linea-fuerte); border-radius:12px;
+  padding:16px 18px; margin:18px 0;
+}
+.veredicto b{ font:600 17px var(--f-ui); color:var(--tinta); }
+.veredicto span{ font:400 13px var(--f-sub); color:var(--gris); display:block; margin-top:4px; }
+
+.entrar{ max-width:360px; margin:14vh auto; }

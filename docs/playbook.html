@@ -1,0 +1,557 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vértices · playbook de prueba</title>
+<style>
+  :root {
+    --tinta: #14161a; --tinta-2: #4a5058; --papel: #fdfcfa; --papel-2: #f4f2ee;
+    --linea: #e2ded7; --acento: #7a1f2b; --acento-2: #a8323f;
+    --ok: #1f6b45; --alerta: #8a5a00; --codigo: #f0ede8;
+    --ancho: 62rem;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --tinta: #e8e6e1; --tinta-2: #a0a4ab; --papel: #14161a; --papel-2: #1b1e24;
+      --linea: #2b2f36; --acento: #e58b96; --acento-2: #f0a7b0;
+      --ok: #6bc294; --alerta: #d8a640; --codigo: #1e2128;
+    }
+  }
+  :root[data-theme="dark"] {
+    --tinta: #e8e6e1; --tinta-2: #a0a4ab; --papel: #14161a; --papel-2: #1b1e24;
+    --linea: #2b2f36; --acento: #e58b96; --acento-2: #f0a7b0;
+    --ok: #6bc294; --alerta: #d8a640; --codigo: #1e2128;
+  }
+  :root[data-theme="light"] {
+    --tinta: #14161a; --tinta-2: #4a5058; --papel: #fdfcfa; --papel-2: #f4f2ee;
+    --linea: #e2ded7; --acento: #7a1f2b; --acento-2: #a8323f;
+    --ok: #1f6b45; --alerta: #8a5a00; --codigo: #f0ede8;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--papel); color: var(--tinta);
+    font: 16px/1.65 ui-serif, Georgia, "Times New Roman", serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  .envoltorio { max-width: var(--ancho); margin: 0 auto; padding: 3rem 1.25rem 6rem; }
+
+  header.cabecera { border-bottom: 2px solid var(--tinta); padding-bottom: 1.25rem; margin-bottom: 2rem; }
+  .kicker {
+    font: 600 0.72rem/1 ui-sans-serif, system-ui, sans-serif;
+    letter-spacing: .16em; text-transform: uppercase; color: var(--acento);
+  }
+  h1 { font-size: clamp(2rem, 5vw, 2.9rem); line-height: 1.1; margin: .6rem 0 .5rem; letter-spacing: -.02em; }
+  .entradilla { color: var(--tinta-2); font-size: 1.05rem; max-width: 46rem; margin: 0; }
+
+  h2 {
+    font-size: 1.5rem; margin: 3.5rem 0 .25rem; letter-spacing: -.01em;
+    padding-top: 1rem; border-top: 1px solid var(--linea);
+  }
+  h2 .num {
+    font: 600 .78rem/1 ui-sans-serif, system-ui, sans-serif; color: var(--acento);
+    display: block; margin-bottom: .35rem; letter-spacing: .1em;
+  }
+  h3 { font-size: 1.05rem; margin: 2rem 0 .5rem; }
+  p { margin: .7rem 0; }
+  a { color: var(--acento); text-underline-offset: 3px; }
+
+  code, kbd {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .86em;
+    background: var(--codigo); padding: .12em .38em; border-radius: 3px;
+  }
+  pre {
+    background: var(--codigo); border: 1px solid var(--linea); border-radius: 6px;
+    padding: .9rem 1rem; overflow-x: auto; font-size: .82rem; line-height: 1.55;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  }
+  pre code { background: none; padding: 0; font-size: inherit; }
+
+  .cuadricula { display: grid; gap: .75rem; grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr)); margin: 1.25rem 0; }
+  .dato { background: var(--papel-2); border: 1px solid var(--linea); border-radius: 6px; padding: .75rem .9rem; }
+  .dato dt { font: 600 .68rem/1 ui-sans-serif, system-ui, sans-serif; letter-spacing: .1em; text-transform: uppercase; color: var(--tinta-2); }
+  .dato dd { margin: .4rem 0 0; font-size: 1.35rem; font-variant-numeric: tabular-nums; }
+  .dato dd small { display: block; font-size: .78rem; color: var(--tinta-2); font-variant-numeric: normal; }
+
+  .nota, .aviso, .clave {
+    border-left: 3px solid var(--linea); padding: .6rem 0 .6rem 1rem; margin: 1.1rem 0;
+    font-size: .94rem; color: var(--tinta-2);
+  }
+  .clave { border-left-color: var(--ok); color: var(--tinta); }
+  .aviso { border-left-color: var(--alerta); color: var(--tinta); }
+  .nota strong, .clave strong, .aviso strong { color: var(--tinta); }
+
+  ol.pasos { counter-reset: paso; list-style: none; padding: 0; margin: 1rem 0; }
+  ol.pasos > li {
+    counter-increment: paso; position: relative; padding: 0 0 1.1rem 2.4rem; margin: 0;
+    border-left: 1px solid var(--linea); margin-left: .9rem;
+  }
+  ol.pasos > li:last-child { border-left-color: transparent; padding-bottom: 0; }
+  ol.pasos > li::before {
+    content: counter(paso); position: absolute; left: -.9rem; top: 0;
+    width: 1.75rem; height: 1.75rem; border-radius: 50%;
+    background: var(--papel); border: 1px solid var(--linea); color: var(--tinta-2);
+    font: 600 .78rem/1.65rem ui-sans-serif, system-ui, sans-serif; text-align: center;
+  }
+  ol.pasos > li > :first-child { margin-top: 0; }
+
+  .mirar {
+    display: block; background: var(--papel-2); border: 1px dashed var(--linea);
+    border-radius: 6px; padding: .55rem .8rem; margin: .6rem 0 0; font-size: .9rem;
+  }
+  .mirar b {
+    font: 600 .66rem/1 ui-sans-serif, system-ui, sans-serif; letter-spacing: .12em;
+    text-transform: uppercase; color: var(--acento); display: block; margin-bottom: .3rem;
+  }
+
+  table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .9rem; }
+  th, td { text-align: left; padding: .5rem .6rem; border-bottom: 1px solid var(--linea); vertical-align: top; }
+  th { font: 600 .7rem/1 ui-sans-serif, system-ui, sans-serif; letter-spacing: .1em; text-transform: uppercase; color: var(--tinta-2); }
+  .tabla-scroll { overflow-x: auto; }
+
+  ul.limpia { list-style: none; padding: 0; }
+  ul.limpia li { padding-left: 1.2rem; position: relative; margin: .35rem 0; }
+  ul.limpia li::before { content: "·"; position: absolute; left: .35rem; color: var(--acento); font-weight: 700; }
+
+  nav.indice {
+    background: var(--papel-2); border: 1px solid var(--linea); border-radius: 6px;
+    padding: 1rem 1.1rem; margin: 2rem 0 0;
+    font: .9rem/1.9 ui-sans-serif, system-ui, sans-serif;
+  }
+  nav.indice ol { margin: .4rem 0 0; padding-left: 1.3rem; }
+  nav.indice a { text-decoration: none; }
+  nav.indice a:hover { text-decoration: underline; }
+  nav.indice .titulo { font: 600 .68rem/1 ui-sans-serif, system-ui, sans-serif; letter-spacing: .12em; text-transform: uppercase; color: var(--tinta-2); }
+
+  footer { margin-top: 4rem; padding-top: 1.25rem; border-top: 1px solid var(--linea); color: var(--tinta-2); font-size: .85rem; }
+  .estado-vivo { font: 600 .72rem/1 ui-sans-serif, system-ui, sans-serif; color: var(--ok); letter-spacing: .06em; }
+</style>
+</head>
+<body>
+<div class="envoltorio">
+
+<header class="cabecera">
+  <div class="kicker">Vértices · Next.js + Supabase</div>
+  <h1>Playbook: probarlo todo a mano</h1>
+  <p class="entradilla">
+    El recorrido completo, del formulario público al número publicado, con lo que hay que
+    <em>mirar</em> en cada paso — no sólo lo que hay que pulsar. Escrito contra el servidor de
+    desarrollo en <code>localhost:3100</code> y el proyecto real de Supabase.
+  </p>
+</header>
+
+<p class="estado-vivo">● Servidor levantado en http://localhost:3100</p>
+
+<div class="cuadricula">
+  <dl class="dato"><dt>Artículos</dt><dd>26 <small>todos de muestra (<code>es_placeholder</code>)</small></dd></dl>
+  <dl class="dato"><dt>Envíos</dt><dd>0 <small>la base arranca vacía a propósito</small></dd></dl>
+  <dl class="dato"><dt>Números</dt><dd>0 <small>ninguno creado todavía</small></dd></dl>
+  <dl class="dato"><dt>Secciones · temas</dt><dd>9 · 28 <small>semilla del comité</small></dd></dl>
+</div>
+
+<nav class="indice">
+  <div class="titulo">Recorrido</div>
+  <ol>
+    <li><a href="#p0">Arrancar y sembrar las cuentas</a></li>
+    <li><a href="#p1">El sitio público</a></li>
+    <li><a href="#p2">Mandar un manuscrito</a></li>
+    <li><a href="#p3">Consultar el estado por folio</a></li>
+    <li><a href="#p4">El panel y el doble ciego</a> — el corazón</li>
+    <li><a href="#p5">Publicar un número</a></li>
+    <li><a href="#p6">El export del Registro</a></li>
+    <li><a href="#p7">Webhooks y tareas programadas</a></li>
+    <li><a href="#p8">Las suites automáticas</a></li>
+    <li><a href="#p9">Limpiar y volver a empezar</a></li>
+    <li><a href="#p10">Lo que no funciona en local</a></li>
+  </ol>
+</nav>
+
+<!-- ────────────────────────────────────────────────────────────── 0 -->
+<h2 id="p0"><span class="num">PASO 0</span>Arrancar y sembrar las cuentas</h2>
+
+<p>El servidor ya está corriendo. Si hace falta relanzarlo:</p>
+<pre><code>npm --prefix web run dev        # http://localhost:3100</code></pre>
+
+<p>
+  El alta del comité es <strong>por invitación por correo</strong> y eso exige un dominio verificado
+  en Resend, así que en local no hay forma de entrar al panel por la interfaz. El script de demo
+  crea las cuentas directamente, igual que hace el fixture de Playwright:
+</p>
+
+<pre><code>node web/scripts/demo/sembrar.mjs            # crea las cuentas e informa
+node web/scripts/demo/sembrar.mjs --estado   # sólo informa, no escribe
+node web/scripts/demo/sembrar.mjs --limpiar  # las borra
+node web/scripts/demo/sembrar.mjs --purgar   # borra los restos de @prueba.test</code></pre>
+
+<div class="tabla-scroll">
+<table>
+  <thead><tr><th>Cuenta</th><th>Contraseña</th><th>Para qué</th></tr></thead>
+  <tbody>
+    <tr><td><code>ana@demo.test</code></td><td rowspan="2"><code>demo-vertices-2026</code></td><td>quien tría, asigna y graba la decisión</td></tr>
+    <tr><td><code>beto@demo.test</code></td><td>el segundo par de ojos — sin él no se puede ver el ciego</td></tr>
+  </tbody>
+</table>
+</div>
+
+<div class="clave">
+  <strong>Dos cuentas, no una.</strong> El doble ciego no es un nivel de permiso: es una función de
+  (quién mira, qué envío). Con una sola cuenta es imposible distinguir «se desveló» de «nunca
+  estuvo oculto».
+</div>
+
+<div class="aviso">
+  <strong>Hay seis cuentas de <code>@prueba.test</code> en la base.</strong> Son restos de corridas
+  de Playwright que se interrumpieron. Ensucian <code>/panel/equipo</code> y el selector de
+  asignaciones. <code>--purgar</code> las borra.
+</div>
+
+<!-- ────────────────────────────────────────────────────────────── 1 -->
+<h2 id="p1"><span class="num">PASO 1</span>El sitio público</h2>
+
+<p>Lo primero que hay que comprobar es que <em>no cambió nada</em>. El rediseño no era parte del trabajo: cualquier diferencia visual es un defecto.</p>
+
+<ol class="pasos">
+  <li>
+    <p><a href="http://localhost:3100/">localhost:3100</a> — la portada: lienzo de partículas, carrusel, formulario.</p>
+    <span class="mirar"><b>Qué mirar</b> Las partículas se mueven y responden al cursor. El carrusel avanza solo y para al pasar por encima.</span>
+  </li>
+  <li>
+    <p>Los seis idiomas. El español no lleva prefijo; los demás sí.</p>
+    <pre><code>http://localhost:3100/      es    (sin prefijo, es el idioma por defecto)
+http://localhost:3100/en    en
+http://localhost:3100/fr    fr
+http://localhost:3100/it    it
+http://localhost:3100/pt    pt
+http://localhost:3100/ru    ru</code></pre>
+    <span class="mirar"><b>Qué mirar</b> Que <code>/es/...</code> redirija a la ruta sin prefijo (307). Que ninguna cadena se quede en español dentro de otro idioma.</span>
+  </li>
+  <li>
+    <p>Las tres satélites: <a href="http://localhost:3100/lineamientos">lineamientos</a>,
+       <a href="http://localhost:3100/quienes-somos">quiénes somos</a>,
+       <a href="http://localhost:3100/equipo">equipo</a>.</p>
+    <span class="mirar"><b>Qué mirar</b> Cada una trae su propia hoja de estilos. Si se ve algo raro, es colisión de clases con la de la portada.</span>
+  </li>
+  <li>
+    <p>Los redirects del sitio viejo — seis, todos 301/308:</p>
+    <pre><code>for r in index lineamientos quienes-somos equipo-ds mision-ds vision-ds; do
+  curl -sI "http://localhost:3100/$r.html" | head -2
+done</code></pre>
+    <span class="mirar"><b>Qué mirar</b> <code>mision-ds.html</code> y <code>vision-ds.html</code> tienen que caer en <code>/quienes-somos#mision</code> y <code>#vision</code>. Eran stubs de meta-refresh y alguien los tiene en favoritos.</span>
+  </li>
+  <li>
+    <p>Un artículo de muestra, ya servido desde Postgres y no desde un array:</p>
+    <p><a href="http://localhost:3100/articulos/el-costo-de-la-desigualdad-movilidad-social-en-la-ciudad-de-mexico">/articulos/el-costo-de-la-desigualdad-…</a></p>
+    <span class="mirar"><b>Qué mirar</b> Los 26 son piezas de muestra: no tienen PDF y no se indexan. Existen para que el descubrimiento por tema y por sección funcione antes del primer número.</span>
+  </li>
+</ol>
+
+<div class="nota">
+  La portada cachea 300 s (<code>revalidate = 300</code>). Si acabas de publicar algo y no aparece,
+  espera o reinicia el servidor — no es un fallo.
+</div>
+
+<!-- ────────────────────────────────────────────────────────────── 2 -->
+<h2 id="p2"><span class="num">PASO 2</span>Mandar un manuscrito</h2>
+
+<p>
+  Éste es el defecto que motivó la reescritura: el formulario viejo inventaba un folio y enseñaba
+  éxito aunque el registro fallara. Ahora el folio sale de la base o no hay folio.
+</p>
+
+<ol class="pasos">
+  <li>
+    <p>En la portada, baja al formulario. Es un asistente de cuatro pasos: <strong>quién eres → la pieza → el archivo → declaraciones</strong>.</p>
+  </li>
+  <li>
+    <p>Usa un correo al que <em>no</em> tengas acceso — da igual, el acuse no va a llegar (ver
+       <a href="#p10">paso 10</a>). Anota el correo exacto: hace falta para consultar el estado.</p>
+  </li>
+  <li>
+    <p>Sube un PDF <strong>que lleve tu nombre en los metadatos</strong>. Es el punto entero del paso.
+       Uno rápido desde Word, Pages o Google Docs sirve: todos escriben el autor.</p>
+    <p>Acepta <code>.pdf</code>, <code>.doc</code> y <code>.docx</code>.</p>
+  </li>
+  <li>
+    <p>Marca las cuatro declaraciones y envía.</p>
+    <span class="mirar"><b>Qué mirar</b> Sale un folio <code>VTX-2026-00N</code> real. Cópialo.</span>
+  </li>
+  <li>
+    <p>Ahora comprueba lo que no se ve. Descarga el archivo del bucket privado y mira los metadatos:</p>
+    <pre><code># la ruta sale del panel, o directamente de la base
+npm --prefix web run e2e     # hace esta comprobación sola, de punta a punta</code></pre>
+    <span class="mirar"><b>Qué mirar</b> El PDF guardado no lleva <code>/Info</code> ni XMP. Un <code>.doc</code> antiguo pasa sin limpiar y queda marcado con <code>metadatos_no_limpiados</code> en la bitácora: eso es correcto, lo cubre la revisión humana.</span>
+  </li>
+</ol>
+
+<div class="aviso">
+  <strong>Diez envíos por hora y por IP.</strong> Si empiezas a ver 429, es el límite haciendo su
+  trabajo. Para seguir probando: <code>delete from privado.golpes;</code> en el editor SQL de
+  Supabase.
+</div>
+
+<!-- ────────────────────────────────────────────────────────────── 3 -->
+<h2 id="p3"><span class="num">PASO 3</span>Consultar el estado por folio</h2>
+
+<p>Desde la portada, en la sección «Estado de tu envío». O a mano:</p>
+
+<pre><code>curl -s http://localhost:3100/api/estado \
+  -H 'content-type: application/json' \
+  -d '{"folio":"VTX-2026-001","correo":"el@correo.que.usaste"}' | python3 -m json.tool</code></pre>
+
+<div class="clave">
+  <strong>Es POST a propósito.</strong> Un folio y un correo en la query string acaban en los
+  registros del proxy y en el historial del navegador.
+</div>
+
+<p>Ahora la prueba que importa — pide el mismo folio con un correo equivocado:</p>
+
+<pre><code>curl -s http://localhost:3100/api/estado \
+  -H 'content-type: application/json' \
+  -d '{"folio":"VTX-2026-001","correo":"quien.sea@otro.test"}'
+
+curl -s http://localhost:3100/api/estado \
+  -H 'content-type: application/json' \
+  -d '{"folio":"VTX-2026-999","correo":"quien.sea@otro.test"}'</code></pre>
+
+<span class="mirar"><b>Qué mirar</b> Las dos respuestas son <strong>idénticas</strong>, mismo cuerpo y mismo 200. Distinguir «correo equivocado» de «folio inexistente» —aunque fuera sólo por el código de estado— convertiría esto en un oráculo de correos: los folios son una secuencia predecible y un dictaminador ciego ya tiene el folio de la pieza que está evaluando.</span>
+
+<p>Insiste con correos equivocados y verás el retroceso: diez fallos de gracia por IP, tope de 15 minutos, y un máximo de diez consultas por hora <em>y por folio</em> — que es la defensa real contra la enumeración.</p>
+
+<!-- ────────────────────────────────────────────────────────────── 4 -->
+<h2 id="p4"><span class="num">PASO 4</span>El panel y el doble ciego</h2>
+
+<p>
+  El recorrido central. Hazlo en <strong>dos ventanas</strong>: una normal con Ana y una de incógnito
+  con Beto. Sin las dos a la vez no se ve nada de lo que importa.
+</p>
+
+<p>Entra en <a href="http://localhost:3100/panel">localhost:3100/panel</a> — redirige a la pantalla de acceso.</p>
+
+<ol class="pasos">
+  <li>
+    <p><strong>Ana entra</strong> y ve la cola. Abre el envío que acabas de mandar.</p>
+    <span class="mirar"><b>Qué mirar</b> Ficha completa: título, resumen, palabras clave, sección, archivo. Y donde iría la autoría, <code>—</code>. Busca tu nombre en la página entera (⌘F): no está.</span>
+  </li>
+  <li>
+    <p><strong>Triaje.</strong> Si la pieza llegó sin sección de verdad, dale una. Sin sección no hay
+       nivel, sin nivel no hay instrumento, y sin instrumento no se puede asignar a nadie.</p>
+    <span class="mirar"><b>Qué mirar</b> El nivel (A/B/C) aparece solo, no se elige. Lo deriva un disparador de la base a partir de la sección y el tipo de pieza — y es el mismo camino tanto si el envío entra por el formulario como si lo tría alguien aquí.</span>
+  </li>
+  <li>
+    <p><strong>Asigna a Ana y a Beto.</strong></p>
+    <span class="mirar"><b>Qué mirar</b> El selector no ofrece a nadie cuyo correo coincida con el de la autoría — ni el principal ni los alternos de <code>/panel/equipo</code>. La exclusión es silenciosa: decir «a fulanita no, es la autora» sería desvelar por la puerta de atrás. Se comprueba diffando el selector contra la lista del equipo.</span>
+  </li>
+  <li>
+    <p><strong>Ana dictamina.</strong> Abre su tarjeta: puertas de sí/no y dimensiones de 0 a 3.</p>
+    <ul class="limpia">
+      <li>Las puertas con ★ son <strong>eliminatorias</strong>: dejarlas en blanco cuenta como «no».</li>
+      <li>Las dimensiones con ★ son <strong>críticas</strong>: por debajo de 2 reprueban la pieza entera.</li>
+      <li>El puntaje y la <em>decisión sugerida</em> se recalculan mientras escribes.</li>
+    </ul>
+    <p>Guarda en borrador, recarga, comprueba que sigue ahí. Luego <strong>envía</strong>.</p>
+    <span class="mirar"><b>Qué mirar</b> Enviar es irreversible: la tarjeta queda congelada, incluidos los comentarios. Y en ese momento —y sólo para Ana— aparece la autoría.</span>
+  </li>
+  <li>
+    <p><strong>Vuelve a la ventana de Beto</strong> y abre el mismo envío.</p>
+    <span class="mirar"><b>Qué mirar</b> Beto sigue ciego. Ve que hay un dictamen enviado y ve su puntaje, pero no el nombre del autor ni el nombre de quien lo dictaminó. Desvelar es un acto de quien dictamina sobre sí mismo, no un estado global del envío.</span>
+  </li>
+  <li>
+    <p><strong>Graba la decisión</strong> (Ana). Es la «grabada», distinta de la «sugerida» que calculó el motor.</p>
+    <span class="mirar"><b>Qué mirar</b> Ahora Beto también ve la autoría — la decisión desvela para todo el comité. Y el estado público del folio (paso 3) cambia a la etiqueta que ve el autor.</span>
+  </li>
+  <li>
+    <p>Mira la bitácora del envío al pie de la ficha.</p>
+    <span class="mirar"><b>Qué mirar</b> Cada desvelo dejó su fila. <code>envio_eventos</code> sólo se añade: nadie tiene UPDATE ni DELETE, ni el comité. Es lo que sostiene que la ceguera sea <em>responsable</em> aunque no sea absoluta.</span>
+  </li>
+</ol>
+
+<div class="aviso">
+  <strong>«Pendiente de dictamen» no está entre las decisiones grabables</strong>, y es a propósito:
+  grabarla desvelaría a todo el comité y le diría al autor que su decisión es «pendiente».
+  Si aparece en el desplegable, es un defecto.
+</div>
+
+<!-- ────────────────────────────────────────────────────────────── 5 -->
+<h2 id="p5"><span class="num">PASO 5</span>Publicar un número</h2>
+
+<p><a href="http://localhost:3100/panel/ediciones">/panel/ediciones</a></p>
+
+<ol class="pasos">
+  <li><p>Crea un número: número y título.</p></li>
+  <li>
+    <p>Ábrelo y añade la pieza aceptada, con sus minutos de lectura.</p>
+    <span class="mirar"><b>Qué mirar</b> El desplegable sólo ofrece envíos con decisión <strong>aceptante</strong>. Intentar adjuntar cualquier otra cosa lo rechaza la base, no la interfaz.</span>
+  </li>
+  <li><p>Marca alguna como destacada y ajusta minutos.</p></li>
+  <li>
+    <p><strong>Publica el número.</strong></p>
+    <span class="mirar"><b>Qué mirar</b> Primero copia los PDF al bucket público y sólo al final enciende la edición. Si a alguna pieza le falta el PDF, se niega en bloque — no publica media edición.</span>
+  </li>
+  <li>
+    <p>Vuelve a la portada. La pieza está en el carrusel y tiene URL propia.</p>
+    <span class="mirar"><b>Qué mirar</b> Lo que se sirve en <code>/publicaciones</code> es una <strong>copia</strong>: el original nunca sale del bucket privado, que no tiene ni una política y sólo alcanza el <code>service_role</code>. Cuélgale la URL del bucket privado a un navegador sin sesión y tiene que dar 400/404.</span>
+  </li>
+</ol>
+
+<!-- ────────────────────────────────────────────────────────────── 6 -->
+<h2 id="p6"><span class="num">PASO 6</span>El export del Registro</h2>
+
+<p>Con sesión abierta: <a href="http://localhost:3100/panel/exportar">/panel/exportar</a> descarga el <code>.xlsx</code>.</p>
+
+<p>La prueba de verdad es hacerlo <strong>dos veces con Beto</strong>: una antes de que el envío tenga decisión y otra después.</p>
+
+<span class="mirar"><b>Qué mirar</b> En la primera, las columnas C, D, E y T (autoría, correo, filiación, notas) vienen con <code>—</code>, y el nombre del autor no aparece en <em>ninguna</em> celda de la hoja. En la segunda sí. El export no reimplementa el ciego: corre con la sesión de quien lo pide, así que <code>envios_autoria</code> le llega ya filtrada por la política. Una copia de la regla es una copia que alguien olvidará actualizar.</span>
+
+<p>Cada descarga escribe un <code>export_generado</code> en la bitácora con quién lo pidió y cuántas filas salieron cegadas.</p>
+
+<!-- ────────────────────────────────────────────────────────────── 7 -->
+<h2 id="p7"><span class="num">PASO 7</span>Webhooks y tareas programadas</h2>
+
+<h3>Las tareas programadas</h3>
+<p>En producción las dispara Vercel; a mano se piden con el secreto:</p>
+<pre><code>CRON=$(grep '^CRON_SECRET=' .env | cut -d= -f2-)
+
+# barrido de subidas huérfanas — sin ?borrar=1 sólo informa
+curl -s -H "Authorization: Bearer $CRON" \
+  'http://localhost:3100/api/mantenimiento/huerfanos'
+
+# resumen semanal de lo atascado
+curl -s -H "Authorization: Bearer $CRON" \
+  'http://localhost:3100/api/mantenimiento/digest'</code></pre>
+<span class="mirar"><b>Qué mirar</b> Sin la cabecera, 401. El resumen no manda nada si no hay nada atascado — un correo semanal que casi siempre dice «todo bien» es un correo que nadie abre.</span>
+
+<h3>El webhook de Resend</h3>
+<p>
+  Hoy responde <strong>503</strong>: no hay <code>RESEND_WEBHOOK_SECRET</code> en el <code>.env</code>.
+  Es deliberado — un webhook sin verificar es un endpoint con el que cualquiera escribe en la
+  bitácora del comité. Para probarlo en local, añade uno cualquiera en base64:
+</p>
+<pre><code>echo 'RESEND_WEBHOOK_SECRET=whsec_'$(openssl rand -base64 24) >> .env</code></pre>
+
+<p>Y dispara un rebote firmado (sustituye el folio por uno real):</p>
+<pre><code>node --input-type=module -e '
+import { createHmac } from "node:crypto";
+import { readFileSync } from "node:fs";
+const env = Object.fromEntries(readFileSync(".env","utf8").split("\n")
+  .filter(l=>l.includes("=")&&!l.startsWith("#"))
+  .map(l=>[l.slice(0,l.indexOf("=")),l.slice(l.indexOf("=")+1).trim()]));
+const cuerpo = JSON.stringify({
+  type: "email.bounced",
+  data: { email_id: "demo-1", subject: "Vertices VTX-2026-001 acuse",
+          to: ["fulanita@ejemplo.test"],
+          bounce: { message: "mailbox unavailable: fulanita@ejemplo.test" } },
+});
+const id = "msg_demo", ts = String(Math.floor(Date.now()/1000));
+const clave = Buffer.from(env.RESEND_WEBHOOK_SECRET.replace(/^whsec_/,""),"base64");
+const firma = "v1," + createHmac("sha256",clave).update(`${id}.${ts}.${cuerpo}`).digest("base64");
+const r = await fetch("http://localhost:3100/api/webhooks/resend", {
+  method:"POST",
+  headers:{"content-type":"application/json","svix-id":id,"svix-timestamp":ts,"svix-signature":firma},
+  body: cuerpo });
+console.log(r.status, await r.text());
+'</code></pre>
+
+<span class="mirar"><b>Qué mirar</b> Tres cosas. Con la firma, 200. Cambia un byte del cuerpo y da <strong>401</strong>. Y en <code>envio_eventos</code> queda el tipo y el <code>email_id</code> — <strong>nunca la dirección</strong>, aunque el payload la traiga dos veces. La bitácora la lee todo el comité, incluida gente que sigue ciega para ese envío: un rebote con el destinatario dentro sería una puerta trasera a la autoría abierta por la bandeja de entrada. Por eso el folio sale del asunto y no del destinatario.</span>
+
+<p>Retrasa el <code>svix-timestamp</code> más de cinco minutos y también da 401: sin ventana, una petición capturada vale para siempre.</p>
+
+<!-- ────────────────────────────────────────────────────────────── 8 -->
+<h2 id="p8"><span class="num">PASO 8</span>Las suites automáticas</h2>
+
+<div class="tabla-scroll">
+<table>
+  <thead><tr><th>Comando</th><th>Qué prueba</th><th>Toca la base real</th></tr></thead>
+  <tbody>
+    <tr><td><code>npm test</code></td><td>unidad + juego de claves i18n</td><td>no</td></tr>
+    <tr><td><code>npm run visual</code></td><td>paridad visual: portada y satélites, 6 idiomas, 24 pruebas</td><td>no</td></tr>
+    <tr><td><code>npm run panel</code></td><td>panel y publicación en navegador, incluido el doble ciego</td><td><strong>sí</strong></td></tr>
+    <tr><td><code>npm run e2e</code></td><td>la tubería de envío de punta a punta</td><td><strong>sí</strong></td></tr>
+  </tbody>
+</table>
+</div>
+
+<p>Todo desde <code>web/</code>. Las dos últimas escriben en el proyecto real y limpian al terminar.</p>
+
+<div class="clave">
+  <strong>La compuerta visual compara contra el sitio legado</strong>, no contra esta app. Las
+  imágenes doradas se capturaron del sitio en Netlify y no se regeneran desde aquí: hacerlo
+  convertiría la compuerta en una tautología. Si sale en rojo, cambió el diseño — y eso es el
+  defecto, no la prueba.
+</div>
+
+<p>Y las tres suites SQL, pegándolas en el editor de Supabase:</p>
+<ul class="limpia">
+  <li><code>supabase/tests/rls.sql</code> — 26 afirmaciones sobre las políticas</li>
+  <li><code>supabase/tests/superficie-api.sql</code> — 19 sobre quién puede llamar qué</li>
+</ul>
+
+<!-- ────────────────────────────────────────────────────────────── 9 -->
+<h2 id="p9"><span class="num">PASO 9</span>Limpiar y volver a empezar</h2>
+
+<pre><code>node web/scripts/demo/sembrar.mjs --limpiar   # las cuentas de demo
+node web/scripts/demo/sembrar.mjs --purgar    # los restos de Playwright
+node web/scripts/demo/sembrar.mjs --estado    # ver cómo quedó</code></pre>
+
+<p>En el editor SQL de Supabase, si hace falta:</p>
+<pre><code>delete from privado.golpes;   -- perdona los límites de tasa en curso</code></pre>
+
+<div class="aviso">
+  Los envíos de prueba <strong>no</strong> se borran solos. Un envío con decisión no se borra nunca en
+  duro; los de prueba hay que quitarlos a mano desde el editor de Supabase, y antes sus artículos
+  (<code>articulos.envio_id</code> es <code>ON DELETE SET NULL</code> a propósito: quitar un envío no
+  puede dejar en 404 una URL publicada).
+</div>
+
+<!-- ────────────────────────────────────────────────────────────── 10 -->
+<h2 id="p10"><span class="num">PASO 10</span>Lo que no funciona en local, y por qué</h2>
+
+<div class="tabla-scroll">
+<table>
+  <thead><tr><th>Cosa</th><th>Qué pasa</th><th>Qué falta</th></tr></thead>
+  <tbody>
+    <tr>
+      <td>El acuse al autor</td>
+      <td>El envío se guarda bien y queda <code>acuse_no_enviado</code> en la bitácora</td>
+      <td>Un dominio verificado en Resend. Con <code>onboarding@resend.dev</code> sólo se escribe a la dirección dueña de la cuenta</td>
+    </tr>
+    <tr>
+      <td>Invitar al comité</td>
+      <td>La cuenta se crea, el correo no llega</td>
+      <td>Lo mismo. Por eso existe el script de demo</td>
+    </tr>
+    <tr>
+      <td>El webhook de Resend</td>
+      <td>503</td>
+      <td><code>RESEND_WEBHOOK_SECRET</code> — ver el <a href="#p7">paso 7</a></td>
+    </tr>
+    <tr>
+      <td>Las alertas</td>
+      <td>Los registros salen, nadie los mira</td>
+      <td>Un log drain y una cuenta de Sentry o equivalente. <code>docs/operacion.md</code> §4 tiene los patrones exactos</td>
+    </tr>
+    <tr>
+      <td>Los crons</td>
+      <td>Sólo a mano</td>
+      <td>Vercel los activa al desplegar</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<p>
+  Dos decisiones que están así porque el spec las quiso así, no por descuido: la exclusión por
+  conflicto de interés <strong>es observable</strong> diffando el selector de asignaciones contra
+  <code>/panel/equipo</code>, y <strong>cualquiera del comité puede grabar la decisión</strong> de una
+  pieza que nunca dictaminó. Las dos merecen una segunda opinión del comité.
+</p>
+
+<footer>
+  Referencias: <code>CONTEXT.md</code> (el glosario — «decisión» significa dos cosas y conviene no
+  confundirlas), <code>docs/operacion.md</code> (puesta en marcha, alertas y cambio de dominio),
+  <code>docs/implementation-notes/</code> (por qué cada etapa quedó como quedó).
+</footer>
+
+</div>
+</body>
+</html>

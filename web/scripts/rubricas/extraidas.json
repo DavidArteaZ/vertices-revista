@@ -1,0 +1,614 @@
+[
+ {
+  "hoja": "1. Apertura editorial",
+  "titulo": "1 · Apertura editorial  —  Dictamen Nivel C",
+  "nivel": "C",
+  "bandas_texto": "Máx 15. Bandas: Publicable ≥12 · ajustes menores 9–11 · Requiere reelaboración 6–8 · No publicable en este número ≤5.",
+  "puertas": [
+   {
+    "col": "F",
+    "etiqueta": "★ Menciona explícitamente las secciones del número",
+    "eliminatoria": true
+   },
+   {
+    "col": "G",
+    "etiqueta": "Incluye 3–4 reglas del estándar editorial",
+    "eliminatoria": false
+   },
+   {
+    "col": "H",
+    "etiqueta": "Señala fecha y formato de publicación (PDF y sitio)",
+    "eliminatoria": false
+   },
+   {
+    "col": "I",
+    "etiqueta": "Cierra con una vía concreta de participación",
+    "eliminatoria": false
+   }
+  ],
+  "dimensiones": [
+   {
+    "col": "J",
+    "etiqueta": "★ Claridad de propósito (×2)",
+    "critica": true,
+    "permite_na": false,
+    "peso": 2
+   },
+   {
+    "col": "K",
+    "etiqueta": "Representatividad",
+    "critica": false,
+    "permite_na": false,
+    "peso": 1
+   },
+   {
+    "col": "L",
+    "etiqueta": "Tono de marca",
+    "critica": false,
+    "permite_na": false,
+    "peso": 1
+   },
+   {
+    "col": "M",
+    "etiqueta": "Concisión",
+    "critica": false,
+    "permite_na": false,
+    "peso": 1
+   }
+  ],
+  "etiquetas_banda": [
+   "Publicable",
+   "Publicable con ajustes menores",
+   "Requiere reelaboración",
+   "No publicable en este número"
+  ],
+  "formulas": {
+   "S8": "=IF($A8=\"\",\"\",J8*2+K8+L8+M8)",
+   "T8": "=IF($A8=\"\",\"\",15)",
+   "U8": "=IF($A8=\"\",\"\",IF(AND(F8=\"Sí\"),\"Sí\",\"No\"))",
+   "V8": "=IF(OR($A8=\"\",COUNT(J8:M8)=0),\"\",IF(AND(J8>=2),\"Sí\",\"No\"))",
+   "W8": "=IF($A8=\"\",\"\",IF(COUNT(J8:M8)=0,\"Pendiente de dictamen\",IF($U8=\"No\",\"No publicable (falla puerta ★)\",IF($V8=\"No\",\"Requiere reelaboración (crítico < 2)\",IF($S8>=12,\"Publicable\",IF($S8>=9,\"Publicable con ajustes menores\",IF($S8>=6,\"Requiere reelaboración\",\"No publicable en este número\")))))))"
+  }
+ },
+ {
+  "hoja": "2. Datanomics",
+  "titulo": "2 · Datanomics  —  Dictamen Nivel B",
+  "nivel": "B",
+  "bandas_texto": "Máx 15 (o 12 si el how-to = N/A). Bandas /15: Publicable ≥12 · ajustes 9–11 · reelaboración 6–8 · no publicable ≤5.  (/12: ≥10 · 7–9 · 5–6 · ≤4)",
+  "puertas": [
+   {
+    "col": "F",
+    "etiqueta": "★ Fuente del dato citada",
+    "eliminatoria": true
+   },
+   {
+    "col": "G",
+    "etiqueta": "★ Fecha del dato indicada",
+    "eliminatoria": true
+   },
+   {
+    "col": "H",
+    "etiqueta": "★ Hallazgo principal legible en el gráfico",
+    "eliminatoria": true
+   },
+   {
+    "col": "I",
+    "etiqueta": "Ejes, unidades y escalas rotulados",
+    "eliminatoria": false
+   },
+   {
+    "col": "J",
+    "etiqueta": "Nota metodológica de 3–4 líneas",
+    "eliminatoria": false
+   }
+  ],
+  "dimensiones": [
+   {
+    "col": "K",
+    "etiqueta": "★ Trazabilidad del dato",
+    "critica": true,
+    "permite_na": false,
+    "peso": 1
+   },
+   {
+    "col": "L",
+    "etiqueta": "Corrección metodológica",
+    "critica": false,
+    "permite_na": false,
+    "peso": 1
+   },
+   {
+    "col": "M",
+    "etiqueta": "★ Legibilidad del gráfico",
+    "critica": true,
+    "permite_na": false,
+    "peso": 1
+   },
+   {
+    "col": "N",
+    "etiqueta": "Valor del hallazgo",
+    "critica": false,
+    "permite_na": false,
+    "peso": 1
+   },
+   {
+    "col": "O",
+    "etiqueta": "Utilidad del how-to (0–3 o N/A)",
+    "critica": false,
+    "permite_na": true,
+    "peso": 1
+   }
+  ],
+  "etiquetas_banda": [
+   "Publicable",
+   "Publicable con ajustes menores",
+   "Requiere reelaboración",
+   "No publicable en este número"
+  ],
+  "formulas": {
+   "S8": "=IF($A8=\"\",\"\",SUM(K8:O8))",
+   "T8": "=IF($A8=\"\",\"\",IF(O8=\"N/A\",12,15))",
+   "U8": "=IF($A8=\"\",\"\",IF(AND(F8=\"Sí\",G8=\"Sí\",H8=\"Sí\"),\"Sí\",\"No\"))",
+   "V8": "=IF(OR($A8=\"\",COUNT(K8:O8)=0),\"\",IF(AND(K8>=2,M8>=2),\"Sí\",\"No\"))",
+   "W8": "=IF($A8=\"\",\"\",IF(COUNT(K8:O8)=0,\"Pendiente de dictamen\",IF($U8=\"No\",\"No publicable (falla puerta ★)\",IF($V8=\"No\",\"Requiere reelaboración (crítico < 2)\",IF($S8>=IF(T8=12,10,12),\"Publicable\",IF($S8>=IF(T8=12,7,9),\"Publicable con ajustes menores\",IF($S8>=IF(T8=12,5,6),\"Requiere reelaboración\",\"No publicable en este número\")))))))"
+  }
+ },
+ {
+  "hoja": "3. La Voz de la Experiencia",
+  "titulo": "3 · La Voz de la Experiencia  —  Dictamen Nivel C",
+  "nivel": "C",
+  "bandas_texto": "Máx 15. Bandas: Publicable ≥12 · ajustes menores 9–11 · Requiere reelaboración 6–8 · No publicable en este número ≤5.",
+  "puertas": [
+   {
+    "col": "F",
+    "etiqueta": "★ Consentimiento del entrevistado (publicación y citas)",
+    "eliminatoria": true
+   },
+   {
+    "col": "G",
+    "etiqueta": "★ Derechos de imagen resueltos",
+    "eliminatoria": true
+   },
+   {
+    "col": "H",
+    "etiqueta": "Al menos 3 consejos o ideas accionables",
+    "eliminatoria": false
+   },
+   {
+    "col": "I",
+    "etiqueta": "Fuente cuando se citan datos o cifras",
+    "eliminatoria": false
+   }
+  ],
+  "dimensiones": [
+   {
+    "col": "J",
+    "etiqueta": "★ Valor práctico",
+    "critica": true,
+    "permite_na": false,
+    "peso": 1
+   },
+   {
+    "col": "K",
+    "etiqueta": "★ Anclaje en evidencia/experiencia",
+    "critica": true,
+    "permite_na": false,
+    "peso": 1
+   },
+   {
+    "col": "L",
+    "etiqueta": "Accesibilidad",
+    "critica": false,
+    "permite_na": false,
+    "peso": 1
+   },
+   {
+    "col": "M",
+    "etiqueta": "Estructura de la conversación",
+    "critica": false,
+    "permite_na": false,
+    "peso": 1
+   },
+   {
+    "col": "N",
+    "etiqueta": "Interés de la comunidad",
+    "critica": false,
+    "permite_na": false,
+    "peso": 1
+   }
+  ],
+  "etiquetas_banda": [
+   "Publicable",
+   "Publicable con ajustes menores",
+   "Requiere reelaboración",
+   "No publicable en este número"
+  ],
+  "formulas": {
+   "S8": "=IF($A8=\"\",\"\",SUM(J8:N8))",
+   "T8": "=IF($A8=\"\",\"\",15)",
+   "U8": "=IF($A8=\"\",\"\",IF(AND(F8=\"Sí\",G8=\"Sí\"),\"Sí\",\"No\"))",
+   "V8": "=IF(OR($A8=\"\",COUNT(J8:N8)=0),\"\",IF(AND(J8>=2,K8>=2),\"Sí\",\"No\"))",
+   "W8": "=IF($A8=\"\",\"\",IF(COUNT(J8:N8)=0,\"Pendiente de dictamen\",IF($U8=\"No\",\"No publicable (falla puerta ★)\",IF($V8=\"No\",\"Requiere reelaboración (crítico < 2)\",IF($S8>=12,\"Publicable\",IF($S8>=9,\"Publicable con ajustes menores\",IF($S8>=6,\"Requiere reelaboración\",\"No publicable en este número\")))))))"
+  }
+ },
+ {
+  "hoja": "4. Miradas Económicas",
+  "titulo": "4 · Miradas Económicas  —  Dictamen Nivel A",
+  "nivel": "A",
+  "bandas_texto": "Máx 21. Bandas: Aceptado ≥17 · revisiones menores 14–16 · Revisiones mayores 9–13 · Rechazado ≤8.",
+  "puertas": [
+   {
+    "col": "F",
+    "etiqueta": "★ Verificación antiplagio realizada (Turnitin)",
+    "eliminatoria": true
+   },
+   {
+    "col": "G",
+    "etiqueta": "★ Manuscrito anonimizado (doble ciego)",
+    "eliminatoria": true
+   },
+   {
+    "col": "H",
+    "etiqueta": "★ Sin problemas críticos",
+    "eliminatoria": true
+   }
+  ],
+  "dimensiones": [
+   {
+    "col": "I",
+    "etiqueta": "A. Relevancia y pertinencia",
+    "critica": false,
+    "permite_na": false,
+    "peso": 1
+   },
+   {
+    "col": "J",
+    "etiqueta": "★ B. Claridad de idea/pregunta",
+    "critica": true,
+    "permite_na": false,
+    "peso": 1
+   },
+   {
+    "col": "K",
+    "etiqueta": "★ C. Rigor y precisión conceptual",
+    "critica": true,
+    "permite_na": false,
+    "peso": 1
+   },
+   {
+    "col": "L",
+    "etiqueta": "D. Estructura y coherencia",
+    "critica": false,
+    "permite_na": false,
+    "peso": 1
+   },
+   {
+    "col": "M",
+    "etiqueta": "★ E. Evidencia / fuentes / datos",
+    "critica": true,
+    "permite_na": false,
+    "peso": 1
+   },
+   {
+    "col": "N",
+    "etiqueta": "F. Escritura y legibilidad",
+    "critica": false,
+    "permite_na": false,
+    "peso": 1
+   },
+   {
+    "col": "O",
+    "etiqueta": "G. Adecuación al formato",
+    "critica": false,
+    "permite_na": false,
+    "peso": 1
+   }
+  ],
+  "etiquetas_banda": [
+   "Aceptado",
+   "Aceptado con revisiones menores",
+   "Revisiones mayores",
+   "Rechazado"
+  ],
+  "formulas": {
+   "S8": "=IF($A8=\"\",\"\",SUM(I8:O8))",
+   "T8": "=IF($A8=\"\",\"\",21)",
+   "U8": "=IF($A8=\"\",\"\",IF(AND(F8=\"Sí\",G8=\"Sí\",H8=\"Sí\"),\"Sí\",\"No\"))",
+   "V8": "=IF(OR($A8=\"\",COUNT(I8:O8)=0),\"\",IF(AND(J8>=2,K8>=2,M8>=2),\"Sí\",\"No\"))",
+   "W8": "=IF($A8=\"\",\"\",IF(COUNT(I8:O8)=0,\"Pendiente de dictamen\",IF($U8=\"No\",\"No aceptable (revisar puertas ★)\",IF($V8=\"No\",\"No aceptable (crítico < 2)\",IF($S8>=17,\"Aceptado\",IF($S8>=14,\"Aceptado con revisiones menores\",IF($S8>=9,\"Revisiones mayores\",\"Rechazado\")))))))"
+  }
+ },
+ {
+  "hoja": "5. Horizonte Global",
+  "titulo": "5 · Horizonte Global  —  Dictamen Nivel B",
+  "nivel": "B",
+  "bandas_texto": "Máx 18. Bandas: Publicable ≥14 · ajustes menores 11–13 · Requiere reelaboración 7–10 · No publicable en este número ≤6.",
+  "puertas": [
+   {
+    "col": "F",
+    "etiqueta": "★ Parte de un suceso internacional y su vínculo con México",
+    "eliminatoria": true
+   },
+   {
+    "col": "G",
+    "etiqueta": "★ Conexión global→local (País) explícita",
+    "eliminatoria": true
+   },
+   {
+    "col": "H",
+    "etiqueta": "Marco conceptual simple presente",
+    "eliminatoria": false
+   },
+   {
+    "col": "I",
+    "etiqueta": "Gráficas con fuente y fecha",
+    "eliminatoria": false
+   }
+  ],
+  "dimensiones": [
+   {
+    "col": "J",
+    "etiqueta": "★ Suceso internacional y lente económico",
+    "critica": true,
+    "permite_na": false,
+    "peso": 1
+   },
+   {
+    "col": "K",
+    "etiqueta": "★ Aplicación conceptual",
+    "critica": true,
+    "permite_na": false,
+    "peso": 1
+   },
+   {
+    "col": "L",
+    "etiqueta": "★ Conexión global→local",
+    "critica": true,
+    "permite_na": false,
+    "peso": 1
+   },
+   {
+    "col": "M",
+    "etiqueta": "Canales de transmisión",
+    "critica": false,
+    "permite_na": false,
+    "peso": 1
+   },
+   {
+    "col": "N",
+    "etiqueta": "Accesibilidad",
+    "critica": false,
+    "permite_na": false,
+    "peso": 1
+   },
+   {
+    "col": "O",
+    "etiqueta": "Evidencia gráfica",
+    "critica": false,
+    "permite_na": false,
+    "peso": 1
+   }
+  ],
+  "etiquetas_banda": [
+   "Publicable",
+   "Publicable con ajustes menores",
+   "Requiere reelaboración",
+   "No publicable en este número"
+  ],
+  "formulas": {
+   "S8": "=IF($A8=\"\",\"\",SUM(J8:O8))",
+   "T8": "=IF($A8=\"\",\"\",18)",
+   "U8": "=IF($A8=\"\",\"\",IF(AND(F8=\"Sí\",G8=\"Sí\"),\"Sí\",\"No\"))",
+   "V8": "=IF(OR($A8=\"\",COUNT(J8:O8)=0),\"\",IF(AND(J8>=2,K8>=2,L8>=2),\"Sí\",\"No\"))",
+   "W8": "=IF($A8=\"\",\"\",IF(COUNT(J8:O8)=0,\"Pendiente de dictamen\",IF($U8=\"No\",\"No publicable (falla puerta ★)\",IF($V8=\"No\",\"Requiere reelaboración (crítico < 2)\",IF($S8>=14,\"Publicable\",IF($S8>=11,\"Publicable con ajustes menores\",IF($S8>=7,\"Requiere reelaboración\",\"No publicable en este número\")))))))"
+  }
+ },
+ {
+  "hoja": "6. Sabías que",
+  "titulo": "6 · ¿Sabías que…?  —  Dictamen Nivel C",
+  "nivel": "C",
+  "bandas_texto": "Máx 12. Bandas: Publicable ≥10 · ajustes menores 7–9 · Requiere reelaboración 5–6 · No publicable en este número ≤4.",
+  "puertas": [
+   {
+    "col": "F",
+    "etiqueta": "★ Fuente verificable del dato (registrada)",
+    "eliminatoria": true
+   },
+   {
+    "col": "G",
+    "etiqueta": "Contexto y fecha cuando sea pertinente",
+    "eliminatoria": false
+   },
+   {
+    "col": "H",
+    "etiqueta": "Un gancho claro",
+    "eliminatoria": false
+   }
+  ],
+  "dimensiones": [
+   {
+    "col": "I",
+    "etiqueta": "★ Veracidad / verificabilidad",
+    "critica": true,
+    "permite_na": false,
+    "peso": 1
+   },
+   {
+    "col": "J",
+    "etiqueta": "Interés",
+    "critica": false,
+    "permite_na": false,
+    "peso": 1
+   },
+   {
+    "col": "K",
+    "etiqueta": "Concisión",
+    "critica": false,
+    "permite_na": false,
+    "peso": 1
+   },
+   {
+    "col": "L",
+    "etiqueta": "Claridad visual",
+    "critica": false,
+    "permite_na": false,
+    "peso": 1
+   }
+  ],
+  "etiquetas_banda": [
+   "Publicable",
+   "Publicable con ajustes menores",
+   "Requiere reelaboración",
+   "No publicable en este número"
+  ],
+  "formulas": {
+   "S8": "=IF($A8=\"\",\"\",SUM(I8:L8))",
+   "T8": "=IF($A8=\"\",\"\",12)",
+   "U8": "=IF($A8=\"\",\"\",IF(AND(F8=\"Sí\"),\"Sí\",\"No\"))",
+   "V8": "=IF(OR($A8=\"\",COUNT(I8:L8)=0),\"\",IF(AND(I8>=2),\"Sí\",\"No\"))",
+   "W8": "=IF($A8=\"\",\"\",IF(COUNT(I8:L8)=0,\"Pendiente de dictamen\",IF($U8=\"No\",\"No publicable (falla puerta ★)\",IF($V8=\"No\",\"Requiere reelaboración (crítico < 2)\",IF($S8>=10,\"Publicable\",IF($S8>=7,\"Publicable con ajustes menores\",IF($S8>=5,\"Requiere reelaboración\",\"No publicable en este número\")))))))"
+  }
+ },
+ {
+  "hoja": "7. Capital Social",
+  "titulo": "7 · Capital Social  —  Dictamen Nivel C",
+  "nivel": "C",
+  "bandas_texto": "Máx 12. Bandas: Publicable ≥10 · ajustes menores 7–9 · Requiere reelaboración 5–6 · No publicable en este número ≤4.",
+  "puertas": [
+   {
+    "col": "F",
+    "etiqueta": "★ Fotos revisadas por Fotografía y Archivo",
+    "eliminatoria": true
+   },
+   {
+    "col": "G",
+    "etiqueta": "★ Consentimiento de personas fotografiadas",
+    "eliminatoria": true
+   },
+   {
+    "col": "H",
+    "etiqueta": "★ Sin críticas destructivas a institución/docentes",
+    "eliminatoria": true
+   },
+   {
+    "col": "I",
+    "etiqueta": "Pies de foto completos (qué/quién/fecha/lugar)",
+    "eliminatoria": false
+   }
+  ],
+  "dimensiones": [
+   {
+    "col": "J",
+    "etiqueta": "Valor comunitario",
+    "critica": false,
+    "permite_na": false,
+    "peso": 1
+   },
+   {
+    "col": "K",
+    "etiqueta": "★ Precisión factual",
+    "critica": true,
+    "permite_na": false,
+    "peso": 1
+   },
+   {
+    "col": "L",
+    "etiqueta": "Tono (cercano con decoro)",
+    "critica": false,
+    "permite_na": false,
+    "peso": 1
+   },
+   {
+    "col": "M",
+    "etiqueta": "Calidad y pertinencia visual",
+    "critica": false,
+    "permite_na": false,
+    "peso": 1
+   }
+  ],
+  "etiquetas_banda": [
+   "Publicable",
+   "Publicable con ajustes menores",
+   "Requiere reelaboración",
+   "No publicable en este número"
+  ],
+  "formulas": {
+   "S8": "=IF($A8=\"\",\"\",SUM(J8:M8))",
+   "T8": "=IF($A8=\"\",\"\",12)",
+   "U8": "=IF($A8=\"\",\"\",IF(AND(F8=\"Sí\",G8=\"Sí\",H8=\"Sí\"),\"Sí\",\"No\"))",
+   "V8": "=IF(OR($A8=\"\",COUNT(J8:M8)=0),\"\",IF(AND(K8>=2),\"Sí\",\"No\"))",
+   "W8": "=IF($A8=\"\",\"\",IF(COUNT(J8:M8)=0,\"Pendiente de dictamen\",IF($U8=\"No\",\"No publicable (falla puerta ★)\",IF($V8=\"No\",\"Requiere reelaboración (crítico < 2)\",IF($S8>=10,\"Publicable\",IF($S8>=7,\"Publicable con ajustes menores\",IF($S8>=5,\"Requiere reelaboración\",\"No publicable en este número\")))))))"
+  }
+ },
+ {
+  "hoja": "8. Excelencia en Acción",
+  "titulo": "8 · Excelencia en Acción  —  Dictamen Nivel C",
+  "nivel": "C",
+  "bandas_texto": "Máx 12. Bandas: Publicable ≥10 · ajustes menores 7–9 · Requiere reelaboración 5–6 · No publicable en este número ≤4.",
+  "puertas": [
+   {
+    "col": "F",
+    "etiqueta": "★ Evidencia del logro (documento/enlace/constancia)",
+    "eliminatoria": true
+   },
+   {
+    "col": "G",
+    "etiqueta": "★ Fotografía con consentimiento",
+    "eliminatoria": true
+   },
+   {
+    "col": "H",
+    "etiqueta": "Datos correctos (nombre/semestre/cargo/vínculo)",
+    "eliminatoria": false
+   },
+   {
+    "col": "I",
+    "etiqueta": "El logro pertenece al ámbito económico/académico",
+    "eliminatoria": false
+   }
+  ],
+  "dimensiones": [
+   {
+    "col": "J",
+    "etiqueta": "★ Verificabilidad del logro",
+    "critica": true,
+    "permite_na": false,
+    "peso": 1
+   },
+   {
+    "col": "K",
+    "etiqueta": "Pertinencia",
+    "critica": false,
+    "permite_na": false,
+    "peso": 1
+   },
+   {
+    "col": "L",
+    "etiqueta": "Claridad de la cápsula",
+    "critica": false,
+    "permite_na": false,
+    "peso": 1
+   },
+   {
+    "col": "M",
+    "etiqueta": "Consentimiento y exactitud",
+    "critica": false,
+    "permite_na": false,
+    "peso": 1
+   }
+  ],
+  "etiquetas_banda": [
+   "Publicable",
+   "Publicable con ajustes menores",
+   "Requiere reelaboración",
+   "No publicable en este número"
+  ],
+  "formulas": {
+   "S8": "=IF($A8=\"\",\"\",SUM(J8:M8))",
+   "T8": "=IF($A8=\"\",\"\",12)",
+   "U8": "=IF($A8=\"\",\"\",IF(AND(F8=\"Sí\",G8=\"Sí\"),\"Sí\",\"No\"))",
+   "V8": "=IF(OR($A8=\"\",COUNT(J8:M8)=0),\"\",IF(AND(J8>=2),\"Sí\",\"No\"))",
+   "W8": "=IF($A8=\"\",\"\",IF(COUNT(J8:M8)=0,\"Pendiente de dictamen\",IF($U8=\"No\",\"No publicable (falla puerta ★)\",IF($V8=\"No\",\"Requiere reelaboración (crítico < 2)\",IF($S8>=10,\"Publicable\",IF($S8>=7,\"Publicable con ajustes menores\",IF($S8>=5,\"Requiere reelaboración\",\"No publicable en este número\")))))))"
+  }
+ }
+]

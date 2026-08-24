@@ -1,0 +1,1074 @@
+[
+  {
+    "id": 1,
+    "seccion": "1 · Apertura editorial",
+    "nivel": "C",
+    "puertas": [
+      {
+        "id": 1,
+        "etiqueta": "★ Menciona explícitamente las secciones del número",
+        "esEliminatoria": true
+      },
+      {
+        "id": 2,
+        "etiqueta": "Incluye 3–4 reglas del estándar editorial",
+        "esEliminatoria": false
+      },
+      {
+        "id": 3,
+        "etiqueta": "Señala fecha y formato de publicación (PDF y sitio)",
+        "esEliminatoria": false
+      },
+      {
+        "id": 4,
+        "etiqueta": "Cierra con una vía concreta de participación",
+        "esEliminatoria": false
+      }
+    ],
+    "dimensiones": [
+      {
+        "id": 1,
+        "etiqueta": "★ Claridad de propósito (×2)",
+        "esCritica": true,
+        "peso": 2,
+        "permiteNa": false
+      },
+      {
+        "id": 2,
+        "etiqueta": "Representatividad",
+        "esCritica": false,
+        "peso": 1,
+        "permiteNa": false
+      },
+      {
+        "id": 3,
+        "etiqueta": "Tono de marca",
+        "esCritica": false,
+        "peso": 1,
+        "permiteNa": false
+      },
+      {
+        "id": 4,
+        "etiqueta": "Concisión",
+        "esCritica": false,
+        "peso": 1,
+        "permiteNa": false
+      }
+    ],
+    "decisiones": [
+      {
+        "id": 1,
+        "etiqueta": "Publicable",
+        "esAceptante": true,
+        "esFalla": false
+      },
+      {
+        "id": 2,
+        "etiqueta": "Publicable con ajustes menores",
+        "esAceptante": true,
+        "esFalla": false
+      },
+      {
+        "id": 3,
+        "etiqueta": "Requiere reelaboración",
+        "esAceptante": false,
+        "esFalla": false
+      },
+      {
+        "id": 4,
+        "etiqueta": "No publicable en este número",
+        "esAceptante": false,
+        "esFalla": false
+      },
+      {
+        "id": 5,
+        "etiqueta": "No publicable (falla puerta ★)",
+        "esAceptante": false,
+        "esFalla": true
+      },
+      {
+        "id": 6,
+        "etiqueta": "Requiere reelaboración (crítico < 2)",
+        "esAceptante": false,
+        "esFalla": true
+      },
+      {
+        "id": 7,
+        "etiqueta": "Pendiente de dictamen",
+        "esAceptante": false,
+        "esFalla": false
+      }
+    ],
+    "bandas": [
+      {
+        "variante": 15,
+        "minPuntaje": 12,
+        "decisionId": 1
+      },
+      {
+        "variante": 15,
+        "minPuntaje": 9,
+        "decisionId": 2
+      },
+      {
+        "variante": 15,
+        "minPuntaje": 6,
+        "decisionId": 3
+      },
+      {
+        "variante": 15,
+        "minPuntaje": 0,
+        "decisionId": 4
+      }
+    ],
+    "etiquetaFallaPuerta": "No publicable (falla puerta ★)",
+    "etiquetaFallaCritico": "Requiere reelaboración (crítico < 2)",
+    "etiquetaPendiente": "Pendiente de dictamen"
+  },
+  {
+    "id": 2,
+    "seccion": "2 · Datanomics",
+    "nivel": "B",
+    "puertas": [
+      {
+        "id": 5,
+        "etiqueta": "★ Fuente del dato citada",
+        "esEliminatoria": true
+      },
+      {
+        "id": 6,
+        "etiqueta": "★ Fecha del dato indicada",
+        "esEliminatoria": true
+      },
+      {
+        "id": 7,
+        "etiqueta": "★ Hallazgo principal legible en el gráfico",
+        "esEliminatoria": true
+      },
+      {
+        "id": 8,
+        "etiqueta": "Ejes, unidades y escalas rotulados",
+        "esEliminatoria": false
+      },
+      {
+        "id": 9,
+        "etiqueta": "Nota metodológica de 3–4 líneas",
+        "esEliminatoria": false
+      }
+    ],
+    "dimensiones": [
+      {
+        "id": 5,
+        "etiqueta": "★ Trazabilidad del dato",
+        "esCritica": true,
+        "peso": 1,
+        "permiteNa": false
+      },
+      {
+        "id": 6,
+        "etiqueta": "Corrección metodológica",
+        "esCritica": false,
+        "peso": 1,
+        "permiteNa": false
+      },
+      {
+        "id": 7,
+        "etiqueta": "★ Legibilidad del gráfico",
+        "esCritica": true,
+        "peso": 1,
+        "permiteNa": false
+      },
+      {
+        "id": 8,
+        "etiqueta": "Valor del hallazgo",
+        "esCritica": false,
+        "peso": 1,
+        "permiteNa": false
+      },
+      {
+        "id": 9,
+        "etiqueta": "Utilidad del how-to (0–3 o N/A)",
+        "esCritica": false,
+        "peso": 1,
+        "permiteNa": true
+      }
+    ],
+    "decisiones": [
+      {
+        "id": 8,
+        "etiqueta": "Publicable",
+        "esAceptante": true,
+        "esFalla": false
+      },
+      {
+        "id": 9,
+        "etiqueta": "Publicable con ajustes menores",
+        "esAceptante": true,
+        "esFalla": false
+      },
+      {
+        "id": 10,
+        "etiqueta": "Requiere reelaboración",
+        "esAceptante": false,
+        "esFalla": false
+      },
+      {
+        "id": 11,
+        "etiqueta": "No publicable en este número",
+        "esAceptante": false,
+        "esFalla": false
+      },
+      {
+        "id": 12,
+        "etiqueta": "No publicable (falla puerta ★)",
+        "esAceptante": false,
+        "esFalla": true
+      },
+      {
+        "id": 13,
+        "etiqueta": "Requiere reelaboración (crítico < 2)",
+        "esAceptante": false,
+        "esFalla": true
+      },
+      {
+        "id": 14,
+        "etiqueta": "Pendiente de dictamen",
+        "esAceptante": false,
+        "esFalla": false
+      }
+    ],
+    "bandas": [
+      {
+        "variante": 12,
+        "minPuntaje": 10,
+        "decisionId": 8
+      },
+      {
+        "variante": 12,
+        "minPuntaje": 7,
+        "decisionId": 9
+      },
+      {
+        "variante": 12,
+        "minPuntaje": 5,
+        "decisionId": 10
+      },
+      {
+        "variante": 12,
+        "minPuntaje": 0,
+        "decisionId": 11
+      },
+      {
+        "variante": 15,
+        "minPuntaje": 12,
+        "decisionId": 8
+      },
+      {
+        "variante": 15,
+        "minPuntaje": 9,
+        "decisionId": 9
+      },
+      {
+        "variante": 15,
+        "minPuntaje": 6,
+        "decisionId": 10
+      },
+      {
+        "variante": 15,
+        "minPuntaje": 0,
+        "decisionId": 11
+      }
+    ],
+    "etiquetaFallaPuerta": "No publicable (falla puerta ★)",
+    "etiquetaFallaCritico": "Requiere reelaboración (crítico < 2)",
+    "etiquetaPendiente": "Pendiente de dictamen"
+  },
+  {
+    "id": 3,
+    "seccion": "3 · La Voz de la Experiencia",
+    "nivel": "C",
+    "puertas": [
+      {
+        "id": 10,
+        "etiqueta": "★ Consentimiento del entrevistado (publicación y citas)",
+        "esEliminatoria": true
+      },
+      {
+        "id": 11,
+        "etiqueta": "★ Derechos de imagen resueltos",
+        "esEliminatoria": true
+      },
+      {
+        "id": 12,
+        "etiqueta": "Al menos 3 consejos o ideas accionables",
+        "esEliminatoria": false
+      },
+      {
+        "id": 13,
+        "etiqueta": "Fuente cuando se citan datos o cifras",
+        "esEliminatoria": false
+      }
+    ],
+    "dimensiones": [
+      {
+        "id": 10,
+        "etiqueta": "★ Valor práctico",
+        "esCritica": true,
+        "peso": 1,
+        "permiteNa": false
+      },
+      {
+        "id": 11,
+        "etiqueta": "★ Anclaje en evidencia/experiencia",
+        "esCritica": true,
+        "peso": 1,
+        "permiteNa": false
+      },
+      {
+        "id": 12,
+        "etiqueta": "Accesibilidad",
+        "esCritica": false,
+        "peso": 1,
+        "permiteNa": false
+      },
+      {
+        "id": 13,
+        "etiqueta": "Estructura de la conversación",
+        "esCritica": false,
+        "peso": 1,
+        "permiteNa": false
+      },
+      {
+        "id": 14,
+        "etiqueta": "Interés de la comunidad",
+        "esCritica": false,
+        "peso": 1,
+        "permiteNa": false
+      }
+    ],
+    "decisiones": [
+      {
+        "id": 15,
+        "etiqueta": "Publicable",
+        "esAceptante": true,
+        "esFalla": false
+      },
+      {
+        "id": 16,
+        "etiqueta": "Publicable con ajustes menores",
+        "esAceptante": true,
+        "esFalla": false
+      },
+      {
+        "id": 17,
+        "etiqueta": "Requiere reelaboración",
+        "esAceptante": false,
+        "esFalla": false
+      },
+      {
+        "id": 18,
+        "etiqueta": "No publicable en este número",
+        "esAceptante": false,
+        "esFalla": false
+      },
+      {
+        "id": 19,
+        "etiqueta": "No publicable (falla puerta ★)",
+        "esAceptante": false,
+        "esFalla": true
+      },
+      {
+        "id": 20,
+        "etiqueta": "Requiere reelaboración (crítico < 2)",
+        "esAceptante": false,
+        "esFalla": true
+      },
+      {
+        "id": 21,
+        "etiqueta": "Pendiente de dictamen",
+        "esAceptante": false,
+        "esFalla": false
+      }
+    ],
+    "bandas": [
+      {
+        "variante": 15,
+        "minPuntaje": 12,
+        "decisionId": 15
+      },
+      {
+        "variante": 15,
+        "minPuntaje": 9,
+        "decisionId": 16
+      },
+      {
+        "variante": 15,
+        "minPuntaje": 6,
+        "decisionId": 17
+      },
+      {
+        "variante": 15,
+        "minPuntaje": 0,
+        "decisionId": 18
+      }
+    ],
+    "etiquetaFallaPuerta": "No publicable (falla puerta ★)",
+    "etiquetaFallaCritico": "Requiere reelaboración (crítico < 2)",
+    "etiquetaPendiente": "Pendiente de dictamen"
+  },
+  {
+    "id": 4,
+    "seccion": "4 · Miradas Económicas",
+    "nivel": "A",
+    "puertas": [
+      {
+        "id": 14,
+        "etiqueta": "★ Verificación antiplagio realizada (Turnitin)",
+        "esEliminatoria": true
+      },
+      {
+        "id": 15,
+        "etiqueta": "★ Manuscrito anonimizado (doble ciego)",
+        "esEliminatoria": true
+      },
+      {
+        "id": 16,
+        "etiqueta": "★ Sin problemas críticos",
+        "esEliminatoria": true
+      }
+    ],
+    "dimensiones": [
+      {
+        "id": 15,
+        "etiqueta": "A. Relevancia y pertinencia",
+        "esCritica": false,
+        "peso": 1,
+        "permiteNa": false
+      },
+      {
+        "id": 16,
+        "etiqueta": "★ B. Claridad de idea/pregunta",
+        "esCritica": true,
+        "peso": 1,
+        "permiteNa": false
+      },
+      {
+        "id": 17,
+        "etiqueta": "★ C. Rigor y precisión conceptual",
+        "esCritica": true,
+        "peso": 1,
+        "permiteNa": false
+      },
+      {
+        "id": 18,
+        "etiqueta": "D. Estructura y coherencia",
+        "esCritica": false,
+        "peso": 1,
+        "permiteNa": false
+      },
+      {
+        "id": 19,
+        "etiqueta": "★ E. Evidencia / fuentes / datos",
+        "esCritica": true,
+        "peso": 1,
+        "permiteNa": false
+      },
+      {
+        "id": 20,
+        "etiqueta": "F. Escritura y legibilidad",
+        "esCritica": false,
+        "peso": 1,
+        "permiteNa": false
+      },
+      {
+        "id": 21,
+        "etiqueta": "G. Adecuación al formato",
+        "esCritica": false,
+        "peso": 1,
+        "permiteNa": false
+      }
+    ],
+    "decisiones": [
+      {
+        "id": 22,
+        "etiqueta": "Aceptado",
+        "esAceptante": true,
+        "esFalla": false
+      },
+      {
+        "id": 23,
+        "etiqueta": "Aceptado con revisiones menores",
+        "esAceptante": true,
+        "esFalla": false
+      },
+      {
+        "id": 24,
+        "etiqueta": "Revisiones mayores",
+        "esAceptante": false,
+        "esFalla": false
+      },
+      {
+        "id": 25,
+        "etiqueta": "Rechazado",
+        "esAceptante": false,
+        "esFalla": false
+      },
+      {
+        "id": 26,
+        "etiqueta": "No aceptable (revisar puertas ★)",
+        "esAceptante": false,
+        "esFalla": true
+      },
+      {
+        "id": 27,
+        "etiqueta": "No aceptable (crítico < 2)",
+        "esAceptante": false,
+        "esFalla": true
+      },
+      {
+        "id": 28,
+        "etiqueta": "Pendiente de dictamen",
+        "esAceptante": false,
+        "esFalla": false
+      }
+    ],
+    "bandas": [
+      {
+        "variante": 21,
+        "minPuntaje": 17,
+        "decisionId": 22
+      },
+      {
+        "variante": 21,
+        "minPuntaje": 14,
+        "decisionId": 23
+      },
+      {
+        "variante": 21,
+        "minPuntaje": 9,
+        "decisionId": 24
+      },
+      {
+        "variante": 21,
+        "minPuntaje": 0,
+        "decisionId": 25
+      }
+    ],
+    "etiquetaFallaPuerta": "No aceptable (revisar puertas ★)",
+    "etiquetaFallaCritico": "No aceptable (crítico < 2)",
+    "etiquetaPendiente": "Pendiente de dictamen"
+  },
+  {
+    "id": 5,
+    "seccion": "5 · Horizonte Global",
+    "nivel": "B",
+    "puertas": [
+      {
+        "id": 17,
+        "etiqueta": "★ Parte de un suceso internacional y su vínculo con México",
+        "esEliminatoria": true
+      },
+      {
+        "id": 18,
+        "etiqueta": "★ Conexión global→local (País) explícita",
+        "esEliminatoria": true
+      },
+      {
+        "id": 19,
+        "etiqueta": "Marco conceptual simple presente",
+        "esEliminatoria": false
+      },
+      {
+        "id": 20,
+        "etiqueta": "Gráficas con fuente y fecha",
+        "esEliminatoria": false
+      }
+    ],
+    "dimensiones": [
+      {
+        "id": 22,
+        "etiqueta": "★ Suceso internacional y lente económico",
+        "esCritica": true,
+        "peso": 1,
+        "permiteNa": false
+      },
+      {
+        "id": 23,
+        "etiqueta": "★ Aplicación conceptual",
+        "esCritica": true,
+        "peso": 1,
+        "permiteNa": false
+      },
+      {
+        "id": 24,
+        "etiqueta": "★ Conexión global→local",
+        "esCritica": true,
+        "peso": 1,
+        "permiteNa": false
+      },
+      {
+        "id": 25,
+        "etiqueta": "Canales de transmisión",
+        "esCritica": false,
+        "peso": 1,
+        "permiteNa": false
+      },
+      {
+        "id": 26,
+        "etiqueta": "Accesibilidad",
+        "esCritica": false,
+        "peso": 1,
+        "permiteNa": false
+      },
+      {
+        "id": 27,
+        "etiqueta": "Evidencia gráfica",
+        "esCritica": false,
+        "peso": 1,
+        "permiteNa": false
+      }
+    ],
+    "decisiones": [
+      {
+        "id": 29,
+        "etiqueta": "Publicable",
+        "esAceptante": true,
+        "esFalla": false
+      },
+      {
+        "id": 30,
+        "etiqueta": "Publicable con ajustes menores",
+        "esAceptante": true,
+        "esFalla": false
+      },
+      {
+        "id": 31,
+        "etiqueta": "Requiere reelaboración",
+        "esAceptante": false,
+        "esFalla": false
+      },
+      {
+        "id": 32,
+        "etiqueta": "No publicable en este número",
+        "esAceptante": false,
+        "esFalla": false
+      },
+      {
+        "id": 33,
+        "etiqueta": "No publicable (falla puerta ★)",
+        "esAceptante": false,
+        "esFalla": true
+      },
+      {
+        "id": 34,
+        "etiqueta": "Requiere reelaboración (crítico < 2)",
+        "esAceptante": false,
+        "esFalla": true
+      },
+      {
+        "id": 35,
+        "etiqueta": "Pendiente de dictamen",
+        "esAceptante": false,
+        "esFalla": false
+      }
+    ],
+    "bandas": [
+      {
+        "variante": 18,
+        "minPuntaje": 14,
+        "decisionId": 29
+      },
+      {
+        "variante": 18,
+        "minPuntaje": 11,
+        "decisionId": 30
+      },
+      {
+        "variante": 18,
+        "minPuntaje": 7,
+        "decisionId": 31
+      },
+      {
+        "variante": 18,
+        "minPuntaje": 0,
+        "decisionId": 32
+      }
+    ],
+    "etiquetaFallaPuerta": "No publicable (falla puerta ★)",
+    "etiquetaFallaCritico": "Requiere reelaboración (crítico < 2)",
+    "etiquetaPendiente": "Pendiente de dictamen"
+  },
+  {
+    "id": 6,
+    "seccion": "6 · ¿Sabías que…?",
+    "nivel": "C",
+    "puertas": [
+      {
+        "id": 21,
+        "etiqueta": "★ Fuente verificable del dato (registrada)",
+        "esEliminatoria": true
+      },
+      {
+        "id": 22,
+        "etiqueta": "Contexto y fecha cuando sea pertinente",
+        "esEliminatoria": false
+      },
+      {
+        "id": 23,
+        "etiqueta": "Un gancho claro",
+        "esEliminatoria": false
+      }
+    ],
+    "dimensiones": [
+      {
+        "id": 28,
+        "etiqueta": "★ Veracidad / verificabilidad",
+        "esCritica": true,
+        "peso": 1,
+        "permiteNa": false
+      },
+      {
+        "id": 29,
+        "etiqueta": "Interés",
+        "esCritica": false,
+        "peso": 1,
+        "permiteNa": false
+      },
+      {
+        "id": 30,
+        "etiqueta": "Concisión",
+        "esCritica": false,
+        "peso": 1,
+        "permiteNa": false
+      },
+      {
+        "id": 31,
+        "etiqueta": "Claridad visual",
+        "esCritica": false,
+        "peso": 1,
+        "permiteNa": false
+      }
+    ],
+    "decisiones": [
+      {
+        "id": 36,
+        "etiqueta": "Publicable",
+        "esAceptante": true,
+        "esFalla": false
+      },
+      {
+        "id": 37,
+        "etiqueta": "Publicable con ajustes menores",
+        "esAceptante": true,
+        "esFalla": false
+      },
+      {
+        "id": 38,
+        "etiqueta": "Requiere reelaboración",
+        "esAceptante": false,
+        "esFalla": false
+      },
+      {
+        "id": 39,
+        "etiqueta": "No publicable en este número",
+        "esAceptante": false,
+        "esFalla": false
+      },
+      {
+        "id": 40,
+        "etiqueta": "No publicable (falla puerta ★)",
+        "esAceptante": false,
+        "esFalla": true
+      },
+      {
+        "id": 41,
+        "etiqueta": "Requiere reelaboración (crítico < 2)",
+        "esAceptante": false,
+        "esFalla": true
+      },
+      {
+        "id": 42,
+        "etiqueta": "Pendiente de dictamen",
+        "esAceptante": false,
+        "esFalla": false
+      }
+    ],
+    "bandas": [
+      {
+        "variante": 12,
+        "minPuntaje": 10,
+        "decisionId": 36
+      },
+      {
+        "variante": 12,
+        "minPuntaje": 7,
+        "decisionId": 37
+      },
+      {
+        "variante": 12,
+        "minPuntaje": 5,
+        "decisionId": 38
+      },
+      {
+        "variante": 12,
+        "minPuntaje": 0,
+        "decisionId": 39
+      }
+    ],
+    "etiquetaFallaPuerta": "No publicable (falla puerta ★)",
+    "etiquetaFallaCritico": "Requiere reelaboración (crítico < 2)",
+    "etiquetaPendiente": "Pendiente de dictamen"
+  },
+  {
+    "id": 7,
+    "seccion": "7 · Capital Social",
+    "nivel": "C",
+    "puertas": [
+      {
+        "id": 24,
+        "etiqueta": "★ Fotos revisadas por Fotografía y Archivo",
+        "esEliminatoria": true
+      },
+      {
+        "id": 25,
+        "etiqueta": "★ Consentimiento de personas fotografiadas",
+        "esEliminatoria": true
+      },
+      {
+        "id": 26,
+        "etiqueta": "★ Sin críticas destructivas a institución/docentes",
+        "esEliminatoria": true
+      },
+      {
+        "id": 27,
+        "etiqueta": "Pies de foto completos (qué/quién/fecha/lugar)",
+        "esEliminatoria": false
+      }
+    ],
+    "dimensiones": [
+      {
+        "id": 32,
+        "etiqueta": "Valor comunitario",
+        "esCritica": false,
+        "peso": 1,
+        "permiteNa": false
+      },
+      {
+        "id": 33,
+        "etiqueta": "★ Precisión factual",
+        "esCritica": true,
+        "peso": 1,
+        "permiteNa": false
+      },
+      {
+        "id": 34,
+        "etiqueta": "Tono (cercano con decoro)",
+        "esCritica": false,
+        "peso": 1,
+        "permiteNa": false
+      },
+      {
+        "id": 35,
+        "etiqueta": "Calidad y pertinencia visual",
+        "esCritica": false,
+        "peso": 1,
+        "permiteNa": false
+      }
+    ],
+    "decisiones": [
+      {
+        "id": 43,
+        "etiqueta": "Publicable",
+        "esAceptante": true,
+        "esFalla": false
+      },
+      {
+        "id": 44,
+        "etiqueta": "Publicable con ajustes menores",
+        "esAceptante": true,
+        "esFalla": false
+      },
+      {
+        "id": 45,
+        "etiqueta": "Requiere reelaboración",
+        "esAceptante": false,
+        "esFalla": false
+      },
+      {
+        "id": 46,
+        "etiqueta": "No publicable en este número",
+        "esAceptante": false,
+        "esFalla": false
+      },
+      {
+        "id": 47,
+        "etiqueta": "No publicable (falla puerta ★)",
+        "esAceptante": false,
+        "esFalla": true
+      },
+      {
+        "id": 48,
+        "etiqueta": "Requiere reelaboración (crítico < 2)",
+        "esAceptante": false,
+        "esFalla": true
+      },
+      {
+        "id": 49,
+        "etiqueta": "Pendiente de dictamen",
+        "esAceptante": false,
+        "esFalla": false
+      }
+    ],
+    "bandas": [
+      {
+        "variante": 12,
+        "minPuntaje": 10,
+        "decisionId": 43
+      },
+      {
+        "variante": 12,
+        "minPuntaje": 7,
+        "decisionId": 44
+      },
+      {
+        "variante": 12,
+        "minPuntaje": 5,
+        "decisionId": 45
+      },
+      {
+        "variante": 12,
+        "minPuntaje": 0,
+        "decisionId": 46
+      }
+    ],
+    "etiquetaFallaPuerta": "No publicable (falla puerta ★)",
+    "etiquetaFallaCritico": "Requiere reelaboración (crítico < 2)",
+    "etiquetaPendiente": "Pendiente de dictamen"
+  },
+  {
+    "id": 8,
+    "seccion": "8 · Excelencia en Acción",
+    "nivel": "C",
+    "puertas": [
+      {
+        "id": 28,
+        "etiqueta": "★ Evidencia del logro (documento/enlace/constancia)",
+        "esEliminatoria": true
+      },
+      {
+        "id": 29,
+        "etiqueta": "★ Fotografía con consentimiento",
+        "esEliminatoria": true
+      },
+      {
+        "id": 30,
+        "etiqueta": "Datos correctos (nombre/semestre/cargo/vínculo)",
+        "esEliminatoria": false
+      },
+      {
+        "id": 31,
+        "etiqueta": "El logro pertenece al ámbito económico/académico",
+        "esEliminatoria": false
+      }
+    ],
+    "dimensiones": [
+      {
+        "id": 36,
+        "etiqueta": "★ Verificabilidad del logro",
+        "esCritica": true,
+        "peso": 1,
+        "permiteNa": false
+      },
+      {
+        "id": 37,
+        "etiqueta": "Pertinencia",
+        "esCritica": false,
+        "peso": 1,
+        "permiteNa": false
+      },
+      {
+        "id": 38,
+        "etiqueta": "Claridad de la cápsula",
+        "esCritica": false,
+        "peso": 1,
+        "permiteNa": false
+      },
+      {
+        "id": 39,
+        "etiqueta": "Consentimiento y exactitud",
+        "esCritica": false,
+        "peso": 1,
+        "permiteNa": false
+      }
+    ],
+    "decisiones": [
+      {
+        "id": 50,
+        "etiqueta": "Publicable",
+        "esAceptante": true,
+        "esFalla": false
+      },
+      {
+        "id": 51,
+        "etiqueta": "Publicable con ajustes menores",
+        "esAceptante": true,
+        "esFalla": false
+      },
+      {
+        "id": 52,
+        "etiqueta": "Requiere reelaboración",
+        "esAceptante": false,
+        "esFalla": false
+      },
+      {
+        "id": 53,
+        "etiqueta": "No publicable en este número",
+        "esAceptante": false,
+        "esFalla": false
+      },
+      {
+        "id": 54,
+        "etiqueta": "No publicable (falla puerta ★)",
+        "esAceptante": false,
+        "esFalla": true
+      },
+      {
+        "id": 55,
+        "etiqueta": "Requiere reelaboración (crítico < 2)",
+        "esAceptante": false,
+        "esFalla": true
+      },
+      {
+        "id": 56,
+        "etiqueta": "Pendiente de dictamen",
+        "esAceptante": false,
+        "esFalla": false
+      }
+    ],
+    "bandas": [
+      {
+        "variante": 12,
+        "minPuntaje": 10,
+        "decisionId": 50
+      },
+      {
+        "variante": 12,
+        "minPuntaje": 7,
+        "decisionId": 51
+      },
+      {
+        "variante": 12,
+        "minPuntaje": 5,
+        "decisionId": 52
+      },
+      {
+        "variante": 12,
+        "minPuntaje": 0,
+        "decisionId": 53
+      }
+    ],
+    "etiquetaFallaPuerta": "No publicable (falla puerta ★)",
+    "etiquetaFallaCritico": "Requiere reelaboración (crítico < 2)",
+    "etiquetaPendiente": "Pendiente de dictamen"
+  }
+]
