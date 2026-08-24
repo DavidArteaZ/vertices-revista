@@ -151,4 +151,10 @@ test("sin sesión no hay export", async ({ request }) => {
   const r = await request.get("/panel/exportar", { maxRedirects: 0 });
   expect(r.status()).toBeGreaterThanOrEqual(300);
   expect(r.status()).toBeLessThan(400);
+
+  // Y manda a la pantalla de entrar de ESTE sitio: la primera versión componía
+  // la URL sobre SUPABASE_URL, así que el 3xx llevaba al dominio de Supabase.
+  const destino = new URL(r.headers()["location"], "http://localhost:3100");
+  expect(destino.pathname).toBe("/panel/entrar");
+  expect(destino.host).toBe(new URL(r.url()).host);
 });

@@ -18,14 +18,15 @@ import { bitacora } from "@/lib/api/peticion";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-export async function GET() {
+export async function GET(peticion: Request) {
   const log = bitacora("GET /panel/exportar");
   const quien = await personal();
 
+  // La base es la de la petición: cualquier otra manda al visitante a otro
+  // sitio. La prueba sólo miraba que fuera un 3xx y no vio que apuntaba al
+  // dominio de Supabase.
   if (!quien) {
-    return NextResponse.redirect(
-      new URL("/panel/entrar", process.env.SUPABASE_URL ?? "http://localhost:3100"),
-    );
+    return NextResponse.redirect(new URL("/panel/entrar", peticion.url));
   }
 
   try {
