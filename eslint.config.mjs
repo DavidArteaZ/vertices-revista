@@ -12,6 +12,11 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // El sitio estático que esto sustituye. Se conserva porque es la
+    // referencia con la que se regeneran las imágenes doradas de la compuerta
+    // visual, no porque se vaya a tocar: linchar su JavaScript no arregla nada
+    // y tentaría a "arreglarlo", que es justo lo que no debe pasarle.
+    "legado/**",
   ]),
 ]);
 

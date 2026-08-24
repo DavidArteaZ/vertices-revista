@@ -11,16 +11,18 @@ export const LOCALES_TRADUCIDOS = ["en", "fr", "it", "pt", "ru"];
 
 export const RAIZ_REPO = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
-  "../../..",
+  "../..",
 );
-export const DIR_WEB = path.join(RAIZ_REPO, "web");
+/** La app dejó de vivir en web/ y pasó a ser la raíz; el nombre se queda por
+ *  no tocar los cinco scripts que lo importan. */
+export const DIR_WEB = RAIZ_REPO;
 
 export function cargaDiccionariosLegados() {
   const ctx = { window: {} };
   vm.createContext(ctx);
   for (const l of LOCALES_TRADUCIDOS) {
     vm.runInContext(
-      readFileSync(path.join(RAIZ_REPO, "idiomas", `${l}.js`), "utf8"),
+      readFileSync(path.join(RAIZ_REPO, "legado", "idiomas", `${l}.js`), "utf8"),
       ctx,
     );
   }

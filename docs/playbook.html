@@ -171,7 +171,7 @@
 <h2 id="p0"><span class="num">PASO 0</span>Arrancar y sembrar las cuentas</h2>
 
 <p>El servidor ya está corriendo. Si hace falta relanzarlo:</p>
-<pre><code>npm --prefix web run dev        # http://localhost:3100</code></pre>
+<pre><code>npm run dev        # http://localhost:3100</code></pre>
 
 <p>
   El alta del comité es <strong>por invitación por correo</strong> y eso exige un dominio verificado
@@ -179,10 +179,10 @@
   crea las cuentas directamente, igual que hace el fixture de Playwright:
 </p>
 
-<pre><code>node web/scripts/demo/sembrar.mjs            # crea las cuentas e informa
-node web/scripts/demo/sembrar.mjs --estado   # sólo informa, no escribe
-node web/scripts/demo/sembrar.mjs --limpiar  # las borra
-node web/scripts/demo/sembrar.mjs --purgar   # borra los restos de @prueba.test</code></pre>
+<pre><code>node scripts/demo/sembrar.mjs            # crea las cuentas e informa
+node scripts/demo/sembrar.mjs --estado   # sólo informa, no escribe
+node scripts/demo/sembrar.mjs --limpiar  # las borra
+node scripts/demo/sembrar.mjs --purgar   # borra los restos de @prueba.test</code></pre>
 
 <div class="tabla-scroll">
 <table>
@@ -279,7 +279,7 @@ done</code></pre>
   <li>
     <p>Ahora comprueba lo que no se ve. Descarga el archivo del bucket privado y mira los metadatos:</p>
     <pre><code># la ruta sale del panel, o directamente de la base
-npm --prefix web run e2e     # hace esta comprobación sola, de punta a punta</code></pre>
+npm run e2e     # hace esta comprobación sola, de punta a punta</code></pre>
     <span class="mirar"><b>Qué mirar</b> El PDF guardado no lleva <code>/Info</code> ni XMP. Un <code>.doc</code> antiguo pasa sin limpiar y queda marcado con <code>metadatos_no_limpiados</code> en la bitácora: eso es correcto, lo cubre la revisión humana.</span>
   </li>
 </ol>
@@ -471,7 +471,7 @@ console.log(r.status, await r.text());
 </table>
 </div>
 
-<p>Todo desde <code>web/</code>. Las dos últimas escriben en el proyecto real y limpian al terminar.</p>
+<p>Todo desde la raíz del repositorio. Las dos últimas escriben en el proyecto real y limpian al terminar.</p>
 
 <div class="clave">
   <strong>La compuerta visual compara contra el sitio legado</strong>, no contra esta app. Las
@@ -489,9 +489,9 @@ console.log(r.status, await r.text());
 <!-- ────────────────────────────────────────────────────────────── 9 -->
 <h2 id="p9"><span class="num">PASO 9</span>Limpiar y volver a empezar</h2>
 
-<pre><code>node web/scripts/demo/sembrar.mjs --limpiar   # las cuentas de demo
-node web/scripts/demo/sembrar.mjs --purgar    # los restos de Playwright
-node web/scripts/demo/sembrar.mjs --estado    # ver cómo quedó</code></pre>
+<pre><code>node scripts/demo/sembrar.mjs --limpiar   # las cuentas de demo
+node scripts/demo/sembrar.mjs --purgar    # los restos de Playwright
+node scripts/demo/sembrar.mjs --estado    # ver cómo quedó</code></pre>
 
 <p>En el editor SQL de Supabase, si hace falta:</p>
 <pre><code>delete from privado.golpes;   -- perdona los límites de tasa en curso</code></pre>

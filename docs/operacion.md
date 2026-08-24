@@ -12,11 +12,12 @@ Referencias: spec §13 (seguridad), §14 (migración y cutover), §15
 ## 1. Variables de entorno
 
 La lista canónica es `.env.example`. En local viven en `.env` de la raíz, y
-`web/.env.local` es un enlace simbólico a ese archivo:
+`.env.local` es un enlace simbólico a ese archivo — Next lee el primero y los
+scripts el segundo:
 
 ```sh
 cp .env.example .env      # y rellenar
-ln -sfn ../.env web/.env.local
+ln -sfn .env .env.local
 ```
 
 En Vercel van en *Settings → Environment Variables*, las mismas claves y sin el
@@ -63,7 +64,7 @@ id de Resend, y el folio sale del asunto.
 
 ## 3. Tareas programadas
 
-`web/vercel.json` las declara; Vercel las activa solo al desplegar y manda
+`vercel.json` las declara; Vercel las activa solo al desplegar y manda
 `Authorization: Bearer $CRON_SECRET`.
 
 | Ruta | Cuándo | Qué hace |
@@ -171,7 +172,6 @@ nombre y por extensión.
 ## 7. Comprobaciones periódicas
 
 ```sh
-cd web
 npm test        # unidad + juego de claves i18n
 npm run visual  # paridad visual, 24 pruebas
 npm run panel   # panel y publicación en navegador, contra la base real

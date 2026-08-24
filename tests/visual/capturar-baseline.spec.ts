@@ -19,7 +19,11 @@ import {
  * aunque la app todavía sea sólo español (el i18n es etapa 2).
  */
 
-const RAIZ = path.resolve(__dirname, "../../..");
+// El sitio legado vive en legado/ desde que la app pasó a ser la raíz del
+// repositorio. Se conserva justo para esto: las imágenes doradas no se
+// versionan —68 MB y deterministas— y sin los HTML viejos no habría forma de
+// volver a generarlas, ni de comprobar contra qué se está comparando.
+const RAIZ = path.resolve(__dirname, "../../legado");
 const BASE = `http://127.0.0.1:${PUERTO_LEGADO}`;
 
 let servidor: ChildProcess;

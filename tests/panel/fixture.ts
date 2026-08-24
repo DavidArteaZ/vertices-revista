@@ -12,7 +12,7 @@ import { createClient, type SupabaseClient } from "@supabase/supabase-js";
  */
 
 // Playwright transpila estos archivos a CommonJS, donde import.meta no existe;
-// la raíz se resuelve desde el cwd, que es siempre web/.
+// la raíz se resuelve desde el cwd, que es siempre la raíz del repositorio.
 const RAIZ = process.cwd();
 
 function entorno(): Record<string, string> {
