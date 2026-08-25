@@ -103,17 +103,23 @@ describe("paso 2 — archivos", () => {
 });
 
 describe("paso 3 — declaración", () => {
-  const listo: DatosEnvio = { ...paso1, usoIA: "No", d1: true, d2: true, d3: true, d4: true };
+  const listo: DatosEnvio = {
+    ...paso1,
+    usoIA: "No",
+    d1: true, d2: true, d3: true, d4: true, d5: true, d6: true,
+  };
   it("requires the AI declaration", () =>
     expect(paso(3, { ...listo, usoIA: "" }, [])).toBe(
       "Indica si usaste herramientas de inteligencia artificial.",
     ));
-  it("requires all four checkboxes", () => {
-    for (const k of ["d1", "d2", "d3", "d4"] as const) {
+  it("requires all checkboxes except d2 (optional)", () => {
+    for (const k of ["d1", "d3", "d4", "d5", "d6"] as const) {
       expect(paso(3, { ...listo, [k]: false }, []), `sin ${k}`).toBe(
-        "Confirma las cuatro declaraciones para poder enviar.",
+        "Confirma las cinco declaraciones para poder enviar.",
       );
     }
   });
-  it("passes when all four are checked", () => expect(paso(3, listo, [])).toBeNull());
+  it("d2 is optional: passes even when unchecked", () =>
+    expect(paso(3, { ...listo, d2: false }, [])).toBeNull());
+  it("passes when all required checkboxes are checked", () => expect(paso(3, listo, [])).toBeNull());
 });

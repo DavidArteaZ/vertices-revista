@@ -31,6 +31,8 @@ export type DatosEnvio = {
   d2: boolean;
   d3: boolean;
   d4: boolean;
+  d5: boolean;
+  d6: boolean;
 };
 
 /** Sólo lo que la validación necesita de un archivo adjunto. */
@@ -39,7 +41,7 @@ export type ArchivoLike = { name: string; size: number };
 export const vacio: DatosEnvio = {
   nombre: "", correo: "", perfil: "", afiliacion: "", coautores: "", genero: "",
   titulo: "", formato: "", seccion: "", tema: "", resumen: "", claves: "",
-  usoIA: "", d1: false, d2: false, d3: false, d4: false,
+  usoIA: "", d1: false, d2: false, d3: false, d4: false, d5: false, d6: false,
 };
 
 export const CORREO = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -97,7 +99,7 @@ export function validarPaso(
   }
   if (i === 3) {
     if (!v(d.usoIA)) return { clave: AVISO.usoIA };
-    if (!(d.d1 && d.d2 && d.d3 && d.d4)) return { clave: AVISO.declaraciones };
+    if (!(d.d1 && d.d3 && d.d4 && d.d5 && d.d6)) return { clave: AVISO.declaraciones };
   }
   return null;
 }

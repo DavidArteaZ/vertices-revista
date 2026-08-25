@@ -292,6 +292,22 @@ export default function FormularioEnvio() {
         <label className="decl"><input type="checkbox" id="d2" checked={datos.d2} onChange={(e) => set("d2", e.target.checked)} /><span>{t("no_esta_publicado_ni_en_revision_en_otro_medio")}</span></label>
         <label className="decl"><input type="checkbox" id="d3" checked={datos.d3} onChange={(e) => set("d3", e.target.checked)} /><span>{t("acepto_el_proceso_de_dictaminacion_doble_ciego_y_53cf")}</span></label>
         <label className="decl"><input type="checkbox" id="d4" checked={datos.d4} onChange={(e) => set("d4", e.target.checked)} /><span>{t("autorizo_la_publicacion_del_texto_en_la_edicion_adff")}</span></label>
+        <label className="decl">
+          <input type="checkbox" id="d5" checked={datos.d5} onChange={(e) => set("d5", e.target.checked)} />
+          <span>
+            {t("he_leido_y_acepto_los_")}
+            <a className="enlace-legal" href="/documentos/terminos-condiciones-privacidad-autores.pdf" target="_blank" rel="noopener noreferrer" download>{t("terminos_condiciones_y_el_aviso_de_privacidad_pa")}</a>
+            {t("de_la_revista_estudiantil_vertices")}
+          </span>
+        </label>
+        <label className="decl">
+          <input type="checkbox" id="d6" checked={datos.d6} onChange={(e) => set("d6", e.target.checked)} />
+          <span>
+            {t("he_leido_y_acepto_la_")}
+            <a className="enlace-legal" href="/documentos/cesion-derechos-uso-imagen.pdf" target="_blank" rel="noopener noreferrer" download>{t("cesion_de_derechos_de_uso_de_imagen")}</a>
+            {t("de_la_revista_estudiantil_vertices")}
+          </span>
+        </label>
       </fieldset>
 
       <p id="formError" role="alert">{error ? tAviso(error.clave, error.valores) : ""}</p>
