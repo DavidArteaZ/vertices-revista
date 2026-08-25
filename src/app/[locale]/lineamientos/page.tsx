@@ -116,7 +116,6 @@ export default async function Pagina({ params }: Props) {
               <summary>
                 <i style={{ background: 'var(--ambar)' }}></i>
                 <h3>{t("1_datanomics")}</h3>
-                <span className="nivel-etq">{t("nivel_b")}</span>
                 <span className="flecha"></span>
               </summary>
               <div className="cuerpo-sec">
@@ -158,7 +157,6 @@ export default async function Pagina({ params }: Props) {
               <summary>
                 <i style={{ background: 'var(--perla)' }}></i>
                 <h3>{t("2_la_voz_de_la_experiencia")}</h3>
-                <span className="nivel-etq">{t("nivel_c")}</span>
                 <span className="flecha"></span>
               </summary>
               <div className="cuerpo-sec">
@@ -200,7 +198,6 @@ export default async function Pagina({ params }: Props) {
               <summary>
                 <i style={{ background: 'var(--coral)' }}></i>
                 <h3>{t("3_miradas_economicas")}</h3>
-                <span className="nivel-etq">{t("nivel_a")}</span>
                 <span className="flecha"></span>
               </summary>
               <div className="cuerpo-sec">
@@ -243,7 +240,6 @@ export default async function Pagina({ params }: Props) {
               <summary>
                 <i style={{ background: 'var(--pizarra)' }}></i>
                 <h3>{t("4_horizonte_global")}</h3>
-                <span className="nivel-etq">{t("nivel_b_a_si_es_paper")}</span>
                 <span className="flecha"></span>
               </summary>
               <div className="cuerpo-sec">
@@ -283,7 +279,6 @@ export default async function Pagina({ params }: Props) {
               <summary>
                 <i style={{ background: 'var(--indigo)' }}></i>
                 <h3>{t("5_sabias_que")}</h3>
-                <span className="nivel-etq">{t("nivel_c")}</span>
                 <span className="flecha"></span>
               </summary>
               <div className="cuerpo-sec">
@@ -324,7 +319,6 @@ export default async function Pagina({ params }: Props) {
               <summary>
                 <i style={{ background: 'var(--perla)' }}></i>
                 <h3>{t("6_capital_social")}</h3>
-                <span className="nivel-etq">{t("nivel_c")}</span>
                 <span className="flecha"></span>
               </summary>
               <div className="cuerpo-sec">
@@ -365,7 +359,6 @@ export default async function Pagina({ params }: Props) {
               <summary>
                 <i style={{ background: 'var(--coral)' }}></i>
                 <h3>{t("7_excelencia_en_accion")}</h3>
-                <span className="nivel-etq">{t("nivel_c")}</span>
                 <span className="flecha"></span>
               </summary>
               <div className="cuerpo-sec">
