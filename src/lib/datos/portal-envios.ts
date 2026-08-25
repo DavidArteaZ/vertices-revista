@@ -30,10 +30,7 @@ export const ROLES_ARCHIVO = [
 
 export type RolArchivo = (typeof ROLES_ARCHIVO)[number];
 
-/**
- * El catálogo editorial sigue pidiendo un tipo de pieza. El PDF nuevo ya no lo
- * pregunta al autor, así que se deriva de la sección elegida.
- */
+/** El PDF ya no pregunta el tipo; se deriva de la sección elegida. */
 export const TIPO_POR_SECCION: Record<SeccionEnvio, string> = {
   Datanomics: "Visualización",
   "La Voz de la Experiencia": "Entrevista",
@@ -44,12 +41,34 @@ export const TIPO_POR_SECCION: Record<SeccionEnvio, string> = {
   "Excelencia en Acción": "Crónica",
 };
 
+const ROLES_POR_SECCION: Record<SeccionEnvio, readonly RolArchivo[]> = {
+  Datanomics: ["visualizacion"],
+  "La Voz de la Experiencia": ["foto", "cesion_imagen"],
+  "Miradas Económicas": ["paper", "anexo"],
+  "Horizonte Global": ["articulo"],
+  "¿Sabías Qué?": ["foto"],
+  "Capital Social": ["foto"],
+  "Excelencia en Acción": ["foto", "cesion_imagen"],
+};
+
 export function esSeccionEnvio(x: string): x is SeccionEnvio {
   return (SECCIONES_ENVIO as readonly string[]).includes(x);
 }
 
 export function esRolArchivo(x: string): x is RolArchivo {
   return (ROLES_ARCHIVO as readonly string[]).includes(x);
+}
+
+export function esGeneroEnvio(x: string): boolean {
+  return (GENEROS_ENVIO as readonly string[]).includes(x);
+}
+
+export function esModalidadEntrevista(x: string): boolean {
+  return (MODALIDADES_ENTREVISTA as readonly string[]).includes(x);
+}
+
+export function rolPermitido(seccion: string, rol: RolArchivo): boolean {
+  return esSeccionEnvio(seccion) && ROLES_POR_SECCION[seccion].includes(rol);
 }
 
 export function tipoDeSeccion(seccion: string): string | null {
