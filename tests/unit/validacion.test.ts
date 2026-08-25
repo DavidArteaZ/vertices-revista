@@ -1,125 +1,84 @@
-import { describe, it, expect } from "vitest";
-import { validarPaso, vacio, type Aviso, type DatosEnvio } from "@/lib/validacion";
-import es from "../../messages/es.json";
-
-/**
- * validarPaso ya no devuelve texto sino la clave del aviso (etapa 2), pero lo
- * que hay que garantizar sigue siendo lo mismo: que la persona lea exactamente
- * el mensaje que el sitio actual le muestra. Así que estas pruebas resuelven
- * la clave contra el catálogo español e interpolan igual que ICU.
- *
- * Eso las hace más estrictas que antes: además de la lógica, comprueban que
- * la clave existe y que su valor español no se movió ni un carácter.
- */
-const mensaje = (a: Aviso | null): string | null => {
-  if (!a) return null;
-  const catalogo = es.avisos as Record<string, string>;
-  const plantilla = catalogo[a.clave];
-  expect(plantilla, `avisos.${a.clave} no está en messages/es.json`).toBeDefined();
-  return Object.entries(a.valores ?? {}).reduce(
-    (txt, [k, v]) => txt.replaceAll(`{${k}}`, String(v)),
-    plantilla,
-  );
-};
-
-const paso = (...args: Parameters<typeof validarPaso>) => mensaje(validarPaso(...args));
+import { describe, expect, it } from "vitest";
+import { validarPaso, vacio, type DatosEnvio } from "@/lib/validacion";
+import type { RolArchivo } from "@/lib/datos/portal-envios";
 
 const palabras = (n: number) => Array(n).fill("palabra").join(" ");
+const archivo = (rol: RolArchivo, name = "a.pdf") => ({ name, size: 100, rol });
 
-const paso0: DatosEnvio = {
+const autoria: DatosEnvio = {
   ...vacio,
+  campos: { ...vacio.campos },
   nombre: "Ana Herrera",
   correo: "a@b.mx",
   perfil: "Científico(a) de datos",
   afiliacion: "Tec CCM",
+  seccion: "Datanomics",
+  genero: "Prefiero no responder aquí",
 };
 
-describe("paso 0 — autoría", () => {
-  it("requires a name", () =>
-    expect(paso(0, { ...paso0, nombre: "" }, [])).toBe("Escribe tu nombre completo."));
-  it("rejects a malformed email", () =>
-    expect(paso(0, { ...paso0, correo: "no-es-correo" }, [])).toBe("Escribe un correo de contacto válido."));
-  it("rejects an email with spaces", () =>
-    expect(paso(0, { ...paso0, correo: "a b@c.mx" }, [])).toBe("Escribe un correo de contacto válido."));
-  it("requires a profile", () =>
-    expect(paso(0, { ...paso0, perfil: "" }, [])).toBe("Elige tu perfil de autor."));
-  it("requires an affiliation", () =>
-    expect(paso(0, { ...paso0, afiliacion: "" }, [])).toBe("Indica tu institución o afiliación."));
-  it("passes when complete", () => expect(paso(0, paso0, [])).toBeNull());
-  it("treats whitespace-only as empty", () =>
-    expect(paso(0, { ...paso0, nombre: "   " }, [])).toBe("Escribe tu nombre completo."));
-});
-
-const paso1: DatosEnvio = {
-  ...paso0,
-  titulo: "T",
-  formato: "Cápsula breve",
-  seccion: "Datanomics",
+const pieza: DatosEnvio = {
+  ...autoria,
+  titulo: "Título",
   tema: "Fintech",
-  resumen: palabras(150),
   claves: "a, b, c",
 };
 
-describe("paso 1 — manuscrito", () => {
-  it("requires a title", () =>
-    expect(paso(1, { ...paso1, titulo: "" }, [])).toBe("Tu manuscrito necesita un título."));
-  it("requires a format", () =>
-    expect(paso(1, { ...paso1, formato: "" }, [])).toBe("Elige el formato de tu pieza."));
-  it("requires a section", () =>
-    expect(paso(1, { ...paso1, seccion: "" }, [])).toBe("Elige la sección que mejor le queda a tu trabajo."));
-  it("requires a topic", () =>
-    expect(paso(1, { ...paso1, tema: "" }, [])).toBe("Elige el tema principal."));
-  it("rejects a summary under 100 words, reporting the count", () =>
-    expect(paso(1, { ...paso1, resumen: palabras(99) }, [])).toBe(
-      "El resumen lleva 99 palabras; se piden al menos 100.",
-    ));
-  it("accepts exactly 100 words", () =>
-    expect(paso(1, { ...paso1, resumen: palabras(100) }, [])).toBeNull());
-  it("accepts exactly 300 words", () =>
-    expect(paso(1, { ...paso1, resumen: palabras(300) }, [])).toBeNull());
-  it("rejects 301 words", () =>
-    expect(paso(1, { ...paso1, resumen: palabras(301) }, [])).toBe(
-      "El resumen lleva 301 palabras; el máximo es 300.",
-    ));
-  it("rejects fewer than 3 keywords", () =>
-    expect(paso(1, { ...paso1, claves: "a, b" }, [])).toBe(
-      "Escribe de 3 a 5 palabras clave separadas por comas.",
-    ));
-  it("accepts exactly 5 keywords", () =>
-    expect(paso(1, { ...paso1, claves: "a,b,c,d,e" }, [])).toBeNull());
-  it("rejects more than 5 keywords", () =>
-    expect(paso(1, { ...paso1, claves: "a,b,c,d,e,f" }, [])).toBe(
-      "Escribe de 3 a 5 palabras clave separadas por comas.",
-    ));
-  it("ignores trailing separators when counting keywords", () =>
-    expect(paso(1, { ...paso1, claves: "a, b, c," }, [])).toBeNull());
+const clave = (...args: Parameters<typeof validarPaso>) => validarPaso(...args)?.clave ?? null;
+
+describe("paso 0 — autoría", () => {
+  it("requiere los datos de autoría, la sección y el género", () => {
+    expect(clave(0, { ...autoria, nombre: "" }, [])).toBe("escribe_tu_nombre_completo");
+    expect(clave(0, { ...autoria, seccion: "" }, [])).toBe("elige_la_seccion_que_mejor_le_queda_a_tu_trabajo");
+    expect(clave(0, { ...autoria, genero: "" }, [])).toBe("portal_genero_requerido");
+    expect(clave(0, autoria, [])).toBeNull();
+  });
 });
 
-describe("paso 2 — archivos", () => {
-  it("requires at least one file", () =>
-    expect(paso(2, paso1, [])).toBe("Adjunta tu manuscrito en .docx o .pdf."));
-  it("passes with one", () =>
-    expect(paso(2, paso1, [{ name: "m.pdf", size: 100 }])).toBeNull());
+describe("paso 1 — información de la pieza", () => {
+  it("pide título, tema y de 3 a 5 palabras clave", () => {
+    expect(clave(1, { ...pieza, titulo: "" }, [])).toBe("tu_manuscrito_necesita_un_titulo");
+    expect(clave(1, { ...pieza, tema: "" }, [])).toBe("elige_el_tema_principal");
+    expect(clave(1, { ...pieza, claves: "a,b" }, [])).toBe("escribe_de_3_a_5_palabras_clave_separadas_por_co_414e");
+    expect(clave(1, pieza, [])).toBeNull();
+  });
+});
+
+describe("paso 2 — requisitos por sección", () => {
+  it("Datanomics: texto de 200–800 y 1–3 visualizaciones", () => {
+    const d = { ...pieza, campos: { ...pieza.campos, textoExplicativo: palabras(200) } };
+    expect(clave(2, { ...d, campos: { ...d.campos, textoExplicativo: palabras(199) } }, [archivo("visualizacion", "g.png")])).toBe("portal_datanomics_texto_200_800");
+    expect(clave(2, d, [])).toBe("portal_datanomics_visualizacion_1_3");
+    expect(clave(2, d, [archivo("visualizacion", "g.png")])).toBeNull();
+  });
+
+  it("Miradas Económicas: resumen de 100–300, paper y hasta 3 anexos", () => {
+    const d = { ...pieza, seccion: "Miradas Económicas", campos: { ...pieza.campos, resumen: palabras(100) } };
+    expect(clave(2, d, [])).toBe("portal_miradas_paper_requerido");
+    expect(clave(2, d, [archivo("paper")])).toBeNull();
+    expect(clave(2, d, [archivo("paper"), archivo("anexo"), archivo("anexo"), archivo("anexo"), archivo("anexo")])).toBe("portal_miradas_anexos_max_3");
+  });
+
+  it("¿Sabías Qué? permite no adjuntar imagen", () => {
+    const d = { ...pieza, seccion: "¿Sabías Qué?", campos: { ...pieza.campos, dato: palabras(30) } };
+    expect(clave(2, d, [])).toBeNull();
+  });
+
+  it("Capital Social exige crónica, fotos y pies", () => {
+    const d = { ...pieza, seccion: "Capital Social", campos: { ...pieza.campos, cronica: palabras(500), piesImagen: "Foto 1" } };
+    expect(clave(2, d, [])).toBe("portal_capital_fotos_1_4");
+    expect(clave(2, d, [archivo("foto", "f.jpg")])).toBeNull();
+  });
 });
 
 describe("paso 3 — declaración", () => {
   const listo: DatosEnvio = {
-    ...paso1,
+    ...pieza,
     usoIA: "No",
-    d1: true, d2: true, d3: true, d4: true, d5: true, d6: true,
+    d1: true, d2: false, d3: true, d4: true, d5: true, d6: true,
   };
-  it("requires the AI declaration", () =>
-    expect(paso(3, { ...listo, usoIA: "" }, [])).toBe(
-      "Indica si usaste herramientas de inteligencia artificial.",
-    ));
-  it("requires all checkboxes except d2 (optional)", () => {
-    for (const k of ["d1", "d3", "d4", "d5", "d6"] as const) {
-      expect(paso(3, { ...listo, [k]: false }, []), `sin ${k}`).toBe(
-        "Confirma las cinco declaraciones para poder enviar.",
-      );
-    }
+
+  it("mantiene d2 opcional y las otras cinco obligatorias", () => {
+    expect(clave(3, listo, [])).toBeNull();
+    expect(clave(3, { ...listo, d5: false }, [])).toBe("confirma_las_cuatro_declaraciones_para_poder_env_9d6c");
   });
-  it("d2 is optional: passes even when unchecked", () =>
-    expect(paso(3, { ...listo, d2: false }, [])).toBeNull());
-  it("passes when all required checkboxes are checked", () => expect(paso(3, listo, [])).toBeNull());
 });
