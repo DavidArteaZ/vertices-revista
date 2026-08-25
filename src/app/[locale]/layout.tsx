@@ -4,6 +4,7 @@ import { hasLocale, NextIntlClientProvider } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { routing } from "@/i18n/rutas";
 import { GUION_DISPOSITIVO } from "@/lib/dispositivo";
+import Vista from "@/components/layout/Vista";
 import "./selector-idioma.css";
 
 /**
@@ -67,10 +68,18 @@ export default async function RootLayout({
     <html lang={locale} suppressHydrationWarning>
       <head>
         {/*
-          Antes que las hojas y antes de pintar: resuelve si toca la versión de
-          teléfono y lo estampa en <html data-disp>. Va en línea y sin `defer`
-          a propósito —un <Script> de Next se ejecutaría después del primer
-          cuadro y se vería el parpadeo de la maqueta de escritorio.
+          Resuelve si toca la versión de teléfono y lo estampa en
+          <html data-disp> ANTES de pintar. Por eso es un <script> en línea y
+          síncrono en el <head>, y no un efecto ni un <Script> de Next: si
+          llegara después del primer cuadro, un teléfono alcanzaría a dibujar
+          la maqueta de escritorio y se vería el parpadeo.
+
+          React sólo ejecuta este script al renderizar en el servidor; en un
+          render de cliente ni corre ni conserva el atributo. De eso se encarga
+          <Vista />, abajo. En desarrollo React avisa por consola de este
+          script — es ruido conocido, no aparece en producción, y se produce
+          igual con `next/script` porque el aviso lo dispara el elemento, no
+          quién lo pone.
         */}
         <script dangerouslySetInnerHTML={{ __html: GUION_DISPOSITIVO }} />
         <link rel="preload" href="/fonts/NeueMontreal-Medium.woff2" as="font" type="font/woff2" crossOrigin="" />
@@ -78,6 +87,8 @@ export default async function RootLayout({
         <link rel="preload" href="/fonts/Garet-Book.woff2" as="font" type="font/woff2" crossOrigin="" />
       </head>
       <body>
+        {/* repone data-disp cuando React remonta <html>; ver Vista.tsx */}
+        <Vista />
         <NextIntlClientProvider>{children}</NextIntlClientProvider>
       </body>
     </html>

@@ -105,6 +105,24 @@ lec-cdmx, sólo sirve como historia.
 
 - El `</div>` de cierre de `.pie-legal` se perdió en `104892f` del sitio
   estático. No se replica.
+- **Cambiar de idioma borraba `data-disp`, y con él la versión de teléfono.**
+  `<html>` lo renderiza el layout de `/[locale]`, así que pasar de `/` a `/en`
+  lo desmonta y lo vuelve a montar; al montarlo React fija los atributos que
+  conoce (`lang`) y se lleva por delante el que el guion del `<head>` había
+  estampado. En un teléfono el efecto era mudo y total: elegir otro idioma
+  devolvía la maqueta ancha, porque `movil.css` entero cuelga de
+  `html[data-disp="movil"]`. Lo repone `<Vista />` en un efecto de disposición
+  —antes de pintar, así no se ve el salto— y en cada render, que es justo el
+  caso del remonte. Hoistear `<html>` a un layout por encima de `[locale]`
+  habría sido más limpio, pero el panel vive fuera del enrutado por idioma con
+  su propio layout raíz: no hay ancestro común que compartan.
+- **El aviso de consola del `<script>` en línea no se puede quitar.** React
+  avisa en desarrollo cada vez que renderiza un elemento `<script>` en el
+  cliente. Se probó `next/script` con `strategy="beforeInteractive"`, en
+  `<head>` y en `<body>`: el aviso sale igual —lo dispara el elemento, no quién
+  lo pone— y en `<body>` además el guion cae después de `</head>`, que es peor
+  para la garantía de "antes de pintar". Se queda el `<script>` a secas. No
+  aparece en producción.
 - **`.solo-movil` necesita una regla sin prefijo.** Las dos bajadas del
   recorrido se pintan siempre y el CSS elige cuál se ve. Escondiendo la de
   teléfono sólo dentro de `html[data-disp="movil"]`, en escritorio salían las
