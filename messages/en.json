@@ -29,8 +29,8 @@
     "estado_de_tu_envio": "Status of your submission",
     "contacto": "Contact",
     "vertices_servicios_tec_mx": "vertices@servicios.tec.mx",
-    "instagram_vertices_ccm": "Instagram · @vertices.ccm",
-    "linkedin_vertices_ccm": "LinkedIn · Vértices CCM",
+    "instagram_vertices_tec": "Instagram · @vertices.tec",
+    "linkedin_vertices_revista": "LinkedIn · Vértices Revista",
     "boletin": "Newsletter",
     "recibe_cada_edicion_y_las_convocatorias_en_tu_co_4b97": "Receive every issue and every call for papers in your inbox.",
     "listo_recibiras_la_proxima_edicion_en_tu_correo": "Done, you will receive the next issue in your inbox.",
@@ -39,7 +39,9 @@
     "suscribirme": "Subscribe",
     "2026_vertices_tecnologico_de_monterrey_campus_ci_8738": "© 2026 Vértices · Tecnológico de Monterrey, Mexico City Campus",
     "rigurosa_en_evidencia_amable_en_lectura": "Rigorous in evidence, friendly to read ·",
-    "aviso_de_privacidad": "Privacy notice"
+    "aviso_de_privacidad": "Privacy notice",
+    "ver_version_de_escritorio": "View desktop version",
+    "ver_version_para_telefono": "Ver versión para teléfono"
   },
   "idioma": {
     "idioma": "Language"
@@ -59,6 +61,7 @@
     "explora_por": "Explore by",
     "tema": "topic",
     "veintisiete_areas_de_la_economia_un_nodo_por_tem_a6a3": "Twenty-seven areas of economics, one node per topic. Click any node to discover the articles orbiting around it.",
+    "veintisiete_areas_de_la_economia_toca_un_tema_pa_5b1c": "Twenty-seven areas of economics. Tap a topic to see the articles orbiting around it.",
     "ver_indice_completo": "See full index",
     "arrastra_para_girar_la_red": "Drag to rotate the network",
     "haz_clic_en_un_nodo_para_abrirlo": "Click a node to open it",
@@ -66,6 +69,7 @@
     "ocho_secciones_un_solo": "Eight sections, one",
     "recorrido": "journey",
     "de_la_carta_editorial_al_cierre_en_comunidad_pas_7503": "From the editorial letter to the community closing. Hover over a node to learn about its section and click to see its articles.",
+    "de_la_carta_editorial_al_cierre_en_comunidad_toc_9e77": "From the editorial letter to the community closing. Tap a section to learn about it and see its articles.",
     "tienes_una_idea_que_merece": "Have an idea that deserves",
     "publicarse": "to be published",
     "publica_tu_articulo": "Submit your article",
@@ -76,7 +80,8 @@
     "articulos_destacados": "Featured articles",
     "anterior": "Previous",
     "siguiente": "Next",
-    "min_de_lectura": "min de lectura"
+    "min_de_lectura": "min de lectura",
+    "ver_articulos": "See articles"
   },
   "convocatoria": {
     "convocatoria_abierta": "Call for papers open",

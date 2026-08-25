@@ -85,13 +85,16 @@ export function edgeExtras(a: Punto3D, b: Punto3D, esc: number) {
   return { px, py, pz, bow: len * esc * (0.7 + Math.random() * 0.9), ph: Math.random() * Math.PI * 2 };
 }
 
-export function buildNetwork(): Grafo {
+export function buildNetwork(esMovil = false): Grafo {
   const N = TOPICS.length;
   const nodes: Nodo[] = [];
   let guard = 0;
   while (nodes.length < N && guard++ < 40000) {
-    const x = (Math.random() * 2 - 1) * 1.25;
-    const y = (Math.random() * 2 - 1) * 0.85;
+    // en teléfono la nube se pone de pie: más angosta y más alta, que es la
+    // forma de la pantalla. Con el reparto de escritorio, media constelación
+    // caería fuera de cuadro y sus etiquetas se descartarían por solaparse.
+    const x = (Math.random() * 2 - 1) * (esMovil ? 0.92 : 1.25);
+    const y = (Math.random() * 2 - 1) * (esMovil ? 1.18 : 0.85);
     const z = (Math.random() * 2 - 1);
     if (nodes.some((n) => (n.x - x) ** 2 + (n.y - y) ** 2 + (n.z - z) ** 2 < 0.24)) continue;
     nodes.push({ x, y, z, imp: 0.65 + Math.random() * 1.05, colIdx: nodes.length % PALETA_NODOS.length, label: TOPICS[nodes.length], label0: TOPICS[nodes.length] });
@@ -133,9 +136,11 @@ export function buildNetwork(): Grafo {
   return { nodes, edges };
 }
 
-export function buildSections(): Grafo {
-  // el mapa se aplana en vertical para leerse como una franja panoramica
-  const nodes = SECTIONS.map((s, i) => ({ ...s, y: s.y * 0.62, colIdx: i % PALETA_NODOS.length, label: s.label, desc: s.desc, label0: s.label, desc0: s.desc }));
+export function buildSections(esMovil = false): Grafo {
+  // el mapa se aplana en vertical para leerse como una franja panoramica.
+  // En teléfono no se aplana, se estira: las ocho etiquetas necesitan
+  // renglones propios o se montan unas sobre otras.
+  const nodes = SECTIONS.map((s, i) => ({ ...s, y: s.y * (esMovil ? 1.05 : 0.62), colIdx: i % PALETA_NODOS.length, label: s.label, desc: s.desc, label0: s.label, desc0: s.desc }));
   const edges = SEC_EDGES.map(([i, j]) => {
     const len = Math.hypot(nodes[i].x - nodes[j].x, nodes[i].y - nodes[j].y, nodes[i].z - nodes[j].z);
     return {

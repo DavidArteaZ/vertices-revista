@@ -5,6 +5,7 @@ import Pie from "@/components/layout/Pie";
 import FondoFlujo from "@/components/satelite/FondoFlujo";
 import Revelar from "@/components/satelite/Revelar";
 import "./lineamientos.css";
+import "../movil.css";
 
 type Props = { params: Promise<{ locale: string }> };
 
@@ -19,12 +20,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
  * cambiar una sola palabra.
  *
  * EN_FLUJO reproduce lo que fondo-flujo.js hace en tiempo de ejecución:
- * recorre document.body.children y estampa position:relative; z-index:1 en
- * línea sobre cada hermano (fondo-flujo.js:9-20). Eso incluye la cabecera,
- * que por tanto NO queda fija en las páginas satélite aunque el CSS diga
- * position:fixed. Casi seguro no era la intención del autor, pero es el
- * comportamiento vigente y está en las imágenes doradas: cambiarlo sería
- * rediseñar.
+ * levanta sobre el lienzo del fondo lo que va en el flujo del documento
+ * (fondo-flujo.js:9-20). La cabecera ya NO lo lleva: el bucle del original
+ * saltaba los elementos con posición propia desde af788e1, y estamparle
+ * position:relative era justo lo que despegaba la barra fija del tope de la
+ * página en las satélites.
  */
 const EN_FLUJO = { position: "relative", zIndex: 1 } as const;
 
@@ -36,7 +36,7 @@ export default async function Pagina({ params }: Props) {
   return (
     <>
       <FondoFlujo />
-      <Marco satelite style={EN_FLUJO} />
+      <Marco satelite />
       <main style={EN_FLUJO}>
         <p className="ceja">{t("vertices_guia_para_autores")}</p>
         <h1>{t("lineamientos_editoriales")}</h1>

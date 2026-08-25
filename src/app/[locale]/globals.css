@@ -28,7 +28,7 @@
   }
   *{ box-sizing:border-box; }
   html{ scroll-behavior:smooth; }
-  html,body{ margin:0; background:var(--negro); }
+  html,body{ margin:0; background:var(--negro); overflow-x:hidden; }
   body{
     font:400 15px/1.65 var(--f-ui);
     color:var(--texto);
@@ -64,12 +64,53 @@
 
   /* ------- marco fijo (navegacion en los margenes) ------- */
   .marco{
-    position:fixed; top:0; left:0; right:0; z-index:50;
+    /* Flotante, al modo iOS 26: despegada de los tres bordes y en cápsula.
+       El contenido pasa por los lados y por encima en vez de morir contra
+       ella, que es justo cuando el vidrio se lee como material: pegada al
+       borde superior casi nunca tenía nada detrás que enseñar. */
+    position:fixed; z-index:50;
+    top:14px; left:max(16px, 3vw); right:max(16px, 3vw);
+    border-radius:999px;
     display:flex; align-items:center; justify-content:space-between;
-    padding:20px 5vw 22px;
-    background:linear-gradient(rgba(231,222,203,.97), rgba(231,222,203,.8));
-    backdrop-filter:blur(14px);
-    box-shadow:0 1px 0 rgba(45,35,46,.08);
+    padding:12px 18px 12px 26px;
+    /* Vidrio. Tres capas hacen el material y ninguna sobra:
+       el tinte translúcido deja pasar la imagen; el desenfoque CON saturación
+       es lo que hace que el vidrio recoja el color de lo que cruza por debajo
+       en vez de agrisarlo (un blur sin saturate queda lechoso); y el filo
+       iluminado de arriba más la sombra suave de abajo son los que le dan
+       grosor —sin ellos se lee como un rectángulo plano, no como una lámina
+       apoyada sobre el contenido.
+
+       Sobre el tinte: se probó más translúcido (46-62%) y no funciona en las
+       páginas de texto. El desenfoque de fondo no deshace un párrafo que
+       cruza por debajo —ni subiéndolo a 44px— y entonces el texto de la
+       página se lee A TRAVÉS del vidrio y compite con el de la barra. A
+       76-86% lo que hay detrás queda como un fantasma: se nota que algo pasa,
+       que es lo que hace el material, pero ya no se puede leer. */
+    background:linear-gradient(rgba(238,231,215,.86), rgba(231,222,203,.76));
+    backdrop-filter:blur(30px) saturate(180%);
+    /* Flotando, la sombra deja de ser una insinuación bajo un borde y pasa
+       a ser lo que la despega del fondo; y el filo iluminado da la vuelta
+       completa, porque ahora se ven los cuatro lados. */
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,.7),
+      inset 0 0 0 1px rgba(255,255,255,.26),
+      0 12px 32px -14px rgba(45,35,46,.34),
+      0 3px 10px -6px rgba(45,35,46,.22);
+    /* se esconde al bajar y vuelve al subir; lo gobierna useBarraQueSeAparta */
+    transition:transform .34s cubic-bezier(.32,.72,.28,1);
+  }
+  /* Sin desenfoque de fondo (Firefox sin la bandera, navegadores viejos) el
+     tinte translúcido dejaría cruzar el texto de la página por detrás de la
+     barra. Ahí vuelve a ser casi opaca, que es lo que había antes. */
+  @supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){
+    .marco{
+      background:linear-gradient(rgba(231,222,203,.97), rgba(231,222,203,.9));
+    }
+  }
+  .marco--fuera{ transform:translateY(calc(-100% - 26px)); }
+  @media (prefers-reduced-motion: reduce){
+    .marco{ transition:none; }
   }
   .marca{
     display:flex; align-items:center; gap:12px; text-decoration:none;
@@ -118,6 +159,9 @@
     transition:background .3s, transform .3s;
   }
   .riel button span{ opacity:0; transition:opacity .25s; }
+  /* el icono sólo lo usa la barra de pestañas del teléfono (movil.css);
+     aquí el punto se basta solo */
+  .riel button i svg{ display:none; }
   .riel button:hover span{ opacity:1; }
   .riel button.activo i{ background:var(--crema); border-color:var(--crema); transform:scale(1.25); }
   .riel button.activo span{ opacity:1; color:var(--crema); }
@@ -141,22 +185,6 @@
     margin:0 0 12px; font:500 11px var(--f-ui);
     letter-spacing:.22em; text-transform:uppercase; color:var(--gris);
   }
-  .pista{
-    position:absolute; left:50%; bottom:110px; transform:translateX(-50%);
-    display:flex; flex-direction:column; align-items:center; gap:12px;
-    font:500 10.5px var(--f-ui); letter-spacing:.3em; text-transform:uppercase;
-    color:var(--gris);
-  }
-  .pista i{
-    width:1px; height:44px; overflow:hidden; position:relative;
-    background:rgba(45,35,46,.2);
-  }
-  .pista i::after{
-    content:""; position:absolute; left:0; top:-50%; width:1px; height:50%;
-    background:var(--crema); animation:gotea 2.1s cubic-bezier(.6,.05,.3,.95) infinite;
-  }
-  @keyframes gotea{ 0%{ top:-50%; } 100%{ top:110%; } }
-
   /* capa 2: temas */
   .temas-bloque{
     position:absolute; top:13vh; left:5vw; max-width:440px;
@@ -527,11 +555,9 @@
     .hero-edicion{ text-align:left; }
     .panel-envio{ padding:26px 22px; }
     .tarjeta{ flex-basis:250px; }
-    .pista{ bottom:150px; }
   }
   @media (prefers-reduced-motion: reduce){
     html{ scroll-behavior:auto; }
-    .pista i::after{ animation:none; }
   }
 
   /* menú de tres rayas: panel de vidrio con los enlaces (evita empalmes en cualquier idioma) */
@@ -563,8 +589,18 @@
 
   /* Acerca de y Conoce al equipo viven en la barra; en pantallas angostas
      regresan al panel del menú para no encimarse */
-  .menu-panel .solo-angosto{ display:none; }
+  .menu-panel .solo-angosto,
+  .menu-panel .solo-estrecho{ display:none; }
   @media (max-width:940px){
     .marco nav > .enlace-bar, .marco nav > .boton-bar{ display:none; }
     .menu-panel .solo-angosto{ display:block; }
+  }
+  /* Por debajo de esto el llamado ya no cabe en la cápsula y se salía por el
+     costado. Con la barra pegada al borde no se notaba —llegaba al filo de la
+     pantalla de todas formas—; flotando, sí. Medido: 22px de más a 380px, 2px
+     a 400px, nada de 420px en adelante; el corte va en 560 para tener margen.
+     Baja al panel del menú, donde sigue a un toque. */
+  @media (max-width:560px){
+    .marco nav > .boton--lleno{ display:none; }
+    .menu-panel .solo-estrecho{ display:block; }
   }

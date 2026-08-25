@@ -8,6 +8,7 @@ import FondoFlujo from "@/components/satelite/FondoFlujo";
 import { publico } from "@/lib/supabase/publico";
 import { slug as claveDe } from "@/lib/texto";
 import "./articulo.css";
+import "../../movil.css";
 
 /**
  * La página de un artículo.
@@ -97,7 +98,7 @@ export default async function Pagina({ params }: Props) {
   return (
     <>
       <FondoFlujo />
-      <Marco satelite style={EN_FLUJO} />
+      <Marco satelite />
 
       <main style={EN_FLUJO} className="art-pagina">
         <article className="art-cuerpo">

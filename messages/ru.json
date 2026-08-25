@@ -29,8 +29,8 @@
     "estado_de_tu_envio": "Статус вашей подачи",
     "contacto": "Контакты",
     "vertices_servicios_tec_mx": "vertices@servicios.tec.mx",
-    "instagram_vertices_ccm": "Instagram · @vertices.ccm",
-    "linkedin_vertices_ccm": "LinkedIn · Vértices CCM",
+    "instagram_vertices_tec": "Instagram · @vertices.tec",
+    "linkedin_vertices_revista": "LinkedIn · Vértices Revista",
     "boletin": "Рассылка",
     "recibe_cada_edicion_y_las_convocatorias_en_tu_co_4b97": "Получайте каждый выпуск и объявления о приёме на почту.",
     "listo_recibiras_la_proxima_edicion_en_tu_correo": "Готово, вы получите следующий выпуск на почту.",
@@ -39,7 +39,9 @@
     "suscribirme": "Подписаться",
     "2026_vertices_tecnologico_de_monterrey_campus_ci_8738": "© 2026 Vértices · Технологический институт Монтеррея, кампус Мехико",
     "rigurosa_en_evidencia_amable_en_lectura": "Строгий в доказательствах, лёгкий в чтении ·",
-    "aviso_de_privacidad": "Политика конфиденциальности"
+    "aviso_de_privacidad": "Политика конфиденциальности",
+    "ver_version_de_escritorio": "Полная версия сайта",
+    "ver_version_para_telefono": "Ver versión para teléfono"
   },
   "idioma": {
     "idioma": "Язык"
@@ -59,6 +61,7 @@
     "explora_por": "Исследуйте по",
     "tema": "темам",
     "veintisiete_areas_de_la_economia_un_nodo_por_tem_a6a3": "Двадцать семь областей экономики, один узел на тему. Нажмите на любой узел, чтобы открыть статьи, которые вращаются вокруг него.",
+    "veintisiete_areas_de_la_economia_toca_un_tema_pa_5b1c": "Двадцать семь областей экономики. Нажмите на тему, чтобы увидеть статьи, которые вращаются вокруг неё.",
     "ver_indice_completo": "Полный указатель",
     "arrastra_para_girar_la_red": "Перетащите, чтобы повернуть сеть",
     "haz_clic_en_un_nodo_para_abrirlo": "Нажмите на узел, чтобы открыть его",
@@ -66,6 +69,7 @@
     "ocho_secciones_un_solo": "Восемь разделов, один",
     "recorrido": "путь",
     "de_la_carta_editorial_al_cierre_en_comunidad_pas_7503": "От редакционного письма до закрытия в кругу сообщества. Наведите курсор на узел, чтобы узнать о его разделе, и нажмите, чтобы увидеть статьи.",
+    "de_la_carta_editorial_al_cierre_en_comunidad_toc_9e77": "От редакционного письма до закрытия в кругу сообщества. Нажмите на раздел, чтобы узнать о нём и увидеть его статьи.",
     "tienes_una_idea_que_merece": "Есть идея, которая заслуживает",
     "publicarse": "публикации",
     "publica_tu_articulo": "Опубликуйте свою статью",
@@ -76,7 +80,8 @@
     "articulos_destacados": "Избранные статьи",
     "anterior": "Назад",
     "siguiente": "Вперёд",
-    "min_de_lectura": "min de lectura"
+    "min_de_lectura": "min de lectura",
+    "ver_articulos": "Смотреть статьи"
   },
   "convocatoria": {
     "convocatoria_abierta": "Приём статей открыт",

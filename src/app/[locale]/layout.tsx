@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { hasLocale, NextIntlClientProvider } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { routing } from "@/i18n/rutas";
+import { GUION_DISPOSITIVO } from "@/lib/dispositivo";
 import "./selector-idioma.css";
 
 /**
@@ -59,8 +60,19 @@ export default async function RootLayout({
   setRequestLocale(locale);
 
   return (
-    <html lang={locale}>
+    // El guion del <head> estampa data-disp en <html> antes de hidratar, y React
+    // compara ese atributo con el que él mismo renderizó. La supresión llega
+    // sólo a este elemento —ni a sus hijos ni a su contenido—, así que un
+    // desajuste de verdad más adentro sigue avisando.
+    <html lang={locale} suppressHydrationWarning>
       <head>
+        {/*
+          Antes que las hojas y antes de pintar: resuelve si toca la versión de
+          teléfono y lo estampa en <html data-disp>. Va en línea y sin `defer`
+          a propósito —un <Script> de Next se ejecutaría después del primer
+          cuadro y se vería el parpadeo de la maqueta de escritorio.
+        */}
+        <script dangerouslySetInnerHTML={{ __html: GUION_DISPOSITIVO }} />
         <link rel="preload" href="/fonts/NeueMontreal-Medium.woff2" as="font" type="font/woff2" crossOrigin="" />
         <link rel="preload" href="/fonts/NeueMontreal-Bold.woff2" as="font" type="font/woff2" crossOrigin="" />
         <link rel="preload" href="/fonts/Garet-Book.woff2" as="font" type="font/woff2" crossOrigin="" />

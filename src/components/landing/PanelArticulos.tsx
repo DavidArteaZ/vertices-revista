@@ -7,6 +7,7 @@ import type { Articulo } from "@/lib/datos/articulos";
 import { TOPICS } from "@/lib/datos/temas";
 import { norm } from "@/lib/texto";
 import { useCatalogo } from "@/i18n/catalogo";
+import { useEsMovil } from "@/lib/dispositivo-cliente";
 import type { TipoNodo } from "@/lib/motor/motor";
 
 /**
@@ -61,6 +62,7 @@ export default function PanelArticulos({
   const [filtro, setFiltro] = useState("");
   const busqueda = useRef<HTMLInputElement>(null);
   const abierto = estado !== null;
+  const esMovil = useEsMovil();
 
   // Al cambiar de objetivo se limpia el filtro. Es el patrón de ajustar
   // estado durante el render que documenta React, no un efecto: llamar a
@@ -72,10 +74,12 @@ export default function PanelArticulos({
     setFiltro("");
   }
 
-  // enfocar la búsqueda al abrir, sin arrastrar el scroll
+  // Enfocar la búsqueda al abrir, sin arrastrar el scroll. En un teléfono no:
+  // el foco levanta el teclado y tapa media pantalla sin que nadie lo haya
+  // pedido, así que ahí el foco se ofrece, no se toma.
   useEffect(() => {
-    if (abierto) busqueda.current?.focus({ preventScroll: true });
-  }, [abierto, objetivo]);
+    if (abierto && !esMovil) busqueda.current?.focus({ preventScroll: true });
+  }, [abierto, objetivo, esMovil]);
 
   useEffect(() => {
     document.body.classList.toggle("panel-abierto", abierto);
@@ -102,6 +106,15 @@ export default function PanelArticulos({
         : t("seccion_de_la_revista");
   const titulo = !estado ? "" : estado.tipo === "indice" ? t("todos_los_temas") : estado.valor!;
 
+  // En escritorio la descripción de cada sección vive en la ficha que aparece
+  // al pasar el cursor. En un teléfono no hay cursor y esa ficha no aparecería
+  // nunca (movil.css la esconde), así que ahí la descripción entra bajo el
+  // título de la hoja.
+  const desc =
+    esMovil && estado?.tipo === "seccion" && estado.valor0
+      ? cat.descSeccion(estado.valor0)
+      : "";
+
   // El filtro corre sobre el texto que la persona está leyendo, no sobre el
   // español que guarda el dato: buscar "trade" en inglés tiene que encontrar
   // Comercio Internacional.
@@ -126,6 +139,7 @@ export default function PanelArticulos({
           <div>
             <p className="ceja" id="panelCeja">{ceja}</p>
             <h3 id="panelTitulo">{titulo}</h3>
+            <p className="panel-desc" id="panelDesc" hidden={!desc}>{desc}</p>
           </div>
           <button className="cierre" id="cerrarPanel" type="button" aria-label={t("cerrar_panel")} onClick={onCerrar}>✕</button>
         </header>
