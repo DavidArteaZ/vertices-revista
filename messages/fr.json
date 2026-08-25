@@ -315,6 +315,8 @@
     "vertices_revista_academica_de_economia_del_tecno_4187": "Vértices, la revue académique d'économie du Tecnológico de Monterrey, campus de Mexico",
     "portal_de_envios": "Portail de soumission",
     "envio_de_manuscritos": "Soumission de manuscrits",
+    "fecha_limite_primera_edicion": "Date limite première édition",
+    "veinte_de_septiembre_de_2026_los_archivos_recib": " : 20 septembre 2026. Les fichiers reçus après cette date seront pris en compte pour la deuxième édition.",
     "esta_pagina_necesita_javascript_para_mostrar_la_9e0c": "Esta página necesita JavaScript para mostrar la red de partículas y el portal de envíos."
   },
   "lineamientos": {
@@ -506,9 +508,9 @@
     "vertices_revista_academica_de_economia": "Vértices · Revue académique d'économie",
     "acerca_de": "À propos",
     "el_punto_donde_las_ideas_se_conectan": "Le point où les idées se connectent",
-    "vertices_es_la_revista_estudiantil_de_economia_d_54c4": "Vértices est la revue étudiante d'économie du Tecnológico de Monterrey, campus de Mexico, créée par et pour la communauté de la licence en économie (LEC). Elle est née d'une idée simple : une revue",
-    "de_economistas_para_economistas": "d'économistes pour les économistes",
-    "rigurosa_en_la_evidencia_y_amable_en_la_lectura": ", rigoureuse dans les preuves et agréable à lire.",
+    "vertices_es_la_revista_estudiantil_de_economia_d_54c4": "Vértices est la revue étudiante d'économie du Tecnológico de Monterrey, campus de Mexico, créée par et pour la communauté de la licence en économie (LEC). Elle est née d'une idée simple : un espace",
+    "de_economistas_para_economistas": "pour dialoguer sur l'économie sous différentes perspectives",
+    "rigurosa_en_la_evidencia_y_amable_en_la_lectura": ", rigoureux dans les preuves et agréable à lire.",
     "somos_un_espacio_de_encuentro_y_convergencia_de_8b80": "Nous sommes un espace de rencontre et de convergence des idées, où la pensée critique, la pluralité des perspectives et le lien entre la théorie économique et les problèmes qui nous entourent s'expriment avec clarté, sans jargon inutile.",
     "mision": "Mission",
     "el_punto_de_encuentro_del_rigor_y_las_ideas": "Le point de rencontre de la rigueur et des idées",
@@ -545,7 +547,7 @@
     "buscamos_de_manera_activa_la_participacion_homog_acb4": "Nous recherchons activement une participation équilibrée et suivons l'équilibre des auteurs dans chaque numéro.",
     "el_detalle_completo_vive_en_los": "Le détail complet se trouve dans les",
     "lineamientos_editoriales": "lignes directrices éditoriales",
-    "la_convocatoria_esta_abierta_estudiantes_de_econ_094a": "L'appel est ouvert : étudiants en économie, économistes diplômés, data scientists et chercheurs en sciences sociales.",
+    "la_convocatoria_esta_abierta_estudiantes_de_econ_094a": "L'appel est ouvert : toute personne peut publier, à condition que sa recherche, son article, son document ou son entretien réponde à une question économique.",
     "publica_tu_articulo": "Publiez votre article",
     "titulo_documento": "À propos · Vértices"
   },

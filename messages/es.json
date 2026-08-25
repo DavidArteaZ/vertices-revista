@@ -315,6 +315,8 @@
     "vertices_revista_academica_de_economia_del_tecno_4187": "Vértices, revista académica de economía del Tecnológico de Monterrey, Campus Ciudad de México",
     "portal_de_envios": "Portal de envíos",
     "envio_de_manuscritos": "Envío de manuscritos",
+    "fecha_limite_primera_edicion": "Fecha límite primera edición",
+    "veinte_de_septiembre_de_2026_los_archivos_recib": ": 20 de septiembre de 2026. Los archivos recibidos después de esta fecha serán tomados en cuenta para la segunda edición.",
     "esta_pagina_necesita_javascript_para_mostrar_la_9e0c": "Esta página necesita JavaScript para mostrar la red de partículas y el portal de envíos."
   },
   "lineamientos": {
@@ -506,9 +508,9 @@
     "vertices_revista_academica_de_economia": "Vértices · Revista académica de economía",
     "acerca_de": "Acerca de",
     "el_punto_donde_las_ideas_se_conectan": "El punto donde las ideas se conectan",
-    "vertices_es_la_revista_estudiantil_de_economia_d_54c4": "Vértices es la revista estudiantil de economía del Tecnológico de Monterrey, Campus Ciudad de México, creada por y para la comunidad de la Licenciatura en Economía (LEC). Nace de una idea sencilla: una revista",
-    "de_economistas_para_economistas": "de economistas para economistas",
-    "rigurosa_en_la_evidencia_y_amable_en_la_lectura": ", rigurosa en la evidencia y amable en la lectura.",
+    "vertices_es_la_revista_estudiantil_de_economia_d_54c4": "Vértices es la revista estudiantil de economía del Tecnológico de Monterrey, Campus Ciudad de México, creada por y para la comunidad de la Licenciatura en Economía (LEC). Nace de una idea sencilla: un espacio",
+    "de_economistas_para_economistas": "para dialogar sobre economía desde distintas perspectivas",
+    "rigurosa_en_la_evidencia_y_amable_en_la_lectura": ", riguroso en la evidencia y amable en la lectura.",
     "somos_un_espacio_de_encuentro_y_convergencia_de_8b80": "Somos un espacio de encuentro y convergencia de ideas, donde el pensamiento crítico, la pluralidad de perspectivas y la conexión entre la teoría económica y los problemas que nos rodean se expresan con claridad, sin jerga innecesaria.",
     "mision": "Misión",
     "el_punto_de_encuentro_del_rigor_y_las_ideas": "El punto de encuentro del rigor y las ideas",
@@ -545,7 +547,7 @@
     "buscamos_de_manera_activa_la_participacion_homog_acb4": "Buscamos de manera activa la participación homogénea y registramos el balance de autoría en cada número.",
     "el_detalle_completo_vive_en_los": "El detalle completo vive en los",
     "lineamientos_editoriales": "lineamientos editoriales",
-    "la_convocatoria_esta_abierta_estudiantes_de_econ_094a": "La convocatoria está abierta: estudiantes de Economía, economistas titulados, científicos de datos y científicos sociales.",
+    "la_convocatoria_esta_abierta_estudiantes_de_econ_094a": "La convocatoria es abierta: puede publicar cualquier persona mientras su investigación, artículo, documento o entrevista responda a una pregunta económica.",
     "publica_tu_articulo": "Publica tu artículo",
     "titulo_documento": "Acerca de · Vértices"
   },

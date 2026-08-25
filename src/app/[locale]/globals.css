@@ -286,6 +286,7 @@
   .panel-envio h2{
     margin:0 0 26px; font:500 clamp(24px,2.6vw,34px)/1.1 var(--f-titulo); color:var(--crema);
   }
+  .fecha-limite{ margin:-14px 0 26px; }
 
   .wiz-pasos{
     display:flex; gap:4px; margin:0 0 30px; padding:0 0 18px; list-style:none;

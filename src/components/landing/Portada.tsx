@@ -61,6 +61,10 @@ export default function Portada({ articulos }: { articulos: Articulo[] }) {
             <div className="panel-envio">
               <p className="ceja">{t("portal_de_envios")}</p>
               <h2>{t("envio_de_manuscritos")}</h2>
+              <p className="fecha-limite">
+                <strong>{t("fecha_limite_primera_edicion")}</strong>
+                {t("veinte_de_septiembre_de_2026_los_archivos_recib")}
+              </p>
               <FormularioEnvio />
             </div>
             <Lateral />

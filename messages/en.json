@@ -315,6 +315,8 @@
     "vertices_revista_academica_de_economia_del_tecno_4187": "Vértices, the academic economics journal of Tecnológico de Monterrey, Mexico City Campus",
     "portal_de_envios": "Submissions portal",
     "envio_de_manuscritos": "Manuscript submission",
+    "fecha_limite_primera_edicion": "First-edition deadline",
+    "veinte_de_septiembre_de_2026_los_archivos_recib": ": September 20, 2026. Files received after this date will be considered for the second edition.",
     "esta_pagina_necesita_javascript_para_mostrar_la_9e0c": "Esta página necesita JavaScript para mostrar la red de partículas y el portal de envíos."
   },
   "lineamientos": {
@@ -506,8 +508,8 @@
     "vertices_revista_academica_de_economia": "Vértices · Academic economics journal",
     "acerca_de": "About us",
     "el_punto_donde_las_ideas_se_conectan": "The point where ideas connect",
-    "vertices_es_la_revista_estudiantil_de_economia_d_54c4": "Vértices is the student economics journal of Tecnológico de Monterrey, Mexico City Campus, created by and for the community of the Economics undergraduate program (LEC). It was born from a simple idea: a journal",
-    "de_economistas_para_economistas": "by economists, for economists",
+    "vertices_es_la_revista_estudiantil_de_economia_d_54c4": "Vértices is the student economics journal of Tecnológico de Monterrey, Mexico City Campus, created by and for the community of the Economics undergraduate program (LEC). It was born from a simple idea: a space",
+    "de_economistas_para_economistas": "to discuss economics from different perspectives",
     "rigurosa_en_la_evidencia_y_amable_en_la_lectura": ", rigorous in evidence and friendly to read.",
     "somos_un_espacio_de_encuentro_y_convergencia_de_8b80": "We are a meeting point where ideas converge, where critical thinking, plurality of perspectives and the connection between economic theory and the problems around us are expressed clearly, without unnecessary jargon.",
     "mision": "Mission",
@@ -545,7 +547,7 @@
     "buscamos_de_manera_activa_la_participacion_homog_acb4": "We actively pursue balanced participation and track the authorship balance in every issue.",
     "el_detalle_completo_vive_en_los": "The full details live in the",
     "lineamientos_editoriales": "editorial guidelines",
-    "la_convocatoria_esta_abierta_estudiantes_de_econ_094a": "The call is open: economics students, degreed economists, data scientists and social scientists.",
+    "la_convocatoria_esta_abierta_estudiantes_de_econ_094a": "The call is open: anyone can publish, as long as their research, article, document, or interview answers an economic question.",
     "publica_tu_articulo": "Submit your article",
     "titulo_documento": "About us · Vértices"
   },

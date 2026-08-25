@@ -315,6 +315,8 @@
     "vertices_revista_academica_de_economia_del_tecno_4187": "Vértices, академический журнал по экономике Технологического института Монтеррея, кампус Мехико",
     "portal_de_envios": "Портал подачи",
     "envio_de_manuscritos": "Подача рукописей",
+    "fecha_limite_primera_edicion": "Крайний срок для первого выпуска",
+    "veinte_de_septiembre_de_2026_los_archivos_recib": ": 20 сентября 2026 года. Файлы, полученные после этой даты, будут рассмотрены для второго выпуска.",
     "esta_pagina_necesita_javascript_para_mostrar_la_9e0c": "Esta página necesita JavaScript para mostrar la red de partículas y el portal de envíos."
   },
   "lineamientos": {
@@ -506,9 +508,9 @@
     "vertices_revista_academica_de_economia": "Vértices · Академический журнал по экономике",
     "acerca_de": "О нас",
     "el_punto_donde_las_ideas_se_conectan": "Точка, где соединяются идеи",
-    "vertices_es_la_revista_estudiantil_de_economia_d_54c4": "Vértices — студенческий журнал по экономике Технологического института Монтеррея, кампус Мехико, созданный сообществом бакалавриата по экономике (LEC) и для него. Он родился из простой идеи: журнал",
-    "de_economistas_para_economistas": "экономистов для экономистов",
-    "rigurosa_en_la_evidencia_y_amable_en_la_lectura": ", строгий в доказательствах и лёгкий в чтении.",
+    "vertices_es_la_revista_estudiantil_de_economia_d_54c4": "Vértices — студенческий журнал по экономике Технологического института Монтеррея, кампус Мехико, созданный сообществом бакалавриата по экономике (LEC) и для него. Он родился из простой идеи: пространство",
+    "de_economistas_para_economistas": "для разговора об экономике с разных точек зрения",
+    "rigurosa_en_la_evidencia_y_amable_en_la_lectura": ", строгое в доказательствах и лёгкое в чтении.",
     "somos_un_espacio_de_encuentro_y_convergencia_de_8b80": "Мы — пространство встречи и слияния идей, где критическое мышление, множественность взглядов и связь между экономической теорией и окружающими нас проблемами выражаются ясно, без лишнего жаргона.",
     "mision": "Миссия",
     "el_punto_de_encuentro_del_rigor_y_las_ideas": "Точка встречи строгости и идей",
@@ -545,7 +547,7 @@
     "buscamos_de_manera_activa_la_participacion_homog_acb4": "Мы активно стремимся к сбалансированному участию и отслеживаем баланс авторства в каждом выпуске.",
     "el_detalle_completo_vive_en_los": "Все подробности живут в",
     "lineamientos_editoriales": "редакционных правилах",
-    "la_convocatoria_esta_abierta_estudiantes_de_econ_094a": "Приём открыт: студенты-экономисты, дипломированные экономисты, специалисты по данным и социальным наукам.",
+    "la_convocatoria_esta_abierta_estudiantes_de_econ_094a": "Приём открыт: опубликовать может кто угодно, если его исследование, статья, документ или интервью отвечают на экономический вопрос.",
     "publica_tu_articulo": "Опубликуйте свою статью",
     "titulo_documento": "О нас · Vértices"
   },
