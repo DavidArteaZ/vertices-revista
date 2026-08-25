@@ -1,24 +1,31 @@
 import "server-only";
-import { mandar, enlaceEstado, type Envio } from "./enviar";
+import { mandar, mandarPlantilla, enlaceEstado, type Envio } from "./enviar";
 
-/**
- * El acuse de recibo (spec §8.4).
- *
- * Nunca hace fallar el envío. Un manuscrito guardado y un correo no entregado
- * es recuperable —el folio se puede reenviar—; devolverle un error al autor lo
- * empujaría a mandar el manuscrito otra vez, y entonces habría dos.
- */
 export type Acuse = {
   a: string;
   nombre: string;
   folio: string;
   titulo: string;
+  seccion: string;
+  genero: string;
   locale: string;
-  /** Origen absoluto, para que el enlace del correo no sea relativo. */
   origen: string;
 };
 
 export function enviarAcuse(a: Acuse): Promise<Envio> {
+  const plantilla = process.env.RESEND_CONFIRMACION_TEMPLATE_ID;
+  if (plantilla) {
+    return mandarPlantilla(a.a, plantilla, {
+      lang: a.locale === "es" ? "es" : "eng",
+      genero: a.genero,
+      seccion: a.seccion,
+      nom_pieza: a.titulo,
+      folio: a.folio,
+    });
+  }
+
+  // El sitio sigue siendo utilizable en desarrollo aunque la plantilla todavía
+  // no esté configurada. En producción basta definir el id publicado de Resend.
   return mandar(a.a, a.locale, (t) => ({
     asunto: t("asunto_acuse", { folio: a.folio }),
     lineas: [
