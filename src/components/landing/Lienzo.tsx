@@ -5,6 +5,34 @@ import { useTranslations } from "next-intl";
 import { crearMotor, type Motor, type TipoNodo } from "@/lib/motor/motor";
 import { useCatalogo } from "@/i18n/catalogo";
 
+/* Los cuatro iconos de la barra de pestañas del teléfono, en el mismo orden
+   que las paradas del riel. En escritorio el punto de 7px se basta solo y
+   globals.css esconde el <svg>; abajo, convertido en pestaña, un punto no
+   dice nada. El trazo, el relleno y el grosor los pone movil.css. */
+const ICONOS = [
+  <g key="vertices">
+    <path d="M12 3 20.5 19.5 3.5 19.5Z" />
+    <path d="M12 3 12.8 13.2 3.5 19.5M12.8 13.2 20.5 19.5" opacity=".55" />
+  </g>,
+  <g key="temas">
+    <circle cx="12" cy="5.4" r="2" />
+    <circle cx="5" cy="16.5" r="2" />
+    <circle cx="19" cy="16.5" r="2" />
+    <path d="M10.7 7.1 6.3 14.8M13.3 7.1 17.7 14.8M7 16.5h10" />
+  </g>,
+  <g key="secciones">
+    <path d="M4 6.5h16M4 12h16M4 17.5h10" />
+  </g>,
+  <g key="publica">
+    <path d="M12 15.5V4.5M8.2 8.3 12 4.5l3.8 3.8" />
+    <path d="M4.5 14.5v3.4a1.6 1.6 0 0 0 1.6 1.6h11.8a1.6 1.6 0 0 0 1.6-1.6v-3.4" />
+  </g>,
+];
+
+const Icono = ({ i }: { i: number }) => (
+  <svg viewBox="0 0 24 24" aria-hidden="true">{ICONOS[i]}</svg>
+);
+
 /**
  * Anfitrión del motor de partículas.
  *
@@ -99,15 +127,14 @@ export default function Lienzo({
       <div id="velo" ref={velo} aria-hidden="true"></div>
 
       <nav className="riel" ref={riel} aria-label={t("progreso_del_recorrido")}>
-        <button data-u="0" className="activo"><i></i><span>{t("vertices")}</span></button>
-        <button data-u="0.48"><i></i><span>{t("temas")}</span></button>
-        <button data-u="0.75"><i></i><span>{t("secciones")}</span></button>
-        <button data-ir="convocatoria"><i></i><span>{t("publica")}</span></button>
+        <button data-u="0" className="activo"><i><Icono i={0} /></i><span>{t("vertices")}</span></button>
+        <button data-u="0.48"><i><Icono i={1} /></i><span>{t("temas")}</span></button>
+        <button data-u="0.75"><i><Icono i={2} /></i><span>{t("secciones")}</span></button>
+        <button data-ir="convocatoria" className="riel--cta"><i><Icono i={3} /></i><span>{t("publica")}</span></button>
       </nav>
 
       {/* capa 1: hero (el lienzo dibuja la palabra al centro; aqui solo margenes) */}
       <div className="capa" id="capaHero" ref={hero}>
-        <div className="pista" aria-hidden="true"><i></i>{t("desplazate_para_explorar")}</div>
         <div className="hero-abajo">
           <p className="hero-etq">{t("revista_academica_de_economia")}<span>{t("tecnologico_de_monterrey_campus_ciudad_de_mexico")}</span>
           </p>
@@ -123,7 +150,8 @@ export default function Lienzo({
         <div className="temas-bloque">
           <p className="ceja">{t("constelacion_de_conocimiento")}</p>
           <h2 className="titulo">{t("explora_por")}{" "}<em>{t("tema")}</em></h2>
-          <p className="bajada">{t("veintisiete_areas_de_la_economia_un_nodo_por_tem_a6a3")}</p>
+          <p className="bajada solo-escritorio">{t("veintisiete_areas_de_la_economia_un_nodo_por_tem_a6a3")}</p>
+          <p className="bajada solo-movil">{t("veintisiete_areas_de_la_economia_toca_un_tema_pa_5b1c")}</p>
           <button className="boton" id="verIndice" type="button" onClick={onVerIndice}>{t("ver_indice_completo")}</button>
         </div>
         <p className="temas-pie">{t("arrastra_para_girar_la_red")}<br />{t("haz_clic_en_un_nodo_para_abrirlo")}</p>
@@ -134,7 +162,8 @@ export default function Lienzo({
         <div className="secciones-bloque">
           <p className="ceja">{t("el_mapa_de_la_revista")}</p>
           <h2 className="titulo">{t("ocho_secciones_un_solo")}{" "}<em>{t("recorrido")}</em></h2>
-          <p className="bajada">{t("de_la_carta_editorial_al_cierre_en_comunidad_pas_7503")}</p>
+          <p className="bajada solo-escritorio">{t("de_la_carta_editorial_al_cierre_en_comunidad_pas_7503")}</p>
+          <p className="bajada solo-movil">{t("de_la_carta_editorial_al_cierre_en_comunidad_toc_9e77")}</p>
         </div>
         {carrusel}
       </div>

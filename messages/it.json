@@ -29,8 +29,8 @@
     "estado_de_tu_envio": "Stato del tuo invio",
     "contacto": "Contatto",
     "vertices_servicios_tec_mx": "vertices@servicios.tec.mx",
-    "instagram_vertices_ccm": "Instagram · @vertices.ccm",
-    "linkedin_vertices_ccm": "LinkedIn · Vértices CCM",
+    "instagram_vertices_tec": "Instagram · @vertices.tec",
+    "linkedin_vertices_revista": "LinkedIn · Vértices Revista",
     "boletin": "Newsletter",
     "recibe_cada_edicion_y_las_convocatorias_en_tu_co_4b97": "Ricevi ogni edizione e le call nella tua casella di posta.",
     "listo_recibiras_la_proxima_edicion_en_tu_correo": "Fatto, riceverai la prossima edizione nella tua casella.",
@@ -39,7 +39,9 @@
     "suscribirme": "Iscrivimi",
     "2026_vertices_tecnologico_de_monterrey_campus_ci_8738": "© 2026 Vértices · Tecnológico de Monterrey, campus di Città del Messico",
     "rigurosa_en_evidencia_amable_en_lectura": "Rigorosa nelle prove, piacevole da leggere ·",
-    "aviso_de_privacidad": "Informativa sulla privacy"
+    "aviso_de_privacidad": "Informativa sulla privacy",
+    "ver_version_de_escritorio": "Vedi la versione desktop",
+    "ver_version_para_telefono": "Ver versión para teléfono"
   },
   "idioma": {
     "idioma": "Lingua"
@@ -59,6 +61,7 @@
     "explora_por": "Esplora per",
     "tema": "tema",
     "veintisiete_areas_de_la_economia_un_nodo_por_tem_a6a3": "Ventisette aree dell'economia, un nodo per tema. Clicca su un nodo per scoprire gli articoli che gli orbitano attorno.",
+    "veintisiete_areas_de_la_economia_toca_un_tema_pa_5b1c": "Ventisette aree dell'economia. Tocca un tema per scoprire gli articoli che gli orbitano attorno.",
     "ver_indice_completo": "Vedi l'indice completo",
     "arrastra_para_girar_la_red": "Trascina per ruotare la rete",
     "haz_clic_en_un_nodo_para_abrirlo": "Clicca su un nodo per aprirlo",
@@ -66,6 +69,7 @@
     "ocho_secciones_un_solo": "Otto sezioni, un solo",
     "recorrido": "percorso",
     "de_la_carta_editorial_al_cierre_en_comunidad_pas_7503": "Dalla lettera editoriale alla chiusura in comunità. Passa il cursore su un nodo per conoscere la sua sezione e clicca per vedere i suoi articoli.",
+    "de_la_carta_editorial_al_cierre_en_comunidad_toc_9e77": "Dalla lettera editoriale alla chiusura in comunità. Tocca una sezione per conoscerla e vedere i suoi articoli.",
     "tienes_una_idea_que_merece": "Hai un'idea che merita di essere",
     "publicarse": "pubblicata",
     "publica_tu_articulo": "Pubblica il tuo articolo",
@@ -76,7 +80,8 @@
     "articulos_destacados": "Articoli in evidenza",
     "anterior": "Precedente",
     "siguiente": "Successivo",
-    "min_de_lectura": "min de lectura"
+    "min_de_lectura": "min de lectura",
+    "ver_articulos": "Vedi gli articoli"
   },
   "convocatoria": {
     "convocatoria_abierta": "Call for papers aperta",

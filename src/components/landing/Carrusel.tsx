@@ -5,6 +5,8 @@ import Link from "next/link";
 import { useTranslations } from "next-intl";
 import type { Articulo } from "@/lib/datos/articulos";
 import { useCatalogo } from "@/i18n/catalogo";
+import { useEsMovil } from "@/lib/dispositivo-cliente";
+import { useCajonDestacados } from "./cajon";
 
 /**
  * Carrusel de artículos destacados. Marcado de index.html:662-671,
@@ -15,11 +17,19 @@ import { useCatalogo } from "@/i18n/catalogo";
  * van a /articulos/[slug], que para las piezas de muestra pinta un vacío
  * definido en vez de no hacer nada. El slug lo trae la fila, no se recalcula:
  * es el mismo que la base tiene como único.
+ *
+ * En teléfono el bloque entero se vuelve un cajón: tapaba la constelación de
+ * secciones, así que asoma a la mitad y se saca con el dedo (ver ./cajon.ts).
  */
 export default function Carrusel({ articulos }: { articulos: Articulo[] }) {
   const t = useTranslations("carrusel");
   const cat = useCatalogo();
+  const zona = useRef<HTMLDivElement>(null);
   const pista = useRef<HTMLDivElement>(null);
+  const tirador = useRef<HTMLButtonElement>(null);
+  const esMovil = useEsMovil();
+
+  useCajonDestacados(zona, pista, tirador, esMovil);
 
   const destacados = articulos.filter((a) => a.dest);
 
@@ -27,7 +37,12 @@ export default function Carrusel({ articulos }: { articulos: Articulo[] }) {
     pista.current?.scrollBy({ left: px, behavior: "smooth" });
 
   return (
-    <div className="carrusel-zona">
+    <div className="carrusel-zona" ref={zona}>
+      {esMovil && (
+        <button className="m-tirador" type="button" ref={tirador} aria-expanded="false">
+          <i></i><span className="sr-solo">{t("ver_articulos")}</span>
+        </button>
+      )}
       <div className="carrusel-cab">
         <p className="ceja">{t("articulos_destacados")}</p>
         <div className="flechas">

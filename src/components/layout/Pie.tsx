@@ -5,6 +5,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { Link } from "@/i18n/navegacion";
 import { LOCALE_POR_DEFECTO } from "@/i18n/rutas";
 import Emblema from "./Emblema";
+import { useCambioDeVista } from "@/lib/dispositivo-cliente";
 
 /**
  * Pie de página. Marcado de index.html:914-959, boletín de :2269-2274.
@@ -18,6 +19,7 @@ export default function Pie({
   style,
 }: { satelite?: boolean; style?: React.CSSProperties } = {}) {
   const t = useTranslations("pie");
+  const { destino, cambiar } = useCambioDeVista();
   const [suscrito, setSuscrito] = useState(false);
   const [correo, setCorreo] = useState("");
 
@@ -70,8 +72,8 @@ export default function Pie({
             <h4>{t("contacto")}</h4>
             <ul>
               <li><a href="mailto:vertices@servicios.tec.mx">{t("vertices_servicios_tec_mx")}</a></li>
-              <li><a href="#" rel="noopener">{t("instagram_vertices_ccm")}</a></li>
-              <li><a href="#" rel="noopener">{t("linkedin_vertices_ccm")}</a></li>
+              <li><a href="https://www.instagram.com/vertices.tec/" target="_blank" rel="noopener">{t("instagram_vertices_tec")}</a></li>
+              <li><a href="https://www.linkedin.com/company/v%C3%A9rtices-revista" target="_blank" rel="noopener">{t("linkedin_vertices_revista")}</a></li>
             </ul>
           </div>
           <div className="boletin">
@@ -96,7 +98,12 @@ export default function Pie({
         </div>
         <div className="pie-legal">
           <span>{t("2026_vertices_tecnologico_de_monterrey_campus_ci_8738")}</span>
-          <span>{t("rigurosa_en_evidencia_amable_en_lectura")}{" "}<a href="#">{t("aviso_de_privacidad")}</a></span>
+          <span>{t("rigurosa_en_evidencia_amable_en_lectura")}{" "}<a href="/aviso-privacidad.pdf" target="_blank" rel="noopener">{t("aviso_de_privacidad")}</a></span>
+          {destino && (
+            <button type="button" className="cambia-vista" onClick={() => cambiar(destino)}>
+              {destino === "escritorio" ? t("ver_version_de_escritorio") : t("ver_version_para_telefono")}
+            </button>
+          )}
         </div>
       </div>
     </footer>

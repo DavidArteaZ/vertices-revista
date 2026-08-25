@@ -29,8 +29,8 @@
     "estado_de_tu_envio": "Statut de votre envoi",
     "contacto": "Contact",
     "vertices_servicios_tec_mx": "vertices@servicios.tec.mx",
-    "instagram_vertices_ccm": "Instagram · @vertices.ccm",
-    "linkedin_vertices_ccm": "LinkedIn · Vértices CCM",
+    "instagram_vertices_tec": "Instagram · @vertices.tec",
+    "linkedin_vertices_revista": "LinkedIn · Vértices Revista",
     "boletin": "Bulletin",
     "recibe_cada_edicion_y_las_convocatorias_en_tu_co_4b97": "Recevez chaque édition et les appels à contributions dans votre boîte mail.",
     "listo_recibiras_la_proxima_edicion_en_tu_correo": "C'est fait, vous recevrez la prochaine édition dans votre boîte mail.",
@@ -39,7 +39,9 @@
     "suscribirme": "M'abonner",
     "2026_vertices_tecnologico_de_monterrey_campus_ci_8738": "© 2026 Vértices · Tecnológico de Monterrey, campus de Mexico",
     "rigurosa_en_evidencia_amable_en_lectura": "Rigoureuse dans les preuves, agréable à lire ·",
-    "aviso_de_privacidad": "Avis de confidentialité"
+    "aviso_de_privacidad": "Avis de confidentialité",
+    "ver_version_de_escritorio": "Voir la version bureau",
+    "ver_version_para_telefono": "Ver versión para teléfono"
   },
   "idioma": {
     "idioma": "Langue"
@@ -59,6 +61,7 @@
     "explora_por": "Explorez par",
     "tema": "thème",
     "veintisiete_areas_de_la_economia_un_nodo_por_tem_a6a3": "Vingt-sept domaines de l'économie, un nœud par thème. Cliquez sur un nœud pour découvrir les articles qui gravitent autour.",
+    "veintisiete_areas_de_la_economia_toca_un_tema_pa_5b1c": "Vingt-sept domaines de l'économie. Touchez un thème pour voir les articles qui gravitent autour.",
     "ver_indice_completo": "Voir l'index complet",
     "arrastra_para_girar_la_red": "Faites glisser pour tourner le réseau",
     "haz_clic_en_un_nodo_para_abrirlo": "Cliquez sur un nœud pour l'ouvrir",
@@ -66,6 +69,7 @@
     "ocho_secciones_un_solo": "Huit sections, un seul",
     "recorrido": "parcours",
     "de_la_carta_editorial_al_cierre_en_comunidad_pas_7503": "De la lettre éditoriale à la clôture communautaire. Survolez un nœud pour découvrir sa section et cliquez pour voir ses articles.",
+    "de_la_carta_editorial_al_cierre_en_comunidad_toc_9e77": "De la lettre éditoriale à la clôture communautaire. Touchez une section pour la découvrir et voir ses articles.",
     "tienes_una_idea_que_merece": "Une idée qui mérite d'être",
     "publicarse": "publiée",
     "publica_tu_articulo": "Publiez votre article",
@@ -76,7 +80,8 @@
     "articulos_destacados": "Articles à la une",
     "anterior": "Précédent",
     "siguiente": "Suivant",
-    "min_de_lectura": "min de lectura"
+    "min_de_lectura": "min de lectura",
+    "ver_articulos": "Voir les articles"
   },
   "convocatoria": {
     "convocatoria_abierta": "Appel à contributions ouvert",

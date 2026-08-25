@@ -6,22 +6,23 @@ import { Link } from "@/i18n/navegacion";
 import { LOCALE_POR_DEFECTO } from "@/i18n/rutas";
 import SelectorIdioma from "./SelectorIdioma";
 import Emblema from "./Emblema";
+import { useBarraQueSeAparta } from "./barra";
 
 /**
- * Marco fijo: marca y navegación en los márgenes.
+ * Marco fijo: la cápsula de vidrio que flota sobre el contenido.
  * Marcado de index.html:597-620, comportamiento del menú de :2389-2400.
  *
  * Los anclas internas (#temas, #secciones, #convocatoria, #estado) y sus
  * atributos data-u / data-ir se conservan intactos: el motor los lee en su
  * manejador delegado de clic.
  */
-export default function Marco({
-  satelite = false,
-  style,
-}: { satelite?: boolean; style?: React.CSSProperties } = {}) {
+export default function Marco({ satelite = false }: { satelite?: boolean } = {}) {
   const t = useTranslations("marco");
   const [abierto, setAbierto] = useState(false);
   const nav = useRef<HTMLElement>(null);
+  const barra = useRef<HTMLElement>(null);
+
+  useBarraQueSeAparta(barra, abierto);
 
   // En la landing las anclas llevan data-u / data-ir y las gobierna el motor.
   // En las páginas satélite no hay motor, así que apuntan a la raíz con hash
@@ -42,7 +43,7 @@ export default function Marco({
   }, []);
 
   return (
-    <header className="marco" style={style}>
+    <header className="marco" ref={barra}>
       {satelite ? (
         <Link className="marca" href="/">
           <Emblema />
@@ -77,6 +78,7 @@ export default function Marco({
           <a className="enlace" href={a("#estado")} {...datos({ "data-ir": "estado" })}>{t("estado_de_tu_envio")}</a>
           <Link className="enlace solo-angosto" href="/quienes-somos">{t("acerca_de")}</Link>
           <Link className="enlace solo-angosto" href="/equipo">{t("conoce_al_equipo")}</Link>
+          <a className="enlace solo-estrecho" href={a("#envio")} {...datos({ "data-ir": "envio" })}>{t("publica_tu_articulo")}</a>
         </div>
       </nav>
     </header>

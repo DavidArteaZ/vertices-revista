@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { Link } from "@/i18n/navegacion";
 import { useTranslations } from "next-intl";
 import "./equipo.css";
+import "../movil.css";
 
 /**
  * Página en construcción del equipo. Portada de equipo-ds.html:31-39.

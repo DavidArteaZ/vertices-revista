@@ -8,6 +8,10 @@ import { useEffect, useRef } from "react";
  * tinta; cada cuadro repinta un velo crema translúcido, así las estelas se
  * acumulan en curvas largas y continuas. Portado de fondo-flujo.js.
  *
+ * El dibujo dura diez segundos y se congela: pasado ese punto el mapa ya está
+ * formado. En teléfono ni siquiera se anima —se acumula de una pasada— y la
+ * densidad baja de 1800 partículas a 240.
+ *
  * ÚNICO cambio real del stage: el original antepone su lienzo al <body> y
  * después recorre document.body.children asignando position/z-index en línea
  * a TODOS los hermanos (fondo-flujo.js:9-20). Bajo Next ese conjunto incluye
@@ -21,14 +25,24 @@ const CREMA = [231, 222, 203];
 const TINTA = "45,35,46";
 const ACENTOS = ["77,77,250", "253,99,67", "119,118,207"];
 
-const VELO = 0.002;
-const OP_TINTA = 0.02;
-const OP_LIDER = 0.045;
-const OP_ACENTO = 0.05;
+const VELO = 0.035;       // velo crema por cuadro: casi nulo = estelas casi permanentes
+const OP_TINTA = 0.018;   // trazos finos (el estipulado de fondo)
+const OP_LIDER = 0.035;   // trazos líderes (curvas largas y visibles)
+const OP_ACENTO = 0.045;  // trazos con destello de color
 const PROB_LIDER = 0.25;
 const PROB_ACENTO = 0.04;
 const VIDA_MIN = 500,
   VIDA_MAX = 1300;
+
+/* El fondo tiene principio y fin. Se dibuja durante diez segundos y se
+   congela: pasado ese punto el mapa ya está formado y seguir animándolo no
+   añade nada, sólo gasta batería. El presupuesto va por TIEMPO REAL y no por
+   cuadros, para que sean diez segundos exactos vaya la pantalla a 60Hz o a
+   120Hz; el último tramo sólo aclara, sin tinta nueva, así el fondo converge
+   a un estado más claro antes de quedarse quieto. */
+const DURACION_ANIMACION_MS = 10000;
+const DURACION_ENFRIAMIENTO_MS = 1500;
+const DURACION_DIBUJO_MS = DURACION_ANIMACION_MS - DURACION_ENFRIAMIENTO_MS;
 
 type Particula = {
   x: number; y: number; px: number; py: number;
@@ -43,11 +57,18 @@ export default function FondoFlujo() {
     if (!lienzo) return;
     const ctx = lienzo.getContext("2d")!;
     const quieto = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    /* En teléfono el campo se acumula una vez y el bucle no arranca: la
+       textura se ve igual —el campo está congelado, las estelas sólo se van
+       sumando— y el aparato no gasta batería animando un fondo durante toda
+       la visita. */
+    const movil = !!window.VERTICES_MOVIL;
+    const estatico = quieto || movil;
 
     let W = 0, H = 0, dpr = 1;
     let particulas: Particula[] = [];
     let raf = 0;
     let ultimo = 0;
+    let inicioMs = 0;
     let temporizador: ReturnType<typeof setTimeout>;
 
     function medir() {
@@ -82,15 +103,25 @@ export default function FondoFlujo() {
     }
 
     function siembra() {
-      const n = Math.round(Math.min(4200, Math.max(900, (W * H) / 430)));
+      // densidad moderada: el techo de 4200 cubría casi toda la pantalla de
+      // tinta en pocos cuadros. En teléfono baja todavía más —menos
+      // partículas, menos batería— porque además el mapa se acumula de una
+      // sola pasada.
+      const n = movil
+        ? Math.round(Math.min(240, Math.max(180, (W * H) / 1300)))
+        : Math.round(Math.min(1800, Math.max(500, (W * H) / 900)));
       particulas = Array.from({ length: n }, () => nace({}));
       particulas.forEach((p) => { p.vida = (p.vida * Math.random()) | 0; });
     }
 
-    function paso(dt: number) {
+    // dibujando=false → fase de enfriamiento: sólo se aplica el velo, sin
+    // añadir tinta nueva
+    function paso(dt: number, dibujando: boolean) {
       ctx.globalAlpha = 1;
       ctx.fillStyle = `rgba(${CREMA.join(",")},${VELO})`;
       ctx.fillRect(0, 0, W, H);
+
+      if (!dibujando) return;
 
       ctx.lineCap = "round";
       for (const p of particulas) {
@@ -115,7 +146,13 @@ export default function FondoFlujo() {
     function ciclo(ms: number) {
       const dt = Math.min(0.05, (ms - ultimo) / 1000 || 0.016);
       ultimo = ms;
-      paso(dt);
+
+      const transcurrido = ms - inicioMs;
+      paso(dt, transcurrido < DURACION_DIBUJO_MS);
+
+      // se cumplieron los 10s: el último cuadro pintado queda fijo
+      if (transcurrido >= DURACION_ANIMACION_MS) return;
+
       raf = requestAnimationFrame(ciclo);
     }
 
@@ -145,16 +182,32 @@ export default function FondoFlujo() {
       }
       medir();
       siembra();
-      if (quieto) {
-        // acumula un mapa de flujo estático y se detiene
-        for (let i = 0; i < 1100; i++) paso(0.033);
+      if (estatico) {
+        // sin animar: reproduce igual el presupuesto de 10s de golpe y se
+        // queda en el estado final ya aclarado. En teléfono se recorta la fase
+        // de dibujo (el enfriamiento no): el mapa ya viene con muchas menos
+        // partículas, así que no hace falta acumular tanto.
+        const dtFijo = 0.033;
+        const cuadrosDibujo = Math.round(
+          (DURACION_DIBUJO_MS * (movil ? 0.55 : 1)) / (dtFijo * 1000),
+        );
+        const cuadrosEnfriamiento = Math.round(DURACION_ENFRIAMIENTO_MS / (dtFijo * 1000));
+        for (let i = 0; i < cuadrosDibujo; i++) paso(dtFijo, true);
+        for (let i = 0; i < cuadrosEnfriamiento; i++) paso(dtFijo, false);
         return;
       }
       ultimo = performance.now();
+      inicioMs = ultimo;
       raf = requestAnimationFrame(ciclo);
     }
 
+    let anchoPrevio = innerWidth;
     const alRedimensionar = () => {
+      // la barra de URL del teléfono entra y sale al desplazarse, y cada
+      // cambio de alto dispara resize: si eso recalculara el mapa, el fondo
+      // parpadearía en cada gesto. Sólo se rehace al girar el aparato.
+      if (movil && innerWidth === anchoPrevio) return;
+      anchoPrevio = innerWidth;
       clearTimeout(temporizador);
       temporizador = setTimeout(arranca, 200);
     };

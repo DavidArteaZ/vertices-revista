@@ -86,3 +86,113 @@ body{ font:400 16px/1.7 var(--f-ui); color:var(--texto); -webkit-font-smoothing:
   color:var(--hueso); text-decoration:none;
 }
 .art-volver a:hover{ color:var(--crema); }
+
+/* ------- cromo compartido: la barra flotante y el pie -------
+ *
+ * La página monta <Marco satelite> y <Pie satelite> como el resto de las
+ * satélites, pero esta hoja nunca definió sus clases: la barra se veía como
+ * una fila de texto suelto y el pie sin rejilla ni separadores. Se traen aquí
+ * con las variables que esta hoja declara, igual que quienes-somos.css y
+ * lineamientos.css traen las suyas: cada satélite es un documento autónomo y
+ * no ve el CSS de las demás. */
+
+.marco{
+  /* Flotante, al modo iOS 26: despegada de los tres bordes y en cápsula. */
+  position:fixed; z-index:50;
+  top:14px; left:max(16px, 3vw); right:max(16px, 3vw);
+  border-radius:999px;
+  display:flex; justify-content:space-between; align-items:center;
+  padding:12px 18px 12px 26px;
+  /* Vidrio: tinte translúcido, desenfoque CON saturación —sin ella queda
+     lechoso— y el filo iluminado más la sombra, que son los que le dan grosor. */
+  background:linear-gradient(rgba(238,231,215,.86), rgba(231,222,203,.76));
+  backdrop-filter:blur(30px) saturate(180%);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.7),
+    inset 0 0 0 1px rgba(255,255,255,.26),
+    0 12px 32px -14px rgba(45,35,46,.34),
+    0 3px 10px -6px rgba(45,35,46,.22);
+  /* se esconde al bajar y vuelve al subir; lo gobierna useBarraQueSeAparta */
+  transition:transform .34s cubic-bezier(.32,.72,.28,1);
+}
+@supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){
+  .marco{ background:linear-gradient(rgba(231,222,203,.97), rgba(231,222,203,.9)); }
+}
+.marco--fuera{ transform:translateY(calc(-100% - 26px)); }
+@media (prefers-reduced-motion: reduce){
+  .marco{ transition:none; }
+}
+.marca{ display:flex; align-items:center; gap:12px; text-decoration:none; color:var(--crema); }
+.emblema{ width:26px; height:26px; color:var(--crema); }
+.marca span{ font:600 14px var(--f-ui); letter-spacing:.34em; text-transform:uppercase; transform:translateY(1px); }
+.marco nav{ position:relative; display:flex; align-items:center; gap:20px; }
+.marco nav a.enlace{
+  font:500 11.5px var(--f-ui); letter-spacing:.18em; text-transform:uppercase; white-space:nowrap;
+  color:var(--hueso); text-decoration:none; opacity:.85; transition:opacity .2s, color .2s;
+}
+.marco nav a.enlace:hover{ opacity:1; color:var(--crema); }
+
+.menu-boton{
+  width:42px; height:42px; flex:none; cursor:pointer; background:transparent;
+  border:1px solid var(--linea); border-radius:999px;
+  display:flex; flex-direction:column; justify-content:center; align-items:center; gap:4.5px;
+  transition:border-color .25s;
+}
+.menu-boton:hover{ border-color:var(--linea-fuerte); }
+.menu-boton i{ display:block; width:16px; height:1.5px; background:var(--crema); border-radius:2px; transition:transform .3s, opacity .25s; }
+nav.abierto .menu-boton i:nth-child(1){ transform:translateY(6px) rotate(45deg); }
+nav.abierto .menu-boton i:nth-child(2){ opacity:0; }
+nav.abierto .menu-boton i:nth-child(3){ transform:translateY(-6px) rotate(-45deg); }
+.menu-panel{
+  position:absolute; top:calc(100% + 12px); right:0; min-width:250px;
+  display:flex; flex-direction:column; padding:10px 8px;
+  border:1px solid var(--linea); border-radius:16px;
+  background:rgba(252,248,240,.94); backdrop-filter:blur(18px);
+  box-shadow:0 18px 44px rgba(45,35,46,.14);
+  opacity:0; transform:translateY(-8px); pointer-events:none;
+  transition:opacity .3s, transform .3s;
+}
+nav.abierto .menu-panel{ opacity:1; transform:none; pointer-events:auto; }
+.menu-panel a.enlace{ padding:12px 18px; border-radius:10px; }
+.menu-panel a.enlace:hover{ background:rgba(45,35,46,.06); }
+@media (max-width:560px){ .marca span{ display:none; } }
+
+.menu-panel .solo-angosto,
+.menu-panel .solo-estrecho{ display:none; }
+@media (max-width:940px){
+  .marco nav > .enlace-bar, .marco nav > .boton-bar{ display:none; }
+  .menu-panel .solo-angosto{ display:block; }
+}
+@media (max-width:560px){
+  .marco nav > .boton--lleno{ display:none; }
+  .menu-panel .solo-estrecho{ display:block; }
+}
+
+footer.pie{
+  margin-top:10vh; border-top:1px solid var(--linea);
+  background:rgba(224,213,191,.8); backdrop-filter:blur(18px);
+}
+.pie-int{ width:min(1180px,92vw); margin:0 auto; padding:64px 0 34px; }
+.pie-rejilla{ display:grid; grid-template-columns:1.5fr 1fr 1fr 1.3fr; gap:36px; margin-bottom:56px; }
+.pie h4{ margin:0 0 16px; font:500 11px var(--f-ui); letter-spacing:.26em; text-transform:uppercase; color:var(--gris); }
+.pie-marca p{ margin:14px 0 0; font-size:13.5px; line-height:1.65; max-width:34ch; }
+.pie ul{ list-style:none; margin:0; padding:0; }
+.pie ul li{ margin-bottom:10px; }
+.pie ul a{ font-size:13.5px; color:var(--hueso); text-decoration:none; transition:color .2s; }
+.pie ul a:hover{ color:var(--crema); }
+.boletin p{ margin:0 0 14px; font-size:13.5px; }
+.boletin form{ display:flex; gap:8px; }
+.boletin input{
+  flex:1; min-width:0; padding:12px 14px; color:var(--crema); font:400 14px var(--f-ui);
+  background:rgba(45,35,46,.05); border:1px solid var(--linea); border-radius:10px;
+}
+.boletin input:focus{ outline:none; border-color:var(--indigo); }
+.pie-legal{
+  display:flex; justify-content:space-between; gap:18px; flex-wrap:wrap;
+  padding-top:22px; border-top:1px solid var(--linea);
+  font-size:11.5px; letter-spacing:.05em; color:var(--gris);
+}
+.pie-legal a{ color:var(--gris); }
+.pie-legal a:hover{ color:var(--crema); }
+@media (max-width:980px){ .pie-rejilla{ grid-template-columns:1fr 1fr; } }
+@media (max-width:640px){ .pie-rejilla{ grid-template-columns:1fr; } }

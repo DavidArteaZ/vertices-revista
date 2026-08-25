@@ -3,6 +3,8 @@ import { notFound } from "next/navigation";
 import { hasLocale, NextIntlClientProvider } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { routing } from "@/i18n/rutas";
+import { GUION_DISPOSITIVO } from "@/lib/dispositivo";
+import Vista from "@/components/layout/Vista";
 import "./selector-idioma.css";
 
 /**
@@ -59,13 +61,34 @@ export default async function RootLayout({
   setRequestLocale(locale);
 
   return (
-    <html lang={locale}>
+    // El guion del <head> estampa data-disp en <html> antes de hidratar, y React
+    // compara ese atributo con el que él mismo renderizó. La supresión llega
+    // sólo a este elemento —ni a sus hijos ni a su contenido—, así que un
+    // desajuste de verdad más adentro sigue avisando.
+    <html lang={locale} suppressHydrationWarning>
       <head>
+        {/*
+          Resuelve si toca la versión de teléfono y lo estampa en
+          <html data-disp> ANTES de pintar. Por eso es un <script> en línea y
+          síncrono en el <head>, y no un efecto ni un <Script> de Next: si
+          llegara después del primer cuadro, un teléfono alcanzaría a dibujar
+          la maqueta de escritorio y se vería el parpadeo.
+
+          React sólo ejecuta este script al renderizar en el servidor; en un
+          render de cliente ni corre ni conserva el atributo. De eso se encarga
+          <Vista />, abajo. En desarrollo React avisa por consola de este
+          script — es ruido conocido, no aparece en producción, y se produce
+          igual con `next/script` porque el aviso lo dispara el elemento, no
+          quién lo pone.
+        */}
+        <script dangerouslySetInnerHTML={{ __html: GUION_DISPOSITIVO }} />
         <link rel="preload" href="/fonts/NeueMontreal-Medium.woff2" as="font" type="font/woff2" crossOrigin="" />
         <link rel="preload" href="/fonts/NeueMontreal-Bold.woff2" as="font" type="font/woff2" crossOrigin="" />
         <link rel="preload" href="/fonts/Garet-Book.woff2" as="font" type="font/woff2" crossOrigin="" />
       </head>
       <body>
+        {/* repone data-disp cuando React remonta <html>; ver Vista.tsx */}
+        <Vista />
         <NextIntlClientProvider>{children}</NextIntlClientProvider>
       </body>
     </html>
