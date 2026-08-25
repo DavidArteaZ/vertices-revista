@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useRef, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { useCatalogo } from "@/i18n/catalogo";
@@ -198,7 +199,10 @@ export default function FormularioEnvio() {
         </div>
         <div className="fila2 campo">
           <div>
-            <label htmlFor="seccion">{t("seccion_sugerida")}</label>
+            <div className="etiqueta-fila">
+              <label htmlFor="seccion">{t("seccion_sugerida")}</label>
+              <Link href="/lineamientos#secciones" className="enlace-secciones">{t("consulta_las_secciones")}</Link>
+            </div>
             <select id="seccion" name="seccion" value={datos.seccion} onChange={(e) => set("seccion", e.target.value)}>
               <option value="">{t("elige_una_seccion")}</option>
               {SECTIONS.map((s) => <option key={s.label} value={s.label}>{seccion(s.label)}</option>)}
