@@ -46,11 +46,6 @@ export default function FormularioEnvio() {
   const [enviando, setEnviando] = useState<Progreso | null>(null);
   const [sobre, setSobre] = useState(false);
   const input = useRef<HTMLInputElement>(null);
-  // Casillas informativas del Paso 4: no forman parte de DatosEnvio ni de la
-  // validación compartida con el servidor (src/lib/validacion.ts), a
-  // propósito. Son de solo lectura/registro visual por ahora.
-  const [aceptaTerminos, setAceptaTerminos] = useState(false);
-  const [aceptaCesionImagen, setAceptaCesionImagen] = useState(false);
 
   const set = <K extends keyof DatosEnvio>(k: K, val: DatosEnvio[K]) =>
     setDatos((d) => ({ ...d, [k]: val }));
@@ -298,7 +293,7 @@ export default function FormularioEnvio() {
         <label className="decl"><input type="checkbox" id="d3" checked={datos.d3} onChange={(e) => set("d3", e.target.checked)} /><span>{t("acepto_el_proceso_de_dictaminacion_doble_ciego_y_53cf")}</span></label>
         <label className="decl"><input type="checkbox" id="d4" checked={datos.d4} onChange={(e) => set("d4", e.target.checked)} /><span>{t("autorizo_la_publicacion_del_texto_en_la_edicion_adff")}</span></label>
         <label className="decl">
-          <input type="checkbox" id="aceptaTerminos" checked={aceptaTerminos} onChange={(e) => setAceptaTerminos(e.target.checked)} />
+          <input type="checkbox" id="d5" checked={datos.d5} onChange={(e) => set("d5", e.target.checked)} />
           <span>
             {t("he_leido_y_acepto_los_")}
             <a className="enlace-legal" href="/documentos/terminos-condiciones-privacidad-autores.pdf" target="_blank" rel="noopener noreferrer" download>{t("terminos_condiciones_y_el_aviso_de_privacidad_pa")}</a>
@@ -306,7 +301,7 @@ export default function FormularioEnvio() {
           </span>
         </label>
         <label className="decl">
-          <input type="checkbox" id="aceptaCesionImagen" checked={aceptaCesionImagen} onChange={(e) => setAceptaCesionImagen(e.target.checked)} />
+          <input type="checkbox" id="d6" checked={datos.d6} onChange={(e) => set("d6", e.target.checked)} />
           <span>
             {t("he_leido_y_acepto_la_")}
             <a className="enlace-legal" href="/documentos/cesion-derechos-uso-imagen.pdf" target="_blank" rel="noopener noreferrer" download>{t("cesion_de_derechos_de_uso_de_imagen")}</a>

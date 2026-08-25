@@ -211,14 +211,19 @@ export async function POST(req: Request) {
           coautores: datos.coautores.trim(),
           genero: datos.genero.trim(),
         },
-        // §8: las cuatro declaraciones se guardan, con la versión del texto
+        // §8: las declaraciones se guardan, con la versión del texto
         // que el autor aceptó. d4 es la licencia de publicación y §9 copia el
-        // PDF a un bucket público; tiene que existir constancia.
+        // PDF a un bucket público; tiene que existir constancia. d2 quedó
+        // opcional (ver VERSION_DECLARACIONES); d5/d6 son obligatorias desde
+        // esa misma versión: aceptación de Términos/Aviso de Privacidad y de
+        // la Cesión de derechos de uso de imagen.
         declaraciones: {
           d1: datos.d1,
           d2: datos.d2,
           d3: datos.d3,
           d4: datos.d4,
+          d5: datos.d5,
+          d6: datos.d6,
           perfil: datos.perfil,
           version: VERSION_DECLARACIONES,
         },
@@ -296,8 +301,11 @@ export async function POST(req: Request) {
 }
 
 /**
- * Versión del texto de las declaraciones. Se guarda junto a los cuatro
- * booleanos porque "el autor aceptó" no significa nada sin saber qué aceptó, y
- * el texto va a cambiar. Súbela cuando cambie la redacción de las casillas.
+ * Versión del texto de las declaraciones. Se guarda junto a los booleanos
+ * porque "el autor aceptó" no significa nada sin saber qué aceptó, y el
+ * texto va a cambiar. Súbela cuando cambie la redacción o el conjunto de
+ * casillas (2026-08-25: d2 pasó a opcional; se agregaron d5 y d6 —
+ * Términos/Aviso de Privacidad y Cesión de derechos de uso de imagen—,
+ * ambas obligatorias).
  */
-const VERSION_DECLARACIONES = "2026-08-21";
+const VERSION_DECLARACIONES = "2026-08-25";

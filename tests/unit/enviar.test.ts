@@ -25,7 +25,7 @@ const DATOS: DatosEnvio = {
   resumen: Array.from({ length: 120 }, (_, i) => `palabra${i}`).join(" "),
   claves: "a, b, c",
   usoIA: "No",
-  d1: true, d2: true, d3: true, d4: true,
+  d1: true, d2: true, d3: true, d4: true, d5: true, d6: true,
 };
 
 const archivo = (nombre = "manuscrito.pdf") =>

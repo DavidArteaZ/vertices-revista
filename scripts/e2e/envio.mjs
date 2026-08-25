@@ -106,7 +106,7 @@ const datos = {
   resumen: Array.from({ length: 130 }, (_, i) => `palabra${i}`).join(" "),
   claves: "inflación, tipo de cambio, tasas",
   usoIA: "No",
-  d1: true, d2: true, d3: true, d4: true,
+  d1: true, d2: true, d3: true, d4: true, d5: true, d6: true,
 };
 
 const archivos = [{ path: firmada.path, nombre: "Mi Manuscrito.PDF", bytes: bytes.length }];
@@ -133,7 +133,7 @@ const { data: fila } = await sb
 comprueba("Horizonte Global + Paper enruta a Nivel A", fila.nivel, "A");
 comprueba("y al instrumento de Miradas Económicas", fila.secciones?.slug, "miradas-economicas");
 comprueba("es_investigacion se deriva del tipo, no del cuerpo", fila.es_investigacion, true);
-comprueba("las cuatro declaraciones quedan guardadas", [fila.declaraciones.d1, fila.declaraciones.d2, fila.declaraciones.d3, fila.declaraciones.d4], [true, true, true, true]);
+comprueba("las declaraciones obligatorias quedan guardadas", [fila.declaraciones.d1, fila.declaraciones.d3, fila.declaraciones.d4, fila.declaraciones.d5, fila.declaraciones.d6], [true, true, true, true, true]);
 comprueba("con la versión del texto aceptado", typeof fila.declaraciones.version, "string");
 
 const { data: adjuntos } = await sb
