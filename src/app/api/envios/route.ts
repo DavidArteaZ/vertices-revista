@@ -1,10 +1,13 @@
 import { randomUUID } from "node:crypto";
+import { PDFDocument } from "pdf-lib";
 import { servidor, BUCKET_PRIVADO } from "@/lib/supabase/servidor";
 import { bitacora, cuerpoJson, huellaIp, json } from "@/lib/api/peticion";
 import { catalogos } from "@/lib/datos/catalogos";
-import { reconocer, MIME } from "@/lib/archivos/formato";
+import { tipoDeSeccion, esRolArchivo, type RolArchivo } from "@/lib/datos/portal-envios";
+import { reconocer, MIME, type Formato } from "@/lib/archivos/formato";
 import { limpiar } from "@/lib/archivos/limpiar";
 import { enviarAcuse } from "@/lib/correo/acuse";
+import { guardarContacto } from "@/lib/correo/contacto";
 import {
   validarEnvio,
   vacio,
@@ -16,39 +19,42 @@ import {
 import { LOCALES, LOCALE_POR_DEFECTO } from "@/i18n/rutas";
 import type { RespuestaCrearEnvio } from "@/lib/supabase/tipos";
 
-/**
- * Registrar un envío (spec §8).
- *
- * Lo que este endpoint NO tiene es el respaldo del sitio actual, que ante un
- * fallo de escritura inventaba un folio y enseñaba la pantalla de éxito
- * (index.html:2172-2175). Es el defecto que motivó toda la reescritura: el
- * autor se iba tranquilo y el manuscrito no existía en ninguna parte. Aquí, o
- * hay folio o hay error.
- *
- * El orden importa. Los archivos se limpian ANTES de crear la fila, porque un
- * archivo que no se puede leer o que no es lo que dice ser tiene que impedir
- * el envío; y la fila se crea ANTES de mandar el correo, porque el correo
- * puede fallar sin que eso vuelva inválido el registro.
- */
-
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
-// Descargar, reescribir y volver a subir hasta cinco archivos de 20 MB no cabe
-// en el tiempo de una función por omisión.
 export const maxDuration = 60;
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
+const IMAGENES = new Set<Formato>(["jpeg", "png", "webp"]);
 
 const AVISO = {
   limite: "demasiados_intentos",
   servidor: "no_pudimos_registrar_tu_envio",
   archivos: "puedes_adjuntar_como_maximo_5_archivos",
   total: "entre_todos_los_archivos_se_pasan_de_50_mb",
-  formato: "a_no_es_un_pdf_ni_un_documento_de_word",
+  formato: "portal_archivo_tipo",
   subida: "no_pudimos_subir_a",
+  paginas: "portal_miradas_paper_max_35_paginas",
 } as const;
 
-type ArchivoEntrante = { path: string; nombre: string; bytes: number };
+type ArchivoEntrante = { path: string; nombre: string; bytes: number; rol: RolArchivo };
+
+function formatoPermitido(rol: RolArchivo, formato: Formato): boolean {
+  if (rol === "foto" || rol === "visualizacion") return IMAGENES.has(formato);
+  return formato === "pdf";
+}
+
+function resumenEditorial(d: DatosEnvio): string {
+  switch (d.seccion) {
+    case "Datanomics": return d.campos.textoExplicativo.trim();
+    case "La Voz de la Experiencia": return d.campos.semblanza.trim();
+    case "Miradas Económicas": return d.campos.resumen.trim();
+    case "Horizonte Global": return d.campos.resumen.trim();
+    case "¿Sabías Qué?": return d.campos.dato.trim();
+    case "Capital Social": return d.campos.cronica.trim();
+    case "Excelencia en Acción": return `${d.campos.semblanza.trim()}\n\n${d.campos.cronica.trim()}`.trim();
+    default: return "";
+  }
+}
 
 export async function POST(req: Request) {
   const log = bitacora("POST /api/envios");
@@ -64,8 +70,6 @@ export async function POST(req: Request) {
       return json({ aviso: AVISO.servidor }, 400);
     }
 
-    // El cupo se comprueba antes de tocar Storage: descargar y reescribir
-    // cinco archivos es la parte cara y no debe poder provocarse en bucle.
     const { data: permitido, error: eLimite } = await sb.rpc("limitar", {
       p_clave: `envio:${ip}`,
       p_segundos: 3600,
@@ -75,22 +79,19 @@ export async function POST(req: Request) {
       log.error("rpc_limitar", { error: eLimite.message });
       return json({ aviso: AVISO.servidor }, 500);
     }
-    if (!permitido) {
-      log.info("limitado");
-      return json({ aviso: AVISO.limite }, 429);
-    }
+    if (!permitido) return json({ aviso: AVISO.limite }, 429);
 
-    // ------------------------------------------------------------- validación
-    // Las mismas reglas que el asistente, aplicadas donde no se pueden saltar.
-    const datos: DatosEnvio = { ...vacio, ...cuerpo.datos };
+    const datos: DatosEnvio = {
+      ...vacio,
+      ...cuerpo.datos,
+      campos: { ...vacio.campos, ...(cuerpo.datos.campos ?? {}) },
+    };
     const archivos = cuerpo.archivos.filter(
       (a): a is ArchivoEntrante =>
-        typeof a?.path === "string" &&
-        UUID.test(a.path) &&
+        typeof a?.path === "string" && UUID.test(a.path) &&
         typeof a?.nombre === "string" &&
-        typeof a?.bytes === "number" &&
-        a.bytes > 0 &&
-        a.bytes <= MAX_BYTES,
+        typeof a?.bytes === "number" && a.bytes > 0 && a.bytes <= MAX_BYTES &&
+        typeof a?.rol === "string" && esRolArchivo(a.rol),
     );
 
     if (archivos.length !== cuerpo.archivos.length || archivos.length > MAX_ARCHIVOS) {
@@ -102,36 +103,31 @@ export async function POST(req: Request) {
 
     const invalido = validarEnvio(
       datos,
-      archivos.map((a) => ({ name: a.nombre, size: a.bytes })),
+      archivos.map((a) => ({ name: a.nombre, size: a.bytes, rol: a.rol })),
     );
     if (invalido) {
       log.info("invalido", { aviso: invalido.clave });
       return json({ aviso: invalido.clave, valores: invalido.valores }, 400);
     }
 
-    // ------------------------------------------------------------- catálogos
     const cat = await catalogos();
     const seccionId = cat.secciones.get(datos.seccion.trim());
-    const tipoId = cat.tipos.get(datos.formato.trim());
+    const tipoNombre = tipoDeSeccion(datos.seccion.trim());
+    const tipoId = tipoNombre ? cat.tipos.get(tipoNombre) : null;
     const temaId = cat.temas.get(datos.tema.trim());
 
     if (!seccionId || !tipoId) {
-      log.error("catalogo_no_resuelve", { seccion: datos.seccion, tipo: datos.formato });
+      log.error("catalogo_no_resuelve", { seccion: datos.seccion, tipo: tipoNombre });
       return json({ aviso: AVISO.servidor }, 400);
     }
 
-    // -------------------------------------------------- formato y metadatos
-    // Aquí es donde el servidor ve los bytes por primera vez: la subida fue
-    // directa del navegador a Storage. Por eso el reconocimiento de formato y
-    // la limpieza viven en esta ruta y no en /api/uploads.
     const preparados: {
-      /** La ruta firmada. Es el ticket que crear_envio valida y consume. */
       subida_path: string;
-      /** Donde vive el archivo ya limpio. Es la que se guarda. */
       storage_path: string;
       nombre_original: string;
       mime: string;
       bytes: number;
+      rol: RolArchivo;
       limpio: boolean;
       motivo?: string;
     }[] = [];
@@ -145,20 +141,21 @@ export async function POST(req: Request) {
 
       const crudos = new Uint8Array(await blob.arrayBuffer());
       const formato = reconocer(crudos);
-      if (!formato) {
-        log.info("formato_rechazado", { nombre: a.nombre });
-        return json({ aviso: AVISO.formato, valores: { a: a.nombre } }, 400);
+      if (!formato || !formatoPermitido(a.rol, formato)) {
+        log.info("formato_rechazado", { nombre: a.nombre, rol: a.rol, formato });
+        return json({ aviso: AVISO.formato }, 400);
+      }
+
+      if (a.rol === "paper") {
+        try {
+          const pdf = await PDFDocument.load(crudos, { ignoreEncryption: true });
+          if (pdf.getPageCount() > 35) return json({ aviso: AVISO.paginas }, 400);
+        } catch {
+          return json({ aviso: AVISO.formato }, 400);
+        }
       }
 
       const limpieza = await limpiar(crudos, formato);
-
-      // El limpio va a una ruta NUEVA, no encima de la sucia. Sobrescribir
-      // parecía lo natural y es lo que estaba escrito, hasta que la prueba de
-      // extremo a extremo descargó el original con el nombre del autor dentro
-      // mientras el objeto del bucket ya estaba limpio: entre la subida del
-      // navegador y esta reescritura pasan segundos, y en esos segundos la
-      // ruta ya se puede pedir y el CDN se queda la copia sucia. Una ruta que
-      // nunca se sirvió sucia no se puede cachear sucia.
       const limpioPath = randomUUID();
       const { error: eSubida } = await sb.storage
         .from(BUCKET_PRIVADO)
@@ -172,9 +169,6 @@ export async function POST(req: Request) {
         return json({ aviso: AVISO.subida, valores: { a: a.nombre } }, 500);
       }
 
-      // El sucio se va. Si el borrado falla no se aborta el envío —el archivo
-      // bueno ya está— y lo recoge el barrido de huérfanos, que mira el bucket
-      // y no el registro de tickets justamente para cubrir estos casos.
       const { error: eBorrado } = await sb.storage.from(BUCKET_PRIVADO).remove([a.path]);
       if (eBorrado) log.error("borrado_original_fallido", { path: a.path, error: eBorrado.message });
 
@@ -184,12 +178,12 @@ export async function POST(req: Request) {
         nombre_original: a.nombre,
         mime: MIME[formato],
         bytes: limpieza.bytes.byteLength,
+        rol: a.rol,
         limpio: limpieza.limpio,
         motivo: limpieza.motivo,
       });
     }
 
-    // ------------------------------------------------------------ el registro
     const locale = LOCALES.includes(cuerpo.locale as never)
       ? (cuerpo.locale as string)
       : LOCALE_POR_DEFECTO;
@@ -200,10 +194,11 @@ export async function POST(req: Request) {
         tipo_pieza_id: tipoId,
         seccion_id: seccionId,
         tema_id: temaId ?? null,
-        resumen: datos.resumen.trim(),
+        resumen: resumenEditorial(datos),
         palabras_clave: datos.claves.split(",").map((s) => s.trim()).filter(Boolean),
         uso_ia: datos.usoIA,
         locale,
+        datos_seccion: datos.campos,
         autoria: {
           nombre: datos.nombre.trim(),
           correo: datos.correo.trim().toLowerCase(),
@@ -211,80 +206,60 @@ export async function POST(req: Request) {
           coautores: datos.coautores.trim(),
           genero: datos.genero.trim(),
         },
-        // §8: las declaraciones se guardan, con la versión del texto
-        // que el autor aceptó. d4 es la licencia de publicación y §9 copia el
-        // PDF a un bucket público; tiene que existir constancia. d2 quedó
-        // opcional (ver VERSION_DECLARACIONES); d5/d6 son obligatorias desde
-        // esa misma versión: aceptación de Términos/Aviso de Privacidad y de
-        // la Cesión de derechos de uso de imagen.
         declaraciones: {
-          d1: datos.d1,
-          d2: datos.d2,
-          d3: datos.d3,
-          d4: datos.d4,
-          d5: datos.d5,
-          d6: datos.d6,
-          perfil: datos.perfil,
+          d1: datos.d1, d2: datos.d2, d3: datos.d3, d4: datos.d4,
+          d5: datos.d5, d6: datos.d6, perfil: datos.perfil,
           version: VERSION_DECLARACIONES,
         },
-        archivos: preparados.map(
-          ({ subida_path, storage_path, nombre_original, mime, bytes }) => ({
-            subida_path,
-            storage_path,
-            nombre_original,
-            mime,
-            bytes,
-          }),
-        ),
+        archivos: preparados.map(({ subida_path, storage_path, nombre_original, mime, bytes, rol }) => ({
+          subida_path, storage_path, nombre_original, mime, bytes, rol,
+        })),
       },
     });
 
     const creado = crudo as RespuestaCrearEnvio | null;
-
     if (eCrear || !creado?.folio) {
-      // 23514 es check_violation, que es como crear_envio rechaza una ruta de
-      // Storage que este servidor no firmó o que ya se usó. Eso es culpa de
-      // quien pide, no una avería: devolverlo como 5xx haría saltar la alerta
-      // de §15 sobre algo que no es una incidencia, y §15 sólo sirve si sus
-      // alertas significan siempre lo mismo.
       const deCliente = eCrear?.code === "23514";
-      log[deCliente ? "info" : "error"]("crear_envio_fallo", {
-        error: eCrear?.message,
-        code: eCrear?.code,
-      });
+      log[deCliente ? "info" : "error"]("crear_envio_fallo", { error: eCrear?.message, code: eCrear?.code });
       return json({ aviso: AVISO.servidor }, deCliente ? 400 : 500);
     }
 
     const folio = creado.folio;
     log.conFolio(folio);
-    log.info("registrado", { nivel: creado.nivel, archivos: preparados.length });
+    log.info("registrado", { nivel: creado.nivel, archivos: preparados.length, seccion: datos.seccion });
 
-    // Que un archivo no se pudiera limpiar no impide el envío, pero sí tiene
-    // que llegar a quien revisa la anonimización.
     const sucios = preparados.filter((p) => !p.limpio);
     if (sucios.length) {
-      log.info("metadatos_no_limpiados", { n: sucios.length });
       await sb.from("envio_eventos").insert({
         envio_id: creado.id,
         tipo: "metadatos_no_limpiados",
-        payload: { archivos: sucios.map((s) => ({ path: s.storage_path, motivo: s.motivo })) },
+        payload: { archivos: sucios.map((s) => ({ path: s.storage_path, rol: s.rol, motivo: s.motivo })) },
       });
     }
 
-    // ------------------------------------------------------------ el acuse
+    const contacto = await guardarContacto(datos.correo.trim().toLowerCase(), datos.nombre.trim());
+    if (!contacto.guardado) {
+      log.error("contacto_resend_no_guardado", { motivo: contacto.motivo });
+      await sb.from("envio_eventos").insert({
+        envio_id: creado.id,
+        tipo: "contacto_resend_no_guardado",
+        payload: { motivo: contacto.motivo ?? "desconocido" },
+      });
+    }
+
     const origen = new URL(req.url).origin;
     const acuse = await enviarAcuse({
       a: datos.correo.trim(),
       nombre: datos.nombre.trim(),
       folio,
       titulo: datos.titulo.trim(),
+      seccion: datos.seccion,
+      genero: datos.genero,
       locale,
       origen,
     });
 
     if (!acuse.enviado) {
-      // No se le devuelve error al autor: el envío está guardado y decirle que
-      // falló sólo conseguiría que lo mandara otra vez.
       log.error("acuse_no_enviado", { motivo: acuse.motivo });
       await sb.from("envio_eventos").insert({
         envio_id: creado.id,
@@ -300,12 +275,4 @@ export async function POST(req: Request) {
   }
 }
 
-/**
- * Versión del texto de las declaraciones. Se guarda junto a los booleanos
- * porque "el autor aceptó" no significa nada sin saber qué aceptó, y el
- * texto va a cambiar. Súbela cuando cambie la redacción o el conjunto de
- * casillas (2026-08-25: d2 pasó a opcional; se agregaron d5 y d6 —
- * Términos/Aviso de Privacidad y Cesión de derechos de uso de imagen—,
- * ambas obligatorias).
- */
 const VERSION_DECLARACIONES = "2026-08-25";
