@@ -25,6 +25,16 @@ const PASOS = ["autoria", "pieza", "archivos", "declaracion"] as const;
 /** Las etiquetas de los cuatro pasos, en el orden de PASOS. */
 const CLAVE_PASO = ["paso_autoria", "paso_pieza", "paso_archivos", "paso_declaracion"] as const;
 
+/** Traducción del aclaratorio del correo de contacto en los idiomas del sitio. */
+const CORREO_PERSONAL: Record<string, string> = {
+  es: "(correo personal)",
+  en: "(personal email)",
+  fr: "(e-mail personnel)",
+  it: "(email personale)",
+  pt: "(e-mail pessoal)",
+  ru: "(личная электронная почта)",
+};
+
 /**
  * El valor de cada opción de género viaja en español hasta la base y hasta la
  * plantilla del correo, así que no puede ser la clave de traducción: sólo la
@@ -145,7 +155,7 @@ export default function FormularioEnvio() {
         </div>
         <div className="fila2 campo">
           <div>
-            <label htmlFor="correo">{t("correo_de_contacto")}</label>
+            <label htmlFor="correo">{t("correo_de_contacto")} {CORREO_PERSONAL[locale] ?? CORREO_PERSONAL.es}</label>
             <input type="email" id="correo" placeholder={t("tucorreo_ejemplo_com")} autoComplete="email" value={datos.correo} onChange={(e) => set("correo", e.target.value)} />
           </div>
           <div>
