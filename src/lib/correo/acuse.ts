@@ -16,7 +16,7 @@ export type Acuse = {
  * Resend tiene una plantilla publicada por idioma —`confirmacion_ES` y
  * `confirmacion_ENG`—, no una sola parametrizada. El sitio habla seis idiomas y
  * las plantillas son dos: sólo el español tiene la suya, los otros cinco caen
- * en la inglesa. Es la misma regla que ya seguía la variable `lang`.
+ * en la inglesa.
  */
 export function plantillaDeLocale(locale: string): string | undefined {
   return locale === "es"
@@ -24,19 +24,35 @@ export function plantillaDeLocale(locale: string): string | undefined {
     : process.env.RESEND_CONFIRMACION_TEMPLATE_ENG;
 }
 
+/** Terminación que usa la plantilla española para concordar con la autoría. */
+export function generoDePlantilla(genero: string): "o" | "a" | "e" {
+  if (genero === "Masculino") return "o";
+  if (genero === "Femenino") return "a";
+  return "e";
+}
+
+/**
+ * La plantilla inglesa no declara `genero`. Resend valida las variables contra
+ * las que declara la plantilla, así que no se manda una variable extra que ese
+ * correo no usa.
+ */
+export function variablesDeAcuse(a: Acuse): Record<string, string> {
+  const comunes = {
+    nombre: a.nombre,
+    seccion: a.seccion,
+    nom_pieza: a.titulo,
+    folio: a.folio,
+  };
+
+  return a.locale === "es"
+    ? { ...comunes, genero: generoDePlantilla(a.genero) }
+    : comunes;
+}
+
 export function enviarAcuse(a: Acuse): Promise<Envio> {
   const plantilla = plantillaDeLocale(a.locale);
   if (plantilla) {
-    // Éstas son las cinco variables que declaran ambas plantillas. Una que
-    // falte no da error: Resend pone su valor de reserva, así que el autor
-    // recibiría un acuse con un hueco relleno de texto de ejemplo.
-    return mandarPlantilla(a.a, plantilla, {
-      nombre: a.nombre,
-      genero: a.genero,
-      seccion: a.seccion,
-      nom_pieza: a.titulo,
-      folio: a.folio,
-    });
+    return mandarPlantilla(a.a, plantilla, variablesDeAcuse(a));
   }
 
   // El sitio sigue siendo utilizable en desarrollo aunque la plantilla todavía
