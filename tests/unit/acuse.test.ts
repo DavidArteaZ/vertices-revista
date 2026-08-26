@@ -1,5 +1,10 @@
 import { afterEach, describe, expect, it } from "vitest";
-import { plantillaDeLocale } from "@/lib/correo/acuse";
+import {
+  generoDePlantilla,
+  plantillaDeLocale,
+  variablesDeAcuse,
+  type Acuse,
+} from "@/lib/correo/acuse";
 import { LOCALES } from "@/i18n/rutas";
 
 /**
@@ -8,6 +13,17 @@ import { LOCALES } from "@/i18n/rutas";
  */
 
 const ORIGINAL = { ...process.env };
+
+const ACUSE: Acuse = {
+  a: "autora@ejemplo.test",
+  nombre: "Autora de Prueba",
+  folio: "VTX-2026-001",
+  titulo: "Una pieza",
+  seccion: "Datanomics",
+  genero: "Femenino",
+  locale: "es",
+  origen: "https://vertices.test",
+};
 
 afterEach(() => {
   process.env = { ...ORIGINAL };
@@ -35,5 +51,35 @@ describe("plantillaDeLocale", () => {
     delete process.env.RESEND_CONFIRMACION_TEMPLATE_ENG;
     expect(plantillaDeLocale("es")).toBeUndefined();
     expect(plantillaDeLocale("fr")).toBeUndefined();
+  });
+});
+
+describe("generoDePlantilla", () => {
+  it("convierte Masculino, Femenino y cualquier otra opción a o/a/e", () => {
+    expect(generoDePlantilla("Masculino")).toBe("o");
+    expect(generoDePlantilla("Femenino")).toBe("a");
+    expect(generoDePlantilla("Otro")).toBe("e");
+    expect(generoDePlantilla("Prefiero no responder aquí")).toBe("e");
+  });
+});
+
+describe("variablesDeAcuse", () => {
+  it("el correo español manda genero ya convertido", () => {
+    expect(variablesDeAcuse(ACUSE)).toEqual({
+      nombre: "Autora de Prueba",
+      genero: "a",
+      seccion: "Datanomics",
+      nom_pieza: "Una pieza",
+      folio: "VTX-2026-001",
+    });
+  });
+
+  it("el correo inglés no manda la variable genero", () => {
+    expect(variablesDeAcuse({ ...ACUSE, locale: "en" })).toEqual({
+      nombre: "Autora de Prueba",
+      seccion: "Datanomics",
+      nom_pieza: "Una pieza",
+      folio: "VTX-2026-001",
+    });
   });
 });
