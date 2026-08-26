@@ -46,11 +46,11 @@ describe("plantillaDeLocale", () => {
     }
   });
 
-  it("sin plantilla configurada no devuelve nada y el acuse cae a texto plano", () => {
+  it("usa los aliases del PDF si no hay override en el entorno", () => {
     delete process.env.RESEND_CONFIRMACION_TEMPLATE_ES;
     delete process.env.RESEND_CONFIRMACION_TEMPLATE_ENG;
-    expect(plantillaDeLocale("es")).toBeUndefined();
-    expect(plantillaDeLocale("fr")).toBeUndefined();
+    expect(plantillaDeLocale("es")).toBe("confirmacion_ES");
+    expect(plantillaDeLocale("fr")).toBe("confirmacion_ENG");
   });
 });
 
