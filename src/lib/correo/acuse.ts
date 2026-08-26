@@ -27,10 +27,11 @@ export function plantillaDeLocale(locale: string): string | undefined {
 export function enviarAcuse(a: Acuse): Promise<Envio> {
   const plantilla = plantillaDeLocale(a.locale);
   if (plantilla) {
+    // Éstas son las cinco variables que declaran ambas plantillas. Una que
+    // falte no da error: Resend pone su valor de reserva, así que el autor
+    // recibiría un acuse con un hueco relleno de texto de ejemplo.
     return mandarPlantilla(a.a, plantilla, {
-      // Se sigue mandando aunque la plantilla ya sea de un idioma: si la
-      // declara y no llega, Resend usa el valor de reserva en vez del real.
-      lang: a.locale === "es" ? "es" : "eng",
+      nombre: a.nombre,
       genero: a.genero,
       seccion: a.seccion,
       nom_pieza: a.titulo,

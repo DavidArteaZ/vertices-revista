@@ -34,7 +34,7 @@ prefijo `NEXT_PUBLIC_`: **ninguna** debe llegar al navegador.
 | `RESEND_LISTA_AUTORES` | lista «Autores» de Resend | el envío se guarda, el autor **no** entra en la lista; queda `contacto_resend_no_guardado` |
 | `RESEND_WEBHOOK_SECRET` | entregas y rebotes | `/api/webhooks/resend` responde 503 y no registra nada |
 | `CRON_SECRET` | barrido y resumen semanal | los crons responden 401 |
-| `CORREO_REMITENTE` | remitente | cae a `onboarding@resend.dev` |
+| `CORREO_REMITENTE` | remitente de dictamen, invitación y resumen (el acuse usa el de su plantilla) | cae a `onboarding@resend.dev` |
 
 **Rotar la clave de servicio reinicia los contadores de límite de tasa.** Se usa
 como sal del hash de IP (`src/lib/api/peticion.ts`), a propósito: así no se
@@ -48,12 +48,15 @@ cupos en curso.
 1. **Verificar un dominio.** Con `onboarding@resend.dev` sólo se puede escribir
    a la dirección dueña de la cuenta, así que ningún autor recibiría su acuse.
    Esto es bloqueante para producción.
-2. Cambiar `CORREO_REMITENTE` a una dirección de ese dominio. **Este valor le
-   gana al `from` de la plantilla**, así que no basta con ponerlo en Resend.
+2. Cambiar `CORREO_REMITENTE` a una dirección de ese dominio. Vale para el
+   dictamen, la invitación al comité y el resumen semanal; el acuse no lo usa
+   porque su remitente y su `reply_to` viven dentro de la plantilla.
 3. **Publicar las dos plantillas de acuse**, una por idioma, y copiar sus alias
    a `RESEND_CONFIRMACION_TEMPLATE_ES` y `RESEND_CONFIRMACION_TEMPLATE_ENG`.
    Son dos y no una porque Resend guarda el texto dentro de la plantilla; el
-   español usa la suya y los otros cinco idiomas usan la inglesa.
+   español usa la suya y los otros cinco idiomas usan la inglesa. Deben estar
+   **publicadas** —una en borrador no se puede mandar— y declarar las cinco
+   variables: `nombre`, `genero`, `seccion`, `nom_pieza` y `folio`.
 4. **Copiar el id de la lista «Autores»** (*Audiences*) a `RESEND_LISTA_AUTORES`.
 5. **Dar de alta el webhook**: *Webhooks → Add endpoint*, apuntando a
    `https://<dominio>/api/webhooks/resend`, con los eventos `email.delivered`,

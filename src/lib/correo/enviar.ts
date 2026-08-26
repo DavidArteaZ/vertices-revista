@@ -44,8 +44,10 @@ export async function mandarPlantilla(
   if (!clave) return { enviado: false, motivo: "sin RESEND_API_KEY" };
 
   try {
+    // Sin `from` a propósito: la plantilla ya trae el suyo y su `reply_to`, y
+    // el `from` de la petición le ganaría. Con dos sitios donde vive el
+    // remitente, tarde o temprano se manda desde el que no era.
     const { data, error } = await new Resend(clave).emails.send({
-      from: process.env.CORREO_REMITENTE ?? "Revista Vértices <onboarding@resend.dev>",
       to: a,
       template: { id: plantilla, variables },
     });

@@ -12,9 +12,10 @@
 - `¿Sabías Qué?` puede registrar un envío sin archivo porque su imagen es opcional; las demás secciones validan sus adjuntos obligatorios.
 
 ## Resend
-- La plantilla publicada se configura con `RESEND_CONFIRMACION_TEMPLATE_ID`.
-- Se mandan exactamente las variables pedidas: `lang` (`es` en español y `eng` en cualquier otro idioma), `genero`, `seccion`, `nom_pieza` y `folio`.
-- Después de confirmar el registro en Supabase se intenta añadir el correo a Contactos de Resend. Un fallo de contacto o de correo no invalida un envío ya guardado y queda anotado en `envio_eventos`.
+- Las plantillas publicadas se configuran con `RESEND_CONFIRMACION_TEMPLATE_ES` y `RESEND_CONFIRMACION_TEMPLATE_ENG`: son dos, una por idioma, y el español usa la suya mientras los otros cinco idiomas usan la inglesa (2026-08-25: antes era una sola variable, `RESEND_CONFIRMACION_TEMPLATE_ID`).
+- Se mandan las cinco variables que declaran ambas plantillas: `nombre`, `genero`, `seccion`, `nom_pieza` y `folio` (2026-08-25: antes se mandaba `lang`, que ninguna de las dos declara, y faltaba `nombre`, que las dos usan; el acuse salía con el hueco del nombre relleno con el valor de reserva).
+- El acuse no manda `from`: la plantilla ya trae su remitente y su `reply_to`, y el de la petición se los comería.
+- Después de confirmar el registro en Supabase se intenta añadir el correo a la lista «Autores» de Resend (`RESEND_LISTA_AUTORES`). Un fallo de contacto o de correo no invalida un envío ya guardado y queda anotado en `envio_eventos`.
 
 ## Tradeoffs
 - El requisito de 800–1500 palabras del artículo de Horizonte Global se muestra como regla editorial, pero no se cuenta automáticamente desde el PDF. `pdf-lib` permite inspeccionar páginas y metadatos, pero no extraer texto de manera fiable.
