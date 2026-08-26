@@ -2,193 +2,118 @@
 
 ---
 
-## Project documentation hooks
+## Con quién estás hablando
 
-- If `CONTEXT.md` exists in the repo root (or a `CONTEXT-MAP.md` pointing to per-area `CONTEXT.md` files), treat it as the **domain glossary**. Use its vocabulary in plans, PRDs, commit messages, and code review. Update it lazily when a grilling session resolves an ambiguity.
-- If `docs/adr/` exists, ADRs are **binding decisions** — read them before suggesting architectural changes and create a new ADR for any decision that is hard to reverse, surprising without context, and the result of a real trade-off. See `docs/adr/ADR-FORMAT.md`.
+Quien mantiene esta revista **no es programador**. Es parte del comité
+editorial. Su manual es `docs/manual-claude.md`; léelo si necesitas saber qué
+espera esa persona de ti.
 
----
+Eso cambia cómo trabajas:
 
-## Karpathy Coding Workflow
-
-### 1. Plan Mode First
-- Non-trivial → plan mode + detailed spec up front. Kill ambiguity pre-code.
-- Trivial → lightweight inline plan.
-
-### 2. Verify Relentlessly
-- Watch diffs like hawk. Check assumptions, edge cases, tradeoffs.
-- Run tests, review diffs, verify correctness. Never blind-accept.
-
-### 3. Keep It Simple
-- No overengineering. No bloated abstractions. 100 lines > 1000.
-- Clean dead code. Ask "is there a simpler way?"
-- **Simplicity First**: minimal code, nothing speculative.
-- **No Laziness**: root causes only. No temp fixes. Senior-dev bar.
-
-### 4. Surgical Edits Only
-- Change only what's necessary. No drive-by "improvements".
-- Don't touch unrelated code/comments. Minimize churn + side effects.
-
-### 5. Goal-Driven Execution
-- Clear success criteria. Tests first, then make pass.
-- Tools in the loop (browser MCP, etc). Iterate until goal met.
-
-### 6. Parallelize with Subagents
-- Offload research/exploration/analysis. Keep main context clean.
-- One task per subagent. Merge results with judgment.
-
-### Engineer Mindset
-- **Tenacity**: agents never tire. Stamina = force multiplier.
-- **Leverage**: imperative → declarative. Multiply output.
-- **Atrophy risk**: reading ≠ writing code. Stay sharp intentionally.
-- **Speedups ≠ Just Faster**: expand what's buildable, not just velocity.
-- **Fun**: cut drudgery, focus creativity.
-- **Slopacolypse (2026)**: brace for AI slop. Signal needs judgment.
-
-> LLM agent capability (Claude/Codex) crossed coherence threshold ~Dec 2025. Phase shift in SWE. Intelligence ahead — integrations/workflows must catch up.
+- **Habla en español llano.** Nada de jerga sin traducir. Si tienes que usar una
+  palabra técnica, explícala en la misma frase la primera vez.
+- **Antes de tocar nada, di en una línea qué vas a cambiar y qué efecto tiene en
+  el sitio.** No en archivos: en lo que la gente ve o recibe.
+- **Después de cambiar, di qué hiciste y cómo comprobarlo.** Corre `npm test` y
+  reporta el resultado tal cual, incluso si falló.
+- **No des a elegir entre cinco opciones técnicas.** Recomienda una y explica el
+  porqué en una frase.
+- **Si el encargo es ambiguo, pregunta.** Adivinar aquí sale caro: hay
+  veredictos editoriales y correos a autores de por medio.
 
 ---
 
-## Core Principles
+## Reglas duras de este repositorio
 
-1. **Concise, Scalable Code**: Keep files focused and maintainable
-2. **Type Safety**: Leverage TypeScript for robust code
-3. **Simplicity**: Prefer clarity over cleverness
+Romper cualquiera de estas produce un fallo silencioso, no un error visible.
 
----
+1. **`messages/*.json` se genera, no se edita.** El texto en español vive en
+   `scripts/i18n/claves.json`; los otros cinco idiomas salen de
+   `scripts/i18n/traducciones/<idioma>.json` y, si ahí no está, de los
+   diccionarios del sitio legado. Para cambiar un texto: editar `claves.json`,
+   correr `npm run i18n:generar`, correr `npm test`. Editar `messages/es.json` a
+   mano lo caza `scripts/i18n/verificar.mjs` y lo pisa la siguiente generación.
 
-## File Organization
+2. **Cuando una cadena no está traducida, se renderiza en español.** El respaldo
+   se hornea al generar. Añadir texto nuevo sin traducción no rompe nada, pero
+   dilo explícitamente: *«queda en español hasta que alguien lo traduzca»*, y di
+   dónde se traduce: `scripts/i18n/traducciones/`, indexado por `espacio.clave`.
+   Cuidado al reescribir una frase española: su clave se deriva del texto, así
+   que cambia con ella y las traducciones que colgaban de la clave vieja quedan
+   huérfanas. `verificar.mjs` las señala; hay que reubicarlas, no borrarlas.
 
-### Maximum File Size
-- **Soft limit**: 400 lines per file
-- If a file approaches this limit, split it into smaller, focused components
-- Exceptions: Type definitions and configuration files may exceed this limit if necessary
+3. **Las semillas de rúbricas y de artículos se generan.** Salen de
+   `scripts/rubricas/generar-semillas.mjs` y `scripts/articulos/generar-semillas.mjs`,
+   que emiten migraciones. No editar los `.sql` sembrados a mano.
 
-### When to Split Components
+4. **Cambiar una rúbrica cambia veredictos editoriales.** Puertas, pesos y
+   umbrales se transcribieron del Excel editorial. Antes de modificar
+   cualquiera: enseñar lo que hay, decir qué dictámenes afecta, y esperar
+   confirmación explícita.
 
-Split a component when:
-- It exceeds 350 lines (before hitting the 400-line limit)
-- It handles multiple distinct responsibilities
-- A section of code could be reused elsewhere
-- It improves readability and maintainability
+5. **Ninguna variable de entorno lleva el prefijo `NEXT_PUBLIC_`.** Ese prefijo
+   publica el valor en el navegador. `SUPABASE_SERVICE_ROLE_KEY` expuesta =
+   base de datos entera legible y borrable por cualquiera. La lista canónica
+   está en `.env.example` y explicada en `docs/operacion.md §1`.
 
+6. **Nada de SQL destructivo sin confirmación explícita.** `drop`, `delete`,
+   `truncate`, `alter` sobre datos reales: parar, explicar el alcance en
+   español, esperar un sí. Los cambios de código se deshacen; los de la base,
+   no.
 
-**Example splits:**
-- Extract form sections into separate components
-- Create dedicated display/card components for complex UI blocks
-- Separate business logic into custom hooks
-- Extract repeated patterns into shared components
+7. **Migraciones nuevas solo si no hay otra forma.** Si hace falta una, decirlo
+   antes de escribirla, no después.
 
+8. **Los artículos se administran desde el panel del comité, no desde el
+   código.** Viven en la base de datos.
 
-## TypeScript
+9. **No tocar `legado/`.** Es la referencia contra la que compara la compuerta
+   visual.
 
-### Type Safety
-- Always define types for props, state, and function parameters
-- Avoid `any` - use `unknown` if type is truly unknown
-- Leverage type inference where it improves readability
-  
-### Shared Types
-- Define shared types in `src/types/index.ts`
-- Use consistent naming across the codebase
-- Export types for reuse
-
-## Error and Loading Handling
-
-### Robust Error and Loading States
-- **Always apply robust error and loading handling on all APIs and components**
-- Use proper loading states during async operations
-- Provide meaningful error messages to users
-- Implement proper error boundaries where needed
-- Log errors for debugging purposes
+10. **Vista previa antes que producción.** Ningún cambio va directo al dominio
+    real sin que alguien lo haya visto en una vista previa.
 
 ---
 
-## Communication mode
+## Documentación del proyecto
 
-**Default for all conversation**, every phase (brainstorm, audit, spec,
-plan, execution, review, PR): invoke `caveman:caveman` skill (level
-`full`) at session start.
-
-The skill auto-excludes: code blocks, commit messages, PR/spec/notes
-docs, security warnings, irreversible-action confirmations, multi-step
-sequences where fragment order risks misread. Those stay in full
-language. Everything else — status updates, recommendations, decisions,
-explanations — gets the terseness pass.
-
-If skill not installed, ask the user once to enable plugin `caveman`
-(marketplace `caveman` → `JuliusBrussee/caveman`). Continue without it
-if user declines.
-
-Override: user says "stop caveman" or "normal mode".
+- `CONTEXT.md` es el **glosario del dominio**. Usa su vocabulario en planes,
+  mensajes de commit y revisiones. Actualízalo cuando una conversación resuelva
+  una ambigüedad.
+- `docs/adr/` son **decisiones vinculantes**. Léelas antes de proponer cambios
+  de arquitectura, y crea una ADR nueva para cualquier decisión difícil de
+  revertir, sorprendente sin contexto, y fruto de un compromiso real. Formato en
+  `docs/adr/ADR-FORMAT.md`.
+- `docs/operacion.md` — variables, correo, crons, vigilancia.
+- `docs/traspaso.md` — cuentas, límites del plan gratuito, cómo volver atrás.
+- `docs/manual-claude.md` — el manual de la persona que te está hablando.
 
 ---
 
-## Implementation Notes (mandatory during plan execution)
+## Cómo escribir el código
 
-When implementing a spec or plan (whether triggered by `/implement`, by an
-approved ExitPlanMode, or manually), keep a running notes file at:
+- **Simplicidad primero.** Nada especulativo. 100 líneas mejor que 1000. Si hay
+  una forma más simple, ésa.
+- **Ediciones quirúrgicas.** Cambiar solo lo necesario. Nada de mejoras de paso
+  en código que no toca el encargo.
+- **Causas de raíz.** Nada de parches temporales.
+- **TypeScript con tipos de verdad.** Props, estado y parámetros tipados. `any`
+  no; `unknown` si de verdad se desconoce. Los tipos viven junto al módulo que
+  los usa.
+- **Archivos enfocados.** Por encima de 350 líneas, partir; 400 es el techo.
+  Excepción: definiciones de tipos y archivos de configuración.
+- **Errores y carga siempre.** Toda ruta de API y todo componente con operación
+  asíncrona necesita su estado de carga y su error con mensaje entendible.
+  Registrar el error para poder depurarlo.
+- **Comentarios como los de alrededor:** este repositorio explica *por qué*, no
+  *qué*. Sigue esa costumbre.
 
-```
-docs/implementation-notes/<slug>-<YYYY-MM-DD>.md
-```
+---
 
-The slug should mirror the spec/plan name when one exists.
+## Antes de dar algo por terminado
 
-**Create it before writing the first line of implementation code** and
-update it incrementally — not in one dump at the end.
-
-### What to record (only things not derivable from the diff or the spec)
-
-- **Decisions outside the spec** — choices the spec did not pin down,
-  with the alternative rejected and why
-- **Deviations from the spec** — anything changed vs. what was written,
-  with the reason
-- **Tradeoffs** — perf vs. simplicity, scope cuts, "good enough for
-  now". Name the cost
-- **Gotchas / surprises** — undocumented framework behavior, hidden
-  coupling, schema quirks
-- **Deferred / follow-ups** — items punted to a later PR, linked
-- **Open questions** — things the user should weigh in on at review
-
-### What NOT to record
-
-- Play-by-play of files touched or functions written (the diff shows it)
-- Commit SHAs, line counts, file counts
-- Anything already in the spec
-- Empty "N/A" sections — delete the section instead
-
-Bar: *"would a future maintainer be confused without this note?"* If no,
-do not write it.
-
-### At end of implementation
-
-Surface the notes file with a one-line summary of the most important
-entries — do not just point at the path.
-
-### Skeleton
-
-```markdown
-# Implementation notes — <feature>
-
-- **Spec**: <path or "n/a">
-- **Plan**: <path or "n/a">
-- **Started**: <YYYY-MM-DD>
-
-## Decisions made outside the spec
-- …
-
-## Deviations from the spec
-- …
-
-## Tradeoffs
-- …
-
-## Gotchas / surprises
-- …
-
-## Deferred / follow-ups
-- …
-
-## Open questions for review
-- …
-```
+1. `npm test` — incluye la verificación de i18n. Reportar la salida real.
+2. Si el cambio se ve en pantalla, mirarlo: `npm run dev` en
+   `http://localhost:3100`.
+3. Si tocó envíos, dictamen o correo, decir qué habría que probar a mano.
+4. Decir con todas las letras qué quedó fuera y por qué.
