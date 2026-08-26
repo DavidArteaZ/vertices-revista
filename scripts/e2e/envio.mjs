@@ -15,12 +15,22 @@
  * segundos después, y el CDN seguía sirviendo lo primero. Sólo se ve cruzando
  * el sistema entero.
  *
+ * Por lo mismo manda DOS envíos: uno con PDF y otro con FOTOGRAFÍA. El de la
+ * foto está aquí porque el hueco que dejaba el portal inservible tampoco se
+ * veía desde una prueba unitaria: el código aceptaba imágenes y el bucket sólo
+ * admitía PDF y Word, así que la subida —que va del navegador directo a
+ * Storage— rebotaba sin dejar rastro en los registros de la app. Esa mitad la
+ * cubre ahora `supabase/tests/superficie-api.sql`; aquí se comprueba la otra,
+ * la que ninguna afirmación sobre la base puede ver: que la foto llega, se
+ * guarda sin EXIF y pesa menos que la que mandó el autor.
+ *
  * Al terminar borra lo que creó.
  */
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { PDFDocument } from "pdf-lib";
+import sharp from "sharp";
 import { createClient } from "@supabase/supabase-js";
 
 const BASE = process.env.BASE ?? "http://localhost:3100";
@@ -49,6 +59,9 @@ function contieneAutor(buf) {
   return s.includes(AUTOR) || s.toUpperCase().includes(hex);
 }
 
+/** Texto de n palabras: los topes por sección se cuentan en palabras. */
+const palabras = (n) => Array.from({ length: n }, (_, i) => `palabra${i}`).join(" ");
+
 const pide = async (ruta, cuerpo) => {
   const r = await fetch(`${BASE}${ruta}`, {
     method: "POST",
@@ -61,8 +74,10 @@ const pide = async (ruta, cuerpo) => {
 // ------------------------------------------------------------------ arranque
 //
 // El límite de tasa es real: diez envíos por hora y por IP. Esta prueba gasta
-// uno cada vez que se corre, y desde localhost todas las corridas comparten
-// huella. No se puede reiniciar desde aquí —privado no está expuesto por
+// seis cada vez que se corre —dos envíos buenos y cuatro rechazos, que también
+// cuentan porque el límite se cobra antes de validar—, y desde localhost todas
+// las corridas comparten huella: la segunda corrida seguida se queda sin cupo.
+// No se puede reiniciar desde aquí —privado no está expuesto por
 // PostgREST y no debe estarlo—, así que lo que se hace es detectarlo y
 // decirlo, en vez de informar de un 429 como si fuera un fallo del código:
 //
@@ -96,20 +111,28 @@ const datos = {
   perfil: "Estudiante de otra licenciatura",
   afiliacion: "Universidad de Prueba",
   coautores: "",
-  genero: "",
+  // Ya no vale el vacío: el género se contrasta contra su catálogo porque
+  // viaja como variable de plantilla hasta Resend.
+  genero: "Prefiero no responder aquí",
   titulo: "Un manuscrito de prueba de extremo a extremo",
-  // Paper + Horizonte Global es la excepción del libro: sube a Nivel A y se
-  // dictamina con el instrumento de Miradas Económicas.
-  formato: "Paper/Investigación",
+  // El formulario ya no pregunta el tipo de pieza: se deriva de la sección. Eso
+  // deja fuera del portal la excepción del libro —Paper + Horizonte Global sube
+  // a Nivel A y se dictamina con el instrumento de Miradas—, que hoy sólo puede
+  // producirla el triaje del panel. Por eso aquí se afirma lo que la sección da
+  // por sí sola, que es lo que de verdad recorre esta tubería.
   seccion: "Horizonte Global",
   tema: "Macroeconomía",
-  resumen: Array.from({ length: 130 }, (_, i) => `palabra${i}`).join(" "),
+  // El texto de la pieza ya no es un campo suelto: vive en `campos`, cuya forma
+  // depende de la sección, y acaba entero en `envios.datos_seccion`.
+  campos: { resumen: palabras(130) },
   claves: "inflación, tipo de cambio, tasas",
   usoIA: "No",
   d1: true, d2: true, d3: true, d4: true, d5: true, d6: true,
 };
 
-const archivos = [{ path: firmada.path, nombre: "Mi Manuscrito.PDF", bytes: bytes.length }];
+// Cada archivo declara su rol, y la sección decide qué roles admite. Sin él la
+// ruta descarta el adjunto entero antes de validar nada.
+const archivos = [{ path: firmada.path, nombre: "Mi Manuscrito.PDF", bytes: bytes.length, rol: "articulo" }];
 const [sEnvio, creado] = await pide("/api/envios", { datos, locale: "es", archivos });
 
 if (sEnvio === 429) {
@@ -126,22 +149,27 @@ comprueba("y devuelve un folio con el formato que el sitio pide teclear", /^VTX-
 // --------------------------------------------------- lo que quedó almacenado
 const { data: fila } = await sb
   .from("envios")
-  .select("id, nivel, es_investigacion, declaraciones, seccion_dictamen_id, secciones!envios_seccion_dictamen_id_fkey(slug)")
+  .select("id, nivel, es_investigacion, declaraciones, datos_seccion, seccion_dictamen_id, secciones!envios_seccion_dictamen_id_fkey(slug)")
   .eq("folio", creado.folio)
   .single();
 
-comprueba("Horizonte Global + Paper enruta a Nivel A", fila.nivel, "A");
-comprueba("y al instrumento de Miradas Económicas", fila.secciones?.slug, "miradas-economicas");
-comprueba("es_investigacion se deriva del tipo, no del cuerpo", fila.es_investigacion, true);
+comprueba("Horizonte Global enruta a su propio nivel", fila.nivel, "B");
+comprueba("y a su propio instrumento", fila.secciones?.slug, "horizonte-global");
+comprueba("el tipo sale de la sección, así que un artículo no es investigación", fila.es_investigacion, false);
 comprueba("las declaraciones obligatorias quedan guardadas", [fila.declaraciones.d1, fila.declaraciones.d3, fila.declaraciones.d4, fila.declaraciones.d5, fila.declaraciones.d6], [true, true, true, true, true]);
 comprueba("con la versión del texto aceptado", typeof fila.declaraciones.version, "string");
+// Es el texto que el comité lee en el panel. Si no llegara íntegro, la ficha
+// del envío enseñaría la nota de «envío anterior al formulario por secciones»
+// y nadie sabría que se perdió por el camino.
+comprueba("el texto de la pieza queda entero en datos_seccion", fila.datos_seccion?.resumen, palabras(130));
 
 const { data: adjuntos } = await sb
   .from("envio_archivos")
-  .select("storage_path, nombre_publico, mime")
+  .select("storage_path, nombre_publico, mime, rol")
   .eq("envio_id", fila.id);
 
 comprueba("el nombre público no viene del nombre original", adjuntos[0].nombre_publico, `${creado.folio}-01.pdf`);
+comprueba("y el rol viaja hasta la base, que es de donde lo lee el panel", adjuntos[0].rol, "articulo");
 
 const { data: blob } = await sb.storage.from("manuscritos").download(adjuntos[0].storage_path);
 const guardado = Buffer.from(await blob.arrayBuffer());
@@ -162,17 +190,104 @@ comprueba("estado con el correo correcto, en otras mayúsculas", (await pide("/a
 comprueba("estado con el correo equivocado", (await pide("/api/estado", { folio: creado.folio, correo: "otra@example.invalid" }))[1].estado, "no_coincide");
 comprueba("estado con un folio inexistente: respuesta idéntica", (await pide("/api/estado", { folio: "VTX-2026-999", correo: "otra@example.invalid" }))[1].estado, "no_coincide");
 
+// ------------------------------------------------------- envío con fotografía
+//
+// Cinco de las siete secciones piden fotografías o visualizaciones, y hasta
+// esta entrega ninguna llegaba: el código las aceptaba y el bucket sólo
+// admitía PDF y Word, así que la subida rebotaba entre el navegador y Storage,
+// donde nuestros registros no miran. `supabase/tests/superficie-api.sql` cubre
+// ahora la mitad de la base; esto cubre la otra, que es la única que ve si la
+// foto llega entera y sale limpia.
+//
+// El JPEG se fabrica aquí y no se versiona: una foto de verdad traería dentro
+// a una persona real. Lleva el nombre de la autora escrito en el EXIF, que es
+// exactamente el metadato que el optimizador tiene que borrar.
+
+const ANCHO = 4800;
+const ALTO = 3200;
+const pixeles = Buffer.allocUnsafe(ANCHO * ALTO * 3);
+for (let y = 0, i = 0; y < ALTO; y++) {
+  for (let x = 0; x < ANCHO; x++) {
+    pixeles[i++] = ((x * 255) / ANCHO) | 0;
+    pixeles[i++] = ((y * 255) / ALTO) | 0;
+    // Un tablero fino: dos degradados solos comprimen a casi nada y comparar
+    // pesos con un archivo de veinte kilobytes no demostraría gran cosa.
+    pixeles[i++] = ((x >> 4) ^ (y >> 4)) & 0xff;
+  }
+}
+
+const foto = await sharp(pixeles, { raw: { width: ANCHO, height: ALTO, channels: 3 } })
+  .withExif({ IFD0: { Copyright: AUTOR, Artist: AUTOR } })
+  .jpeg({ quality: 92 })
+  .toBuffer();
+comprueba("la foto de prueba lleva el nombre de la autora en el EXIF", contieneAutor(foto), true);
+
+const [sFirmaFoto, firmasFoto] = await pide("/api/uploads", {
+  archivos: [{ nombre: "Foto Del Evento.JPG", bytes: foto.length }],
+});
+comprueba("POST /api/uploads firma también imágenes", sFirmaFoto, 200);
+const firmadaFoto = firmasFoto.subidas[0];
+
+const fdFoto = new FormData();
+fdFoto.append("cacheControl", "0");
+// El tipo se fuerza por extensión igual que hace el navegador: Safari a veces
+// manda el tipo vacío y el bucket lo rechazaría por `allowed_mime_types`.
+fdFoto.append("", new Blob([foto], { type: "image/jpeg" }), "foto.jpg");
+const subidaFoto = await fetch(firmadaFoto.url, { method: "PUT", body: fdFoto });
+comprueba("el bucket acepta un JPEG (antes lo rebotaba sin decir nada)", subidaFoto.status, 200);
+
+const datosFoto = {
+  ...datos,
+  titulo: "Una cápsula de prueba de extremo a extremo",
+  seccion: "¿Sabías Qué?",
+  campos: { dato: palabras(40) },
+};
+const archivosFoto = [
+  { path: firmadaFoto.path, nombre: "Foto Del Evento.JPG", bytes: foto.length, rol: "foto" },
+];
+const [sFoto, creadoFoto] = await pide("/api/envios", { datos: datosFoto, locale: "es", archivos: archivosFoto });
+comprueba("POST /api/envios registra un envío con fotografía", sFoto, 200);
+
+const { data: filaFoto } = await sb.from("envios").select("id").eq("folio", creadoFoto.folio).single();
+const { data: adjuntosFoto } = await sb
+  .from("envio_archivos")
+  .select("storage_path, nombre_publico, mime, bytes, rol")
+  .eq("envio_id", filaFoto.id);
+
+comprueba("la extensión del nombre público sale del original, en minúsculas", adjuntosFoto[0].nombre_publico, `${creadoFoto.folio}-01.jpg`);
+comprueba("el mime guardado es el que reconoció el servidor, no el que dijo el cliente", adjuntosFoto[0].mime, "image/jpeg");
+comprueba("y el rol de la foto llega a la base", adjuntosFoto[0].rol, "foto");
+
+const { data: blobFoto } = await sb.storage.from("manuscritos").download(adjuntosFoto[0].storage_path);
+const fotoGuardada = Buffer.from(await blobFoto.arrayBuffer());
+const metaGuardada = await sharp(fotoGuardada).metadata();
+
+comprueba("la foto almacenada NO lleva EXIF", Boolean(metaGuardada.exif), false);
+comprueba("ni el nombre de la autora por ninguna otra vía", contieneAutor(fotoGuardada), false);
+comprueba("el lado largo baja al tope de 3600 px", metaGuardada.width, 3600);
+comprueba("pesa menos que la que mandó la autora", fotoGuardada.length < foto.length, true);
+comprueba("y los bytes registrados son los de la copia guardada, no los del original", adjuntosFoto[0].bytes, fotoGuardada.length);
+
+// La reducción es el número que justifica no conservar los originales, y sin
+// este evento nadie puede comprobarla en producción. Se afirma que existe y que
+// es positiva; el rango real (70-85 %) se mide con envíos de verdad, no con una
+// imagen fabricada aquí.
+const { data: eventos } = await sb.from("envio_eventos").select("tipo, payload").eq("envio_id", filaFoto.id);
+const medida = eventos.find((e) => e.tipo === "imagen_optimizada")?.payload?.archivos?.[0];
+comprueba("queda anotada la reducción real de la imagen", medida?.reduccion > 0, true);
+comprueba("y ninguna imagen queda marcada como no limpiada", eventos.some((e) => e.tipo === "metadatos_no_limpiados"), false);
+
 // ------------------------------------------------------------------ defensas
 comprueba("no se puede reutilizar una ruta ya consumida", (await pide("/api/envios", { datos, locale: "es", archivos }))[0], 400);
-comprueba("no se puede inventar una ruta que nadie firmó", (await pide("/api/envios", { datos, locale: "es", archivos: [{ path: crypto.randomUUID(), nombre: "m.pdf", bytes: 100 }] }))[0], 400);
-comprueba("el servidor valida aunque el asistente no", (await pide("/api/envios", { datos: { ...datos, resumen: "corto" }, locale: "es", archivos }))[1].aviso, "el_resumen_lleva_n_palabras_se_piden_al_menos_10_c4d7");
+comprueba("no se puede inventar una ruta que nadie firmó", (await pide("/api/envios", { datos, locale: "es", archivos: [{ path: crypto.randomUUID(), nombre: "m.pdf", bytes: 100, rol: "articulo" }] }))[0], 400);
+comprueba("el servidor valida aunque el asistente no", (await pide("/api/envios", { datos: { ...datos, campos: { resumen: palabras(210) } }, locale: "es", archivos }))[1].aviso, "portal_horizonte_resumen_max_200");
 
 const [, f2] = await pide("/api/uploads", { archivos: [{ nombre: "falso.pdf", bytes: 25 }] });
 const basura = new FormData();
 basura.append("cacheControl", "0");
 basura.append("", new Blob([new TextEncoder().encode("no soy un pdf en absoluto")], { type: "application/pdf" }), "falso.pdf");
 await fetch(f2.subidas[0].url, { method: "PUT", body: basura });
-comprueba("un archivo que no es PDF por dentro se rechaza", (await pide("/api/envios", { datos, locale: "es", archivos: [{ path: f2.subidas[0].path, nombre: "falso.pdf", bytes: 25 }] }))[1].aviso, "a_no_es_un_pdf_ni_un_documento_de_word");
+comprueba("un archivo que no es PDF por dentro se rechaza", (await pide("/api/envios", { datos, locale: "es", archivos: [{ path: f2.subidas[0].path, nombre: "falso.pdf", bytes: 25, rol: "articulo" }] }))[1].aviso, "portal_archivo_tipo");
 
 // -------------------------------------------------------------------- barrido
 const { data: huerfanos } = await sb.rpc("subidas_huerfanas", { p_antiguedad: "0 seconds" });
@@ -183,7 +298,7 @@ comprueba("y no toca el del envío registrado", rutas.includes(adjuntos[0].stora
 // -------------------------------------------------------------------- limpieza
 const { data: todo } = await sb.storage.from("manuscritos").list("", { limit: 1000 });
 if (todo.length) await sb.storage.from("manuscritos").remove(todo.map((o) => o.name));
-await sb.from("envios").delete().eq("id", fila.id);
+await sb.from("envios").delete().in("id", [fila.id, filaFoto.id]);
 await sb.from("envio_folios").delete().neq("anio", 0);
 
 console.log(fallos ? `\n${fallos} comprobaciones fallaron` : "\ntodo bien");

@@ -1,6 +1,7 @@
 import { setRequestLocale } from "next-intl/server";
 import "./globals.css";
 import "./movil.css";
+import "./portal-envios.css";
 import Portada from "@/components/landing/Portada";
 import { cargaArticulos } from "@/lib/datos/cargar-articulos";
 import { routing } from "@/i18n/rutas";

@@ -29,9 +29,12 @@ prefijo `NEXT_PUBLIC_`: **ninguna** debe llegar al navegador.
 | `SUPABASE_SERVICE_ROLE_KEY` | envíos anónimos, firmas, copia de PDF | la app no arranca |
 | `SUPABASE_PUBLISHABLE_KEY` | sesión del panel, lectura pública | la app no arranca |
 | `RESEND_API_KEY` | acuse y avisos de decisión | se guarda el envío y **no** se avisa; queda `acuse_no_enviado` en `envio_eventos` |
+| `RESEND_CONFIRMACION_TEMPLATE_ES` | acuse en español | el acuse sale en texto plano, sin la plantilla de la revista |
+| `RESEND_CONFIRMACION_TEMPLATE_ENG` | acuse en los otros cinco idiomas | igual: texto plano |
+| `RESEND_LISTA_AUTORES` | lista «Autores» de Resend | el envío se guarda, el autor **no** entra en la lista; queda `contacto_resend_no_guardado` |
 | `RESEND_WEBHOOK_SECRET` | entregas y rebotes | `/api/webhooks/resend` responde 503 y no registra nada |
 | `CRON_SECRET` | barrido y resumen semanal | los crons responden 401 |
-| `CORREO_REMITENTE` | remitente | cae a `onboarding@resend.dev` |
+| `CORREO_REMITENTE` | remitente de dictamen, invitación y resumen (el acuse usa el de su plantilla) | cae a `onboarding@resend.dev` |
 
 **Rotar la clave de servicio reinicia los contadores de límite de tasa.** Se usa
 como sal del hash de IP (`src/lib/api/peticion.ts`), a propósito: así no se
@@ -45,11 +48,26 @@ cupos en curso.
 1. **Verificar un dominio.** Con `onboarding@resend.dev` sólo se puede escribir
    a la dirección dueña de la cuenta, así que ningún autor recibiría su acuse.
    Esto es bloqueante para producción.
-2. Cambiar `CORREO_REMITENTE` a una dirección de ese dominio.
-3. **Dar de alta el webhook**: *Webhooks → Add endpoint*, apuntando a
+2. Cambiar `CORREO_REMITENTE` a una dirección de ese dominio. Vale para el
+   dictamen, la invitación al comité y el resumen semanal; el acuse no lo usa
+   porque su remitente y su `reply_to` viven dentro de la plantilla.
+3. **Publicar las dos plantillas de acuse**, una por idioma, y copiar sus alias
+   a `RESEND_CONFIRMACION_TEMPLATE_ES` y `RESEND_CONFIRMACION_TEMPLATE_ENG`.
+   Son dos y no una porque Resend guarda el texto dentro de la plantilla; el
+   español usa la suya y los otros cinco idiomas usan la inglesa. Deben estar
+   **publicadas** —una en borrador no se puede mandar— y declarar las cinco
+   variables: `nombre`, `genero`, `seccion`, `nom_pieza` y `folio`.
+4. **Copiar el id de la lista «Autores»** (*Audiences*) a `RESEND_LISTA_AUTORES`.
+5. **Dar de alta el webhook**: *Webhooks → Add endpoint*, apuntando a
    `https://<dominio>/api/webhooks/resend`, con los eventos `email.delivered`,
    `email.bounced`, `email.complained` y `email.delivery_delayed`. Copiar el
-   secreto (`whsec_…`) a `RESEND_WEBHOOK_SECRET`.
+   secreto (`whsec_…`) a `RESEND_WEBHOOK_SECRET`. Ese secreto **no es una clave
+   de API**: sale de la pantalla del webhook, no de *API Keys*.
+
+**La clave de API tiene que ser de acceso completo.** Una clave de sólo envío
+manda correos pero no puede crear contactos: los envíos llegarían y ningún autor
+entraría en la lista. Se reconoce porque Resend contesta
+`This API key is restricted to only send emails`.
 
 Por qué importa el webhook: un envío puede guardarse bien y el acuse no llegar
 nunca. Sin esto nadie se entera — el autor espera y el comité cree que avisó.
@@ -128,7 +146,42 @@ Recomendadas, por orden de utilidad:
 | firma de subida fallida | `"evento":"firma_fallida"` | el autor no puede ni empezar |
 | acuse no entregado | `"evento":"acuse_no_enviado"` | se guardó y el autor no lo sabe |
 | metadatos sin limpiar | `"evento":"metadatos_no_limpiados"` | un .doc o un PDF que se resistió; lo cubre la revisión humana, pero conviene saber cuántos |
+| foto sin optimizar | `"evento":"imagen_no_optimizada"` o `"evento":"sharp_no_carga"` | la foto se guardó con su ubicación GPS dentro; el segundo es el optimizador caído entero |
 | rebote | `"evento":"correo"` con `"tipo":"email.bounced"` | dirección mal escrita |
+
+**El optimizador de fotos.** Cada envío con imágenes deja un evento con lo que
+adelgazó cada archivo; esta consulta da la reducción media de la última semana:
+
+```sql
+select round(avg((a->>'reduccion')::numeric), 1) as reduccion_media, count(*) as fotos
+  from public.envio_eventos e, jsonb_array_elements(e.payload->'archivos') a
+ where e.tipo = 'imagen_optimizada' and e.at > now() - interval '7 days';
+```
+
+Lo normal es **entre 70 y 85**. Por debajo de 50 hay que mirar por qué, y un
+resultado vacío con envíos recientes que llevaban fotos significa que el
+optimizador no está corriendo: es lo preocupante de verdad, porque las fotos se
+están guardando con su EXIF dentro.
+
+**El plan gratuito de Supabase tope la subida en 50 MB por archivo, y ese
+número es fijo: no es un ajuste, no se puede subir.** La migración
+`20260825190000_almacenamiento_imagenes.sql` deja `manuscritos` exactamente ahí,
+así que el bucket ya está en su techo y no hay nada que tocar en el panel. El
+tope que de verdad decide es el del formulario —20 MB por archivo, 50 MB entre
+todos (`MAX_BYTES` y `MAX_BYTES_TOTAL` en `src/lib/validacion.ts`)—, y ése está
+donde sí sabe explicarse: le dice al autor qué archivo pesa de más.
+
+Si alguna vez hiciera falta pasar de 50 MB por archivo, la única salida es un
+plan de pago. El síntoma de chocar contra ese techo es feo y conviene
+reconocerlo: la subida rebota en Storage, el autor ve un error que no explica
+nada, y en los registros de la app no aparece nada, porque la subida va del
+navegador directo a Storage y no pasa por ellos.
+
+**Esto manda sobre la publicación del número entero.** El PDF de una revista
+completa con fotografías puede pasar de 50 MB con facilidad, y en plan gratuito
+no cabría. Producción tiene que dejarlo por debajo de ese peso —Acrobat lo hace
+con *Reducir tamaño de archivo*— o la revista necesita plan de pago antes del
+primer número publicado.
 
 En Vercel: *Observability → Log Drains* a Sentry, Datadog o similar, y las
 alertas del lado del destino. **Esto no está configurado**: necesita una cuenta

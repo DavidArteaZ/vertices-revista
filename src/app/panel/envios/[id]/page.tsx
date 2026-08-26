@@ -3,7 +3,9 @@ import { sesion } from "@/lib/supabase/sesion";
 import { exigePersonal, Cabecera } from "../../guardia";
 import Accion from "../../Accion";
 import { abrirArchivo, marcarAnonimizacion, vincularRevision } from "../../acciones";
+import { etiquetaRol } from "@/lib/datos/portal-envios";
 import Triaje from "./Triaje";
+import DatosSeccion from "./DatosSeccion";
 import Asignaciones from "./Asignaciones";
 import Dictamenes from "./Dictamenes";
 import Decision from "./Decision";
@@ -124,8 +126,10 @@ export default async function DetalleEnvio({ params }: { params: Promise<{ id: s
           <dt className="ciego">Palabras clave</dt>
           <dd style={{ margin: 0 }}>{envio.palabras_clave.join(", ") || "—"}</dd>
         </dl>
-        <p style={{ marginTop: 18 }}>{envio.resumen}</p>
       </div>
+
+      {/* --------------------------------------------------- contenido */}
+      <DatosSeccion datosSeccion={envio.datos_seccion} resumen={envio.resumen} />
 
       {/* ----------------------------------------------------------- archivos */}
       <h3>Archivos</h3>
@@ -136,6 +140,10 @@ export default async function DetalleEnvio({ params }: { params: Promise<{ id: s
           (archivos ?? []).map((a) => (
             <div key={a.id} style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 10 }}>
               <span className="folio">{a.nombre_publico}</span>
+              {/* El rol es lo que distingue la cesión de derechos firmada del
+                  paper: en cinco de las siete secciones ya ningún archivo se
+                  marca como principal, así que el nombre público no basta. */}
+              <span className="etiqueta">{etiquetaRol(a.rol)}</span>
               <span className="nota" style={{ margin: 0 }}>
                 {Math.ceil(a.bytes / 1024)} KB{a.es_principal ? " · principal" : ""}
               </span>

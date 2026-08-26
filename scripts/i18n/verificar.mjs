@@ -11,8 +11,8 @@
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { parse as parseICU } from "@formatjs/icu-messageformat-parser";
-import { LOCALES, DIR_WEB } from "./dicts.mjs";
-import { verificaParametros } from "./parametros.mjs";
+import { LOCALES, LOCALES_TRADUCIDOS, DIR_WEB, cargaTraduccionesPropias } from "./dicts.mjs";
+import { verificaParametros, argumentosDe } from "./parametros.mjs";
 
 const claves = JSON.parse(readFileSync(path.join(DIR_WEB, "scripts/i18n/claves.json"), "utf8"));
 
@@ -39,6 +39,38 @@ for (const l of LOCALES) {
 }
 
 for (const p of verificaParametros(claves)) fallo(p);
+
+// Las traducciones propias, contra el catálogo español.
+//
+// Dos cosas que sólo se ven aquí. Una: una traducción cuya clave ya no existe
+// —porque alguien reescribió la frase española y la clave se derivó otra vez—
+// se queda en el archivo sin que nada la use, y el idioma parece traducido
+// cuando ya no lo está. Dos: una traducción que se come un parámetro. En
+// español «{n} palabras» y en inglés «words», y el número desaparece de la
+// pantalla sin que nada falle.
+const propias = cargaTraduccionesPropias();
+for (const l of LOCALES_TRADUCIDOS) {
+  for (const [clave, texto] of Object.entries(propias[l])) {
+    if (!esperadas.has(clave)) {
+      fallo(`traducciones/${l}.json: sobra ${clave} (el español cambió o la clave se borró)`);
+      continue;
+    }
+    let suyos, nuestros;
+    try {
+      suyos = argumentosDe(parseICU(texto));
+      nuestros = argumentosDe(parseICU(mensajes.es[clave]));
+    } catch (e) {
+      fallo(`traducciones/${l}.json: ${clave} no compila como ICU: ${e.message}`);
+      continue;
+    }
+    for (const a of nuestros) {
+      if (!suyos.has(a)) fallo(`traducciones/${l}.json: ${clave} pierde el parámetro {${a}}`);
+    }
+    for (const a of suyos) {
+      if (!nuestros.has(a)) fallo(`traducciones/${l}.json: ${clave} inventa el parámetro {${a}}`);
+    }
+  }
+}
 
 // Compilación ICU real, idioma por idioma.
 for (const l of LOCALES) {

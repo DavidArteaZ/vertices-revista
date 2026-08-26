@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useState } from "react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import Lienzo from "./Lienzo";
 import Carrusel from "./Carrusel";
 import Convocatoria from "./Convocatoria";
@@ -14,16 +14,9 @@ import Pie from "@/components/layout/Pie";
 import type { TipoNodo } from "@/lib/motor/motor";
 import type { Articulo } from "@/lib/datos/articulos";
 
-/**
- * La portada entera, del lado del cliente.
- *
- * Se separó de app/[locale]/page.tsx en la etapa 6: los artículos ya no son un
- * arreglo importado sino filas de la base, y quien los lee tiene que ser un
- * componente de servidor. Lo único que cambió aquí es que `articulos` llega
- * como propiedad; el resto es el mismo archivo.
- */
 export default function Portada({ articulos }: { articulos: Articulo[] }) {
   const t = useTranslations("portada");
+  const locale = useLocale();
   const [panel, setPanel] = useState<EstadoPanel | null>(null);
 
   const abrirPanel = useCallback((tipo: TipoNodo, valor: string, valor0: string) => {
@@ -33,8 +26,6 @@ export default function Portada({ articulos }: { articulos: Articulo[] }) {
   const verIndice = useCallback(() => {
     setPanel({ tipo: "indice", valor: null, valor0: null, desdeIndice: false });
   }, []);
-  // El índice lista los temas en español (son los datos); el título del panel
-  // los muestra traducidos.
   const abrirTema = useCallback((traducido: string, espanol: string) => {
     setPanel({ tipo: "tema", valor: traducido, valor0: espanol, desdeIndice: true });
   }, []);
@@ -42,25 +33,16 @@ export default function Portada({ articulos }: { articulos: Articulo[] }) {
   return (
     <>
       <h1 className="sr-solo">{t("vertices_revista_academica_de_economia_del_tecno_4187")}</h1>
-
       <Marco />
+      <Lienzo onAbrirPanel={abrirPanel} onCerrarPanel={cerrarPanel} onVerIndice={verIndice} carrusel={<Carrusel articulos={articulos} />} />
 
-      <Lienzo
-        onAbrirPanel={abrirPanel}
-        onCerrarPanel={cerrarPanel}
-        onVerIndice={verIndice}
-        carrusel={<Carrusel articulos={articulos} />}
-      />
-
-      {/* ------- portal editorial (la palabra sigue al fondo, difuminada) ------- */}
       <main id="portal">
         <Convocatoria />
-
         <section className="portal-seccion" id="envio">
           <div className="tablero">
             <div className="panel-envio">
               <p className="ceja">{t("portal_de_envios")}</p>
-              <h2>{t("envio_de_manuscritos")}</h2>
+              <h2>{locale === "es" ? "Envío de piezas" : "Piece submission"}</h2>
               <p className="fecha-limite">
                 <strong>{t("fecha_limite_primera_edicion")}</strong>
                 {t("veinte_de_septiembre_de_2026_los_archivos_recib")}
@@ -71,17 +53,10 @@ export default function Portada({ articulos }: { articulos: Articulo[] }) {
             <EstadoEnvio />
           </div>
         </section>
-
         <Pie />
       </main>
 
-      <PanelArticulos
-        articulos={articulos}
-        estado={panel}
-        onCerrar={cerrarPanel}
-        onAbrirTema={abrirTema}
-        onVolverIndice={verIndice}
-      />
+      <PanelArticulos articulos={articulos} estado={panel} onCerrar={cerrarPanel} onAbrirTema={abrirTema} onVolverIndice={verIndice} />
 
       <noscript>
         <p style={{ position: "fixed", inset: "auto 0 0", padding: 16, textAlign: "center", background: "#342b40", color: "#E7DECB", zIndex: 99 }}>{t("esta_pagina_necesita_javascript_para_mostrar_la_9e0c")}</p>

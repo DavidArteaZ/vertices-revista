@@ -1,17 +1,9 @@
+import type { RolArchivo } from "@/lib/datos/portal-envios";
 import type { Aviso, DatosEnvio } from "@/lib/validacion";
-
-/**
- * Las tres llamadas que hace el asistente al enviar, fuera del componente para
- * que éste siga siendo formulario y no cliente HTTP.
- *
- * Los archivos NO viajan dentro del POST. Suben del navegador directamente a
- * Storage con una URL firmada; el servidor sólo recibe las rutas (spec §8).
- * Ese es el cambio que permite adjuntar 20 MB, que en base64 dentro de un JSON
- * eran 27 y no cabían.
- */
 
 export type Progreso = "subiendo" | "registrando";
 export type Resultado = { folio: string; acuse: boolean } | { error: Aviso };
+export type ArchivoEnvio = { archivo: File; rol: RolArchivo };
 
 const esError = (r: Resultado): r is { error: Aviso } => "error" in r;
 export { esError };
@@ -20,32 +12,39 @@ const AVISO_GENERICO: Aviso = { clave: "no_pudimos_registrar_tu_envio" };
 
 export async function enviarManuscrito(
   datos: DatosEnvio,
-  archivos: File[],
+  archivos: ArchivoEnvio[],
   locale: string,
   avisar: (p: Progreso) => void,
 ): Promise<Resultado> {
   try {
     avisar("subiendo");
 
-    const firmas = await fetch("/api/uploads", {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({
-        archivos: archivos.map((f) => ({ nombre: f.name, bytes: f.size })),
-      }),
-    });
+    let subidas: { nombre: string; path: string; url: string }[] = [];
+    if (archivos.length) {
+      const firmas = await fetch("/api/uploads", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          archivos: archivos.map(({ archivo }) => ({ nombre: archivo.name, bytes: archivo.size })),
+        }),
+      });
 
-    if (!firmas.ok) return { error: await avisoDe(firmas) };
-    const { subidas } = (await firmas.json()) as {
-      subidas: { nombre: string; path: string; url: string }[];
-    };
+      if (!firmas.ok) return { error: await avisoDe(firmas) };
+      subidas = ((await firmas.json()) as {
+        subidas: { nombre: string; path: string; url: string }[];
+      }).subidas;
 
-    // Las firmas vuelven en el mismo orden en que se pidieron, y el primer
-    // archivo es el manuscrito principal. Emparejar por índice y no por nombre
-    // evita que dos adjuntos homónimos se pisen.
-    for (let i = 0; i < archivos.length; i++) {
-      const ok = await subirA(subidas[i].url, archivos[i]);
-      if (!ok) return { error: { clave: "no_pudimos_subir_a", valores: { a: archivos[i].name } } };
+      for (let i = 0; i < archivos.length; i++) {
+        const ok = await subirA(subidas[i].url, archivos[i].archivo);
+        if (!ok) {
+          return {
+            error: {
+              clave: "no_pudimos_subir_a",
+              valores: { a: archivos[i].archivo.name },
+            },
+          };
+        }
+      }
     }
 
     avisar("registrando");
@@ -56,10 +55,11 @@ export async function enviarManuscrito(
       body: JSON.stringify({
         datos,
         locale,
-        archivos: archivos.map((f, i) => ({
+        archivos: archivos.map(({ archivo, rol }, i) => ({
           path: subidas[i].path,
-          nombre: f.name,
-          bytes: f.size,
+          nombre: archivo.name,
+          bytes: archivo.size,
+          rol,
         })),
       }),
     });
@@ -69,29 +69,30 @@ export async function enviarManuscrito(
     const { folio, acuse } = (await registro.json()) as { folio: string; acuse: boolean };
     return { folio, acuse };
   } catch {
-    // Sin red, o el servidor caído. Lo importante es que el asistente NO
-    // muestre éxito: el respaldo que inventaba un folio es el defecto 3.
     return { error: AVISO_GENERICO };
   }
 }
 
-/**
- * La URL firmada espera exactamente lo que manda `uploadToSignedUrl` de
- * supabase-js: un PUT con multipart cuyo campo sin nombre es el archivo. Se
- * hace a mano para no cargar el SDK de Supabase en el bundle del navegador —
- * el navegador no tiene cliente de Supabase, ni siquiera anónimo (§4.2).
- */
+const MIME_POR_EXTENSION: Record<string, string> = {
+  pdf: "application/pdf",
+  jpg: "image/jpeg",
+  jpeg: "image/jpeg",
+  png: "image/png",
+  webp: "image/webp",
+};
+
 async function subirA(url: string, archivo: File): Promise<boolean> {
   const cuerpo = new FormData();
-  // cacheControl 0, y no el 3600 por omisión de supabase-js. Lo que se sube
-  // aquí son los bytes ORIGINALES, con los metadatos del autor todavía dentro;
-  // el servidor los sustituye por la versión limpia unos segundos después,
-  // bajo la misma ruta. Con max-age=3600 el CDN se queda una copia del
-  // original y la sirve durante una hora a quien pida esa ruta —incluido quien
-  // dictamina—. Se detectó justamente así: una descarga de comprobación
-  // devolvió el archivo sucio mientras el objeto del bucket ya estaba limpio.
   cuerpo.append("cacheControl", "0");
-  cuerpo.append("", archivo);
+  // El tipo lo pone la extensión, no `archivo.type`. Safari entrega tipo vacío
+  // en archivos que vienen de iCloud, y Storage rechaza entonces la subida por
+  // su lista de tipos admitidos: el autor ve fallar un archivo perfectamente
+  // válido. La extensión ya la comprobó `EXT_OK` antes de firmar la URL, así
+  // que es la fuente fiable. `slice` con tipo devuelve una vista del mismo
+  // Blob: no copia los 20 MB en memoria.
+  const ext = archivo.name.toLowerCase().match(/\.([a-z0-9]+)$/)?.[1] ?? "";
+  const tipo = MIME_POR_EXTENSION[ext] ?? archivo.type;
+  cuerpo.append("", archivo.slice(0, archivo.size, tipo), archivo.name);
   try {
     const r = await fetch(url, { method: "PUT", body: cuerpo });
     return r.ok;

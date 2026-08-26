@@ -156,6 +156,7 @@ export type Database = {
         archivado_at: string | null;
         created_at: string;
         updated_at: string;
+        datos_seccion: Json;
       }>;
       envios_autoria: Fila<{
         envio_id: string;
@@ -176,6 +177,7 @@ export type Database = {
         version: number;
         es_principal: boolean;
         created_at: string;
+        rol: string;
       }>;
       envio_archivo_nombres: Fila<{ archivo_id: string; nombre_original: string }>;
       asignaciones: Fila<

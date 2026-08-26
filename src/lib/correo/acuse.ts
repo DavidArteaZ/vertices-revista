@@ -1,24 +1,47 @@
 import "server-only";
-import { mandar, enlaceEstado, type Envio } from "./enviar";
+import { mandar, mandarPlantilla, enlaceEstado, type Envio } from "./enviar";
 
-/**
- * El acuse de recibo (spec §8.4).
- *
- * Nunca hace fallar el envío. Un manuscrito guardado y un correo no entregado
- * es recuperable —el folio se puede reenviar—; devolverle un error al autor lo
- * empujaría a mandar el manuscrito otra vez, y entonces habría dos.
- */
 export type Acuse = {
   a: string;
   nombre: string;
   folio: string;
   titulo: string;
+  seccion: string;
+  genero: string;
   locale: string;
-  /** Origen absoluto, para que el enlace del correo no sea relativo. */
   origen: string;
 };
 
+/**
+ * Resend tiene una plantilla publicada por idioma —`confirmacion_ES` y
+ * `confirmacion_ENG`—, no una sola parametrizada. El sitio habla seis idiomas y
+ * las plantillas son dos: sólo el español tiene la suya, los otros cinco caen
+ * en la inglesa. Es la misma regla que ya seguía la variable `lang`.
+ */
+export function plantillaDeLocale(locale: string): string | undefined {
+  return locale === "es"
+    ? process.env.RESEND_CONFIRMACION_TEMPLATE_ES
+    : process.env.RESEND_CONFIRMACION_TEMPLATE_ENG;
+}
+
 export function enviarAcuse(a: Acuse): Promise<Envio> {
+  const plantilla = plantillaDeLocale(a.locale);
+  if (plantilla) {
+    // Éstas son las cinco variables que declaran ambas plantillas. Una que
+    // falte no da error: Resend pone su valor de reserva, así que el autor
+    // recibiría un acuse con un hueco relleno de texto de ejemplo.
+    return mandarPlantilla(a.a, plantilla, {
+      nombre: a.nombre,
+      genero: a.genero,
+      seccion: a.seccion,
+      nom_pieza: a.titulo,
+      folio: a.folio,
+    });
+  }
+
+  // El sitio sigue siendo utilizable en desarrollo aunque la plantilla todavía
+  // no esté configurada. En producción basta definir el alias publicado en
+  // Resend de las dos plantillas.
   return mandar(a.a, a.locale, (t) => ({
     asunto: t("asunto_acuse", { folio: a.folio }),
     lineas: [
