@@ -1,11 +1,14 @@
 import { PDFDocument, PDFName, PDFRef } from "pdf-lib";
 import { unzipSync, zipSync } from "fflate";
 import type { Formato } from "./formato";
+import { optimizar, type MedidaImagen } from "./imagen";
 
 export type Limpieza = {
   bytes: Uint8Array;
   limpio: boolean;
   motivo?: string;
+  /** Sólo las imágenes la traen: cuánto adelgazó la copia. Ver `imagen.ts`. */
+  medida?: MedidaImagen;
 };
 
 const EPOCA = new Date(0);
@@ -15,11 +18,12 @@ export async function limpiar(bytes: Uint8Array, formato: Formato): Promise<Limp
   if (formato === "pdf") return limpiarPdf(bytes);
   if (formato === "docx") return limpiarDocx(bytes);
   if (formato === "jpeg" || formato === "png" || formato === "webp") {
-    // El rediseño recibe fotografías y visualizaciones. No se reencodifican:
-    // hacerlo sin una librería de imagen podría degradarlas o alterar color.
-    // Se marcan para que la revisión humana de anonimización sepa que sus
-    // metadatos EXIF/XMP no se retiraron automáticamente.
-    return { bytes, limpio: false, motivo: "imagen sin limpieza automática de metadatos" };
+    // El rediseño recibe fotografías y visualizaciones. Quitarles el EXIF/XMP
+    // —ubicación GPS incluida— exige volver a escribir el archivo, así que la
+    // limpieza y la optimización son la misma pasada. Vive en su propio módulo
+    // porque devuelve además la medida de lo que adelgazó, y porque «limpiar»
+    // aquí sigue significando sólo quitar los metadatos que delatan al autor.
+    return optimizar(bytes, formato);
   }
   return { bytes, limpio: false, motivo: "el .doc binario no admite limpieza automática" };
 }

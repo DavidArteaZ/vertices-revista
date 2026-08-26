@@ -1,15 +1,15 @@
-import { esSeccionEnvio, type RolArchivo } from "@/lib/datos/portal-envios";
+import {
+  CLAVES_CAMPO_SECCION,
+  esGeneroEnvio,
+  esModalidadEntrevista,
+  esSeccionEnvio,
+  rolPermitido,
+  type CampoSeccion,
+  type RolArchivo,
+} from "@/lib/datos/portal-envios";
 
-export type CamposSeccion = {
-  textoExplicativo: string;
-  repositorio: string;
-  semblanza: string;
-  modalidadEntrevista: string;
-  resumen: string;
-  dato: string;
-  cronica: string;
-  piesImagen: string;
-};
+/** Los campos se declaran en CAMPOS_SECCION; aquí sólo se les da tipo. */
+export type CamposSeccion = Record<CampoSeccion, string>;
 
 export type DatosEnvio = {
   nombre: string;
@@ -35,16 +35,9 @@ export type DatosEnvio = {
 /** Sólo lo que la validación necesita de un archivo adjunto. */
 export type ArchivoLike = { name: string; size: number; rol: RolArchivo };
 
-const camposVacios: CamposSeccion = {
-  textoExplicativo: "",
-  repositorio: "",
-  semblanza: "",
-  modalidadEntrevista: "",
-  resumen: "",
-  dato: "",
-  cronica: "",
-  piesImagen: "",
-};
+const camposVacios = Object.fromEntries(
+  CLAVES_CAMPO_SECCION.map((c) => [c, ""]),
+) as CamposSeccion;
 
 export const vacio: DatosEnvio = {
   nombre: "",
@@ -74,11 +67,20 @@ const v = (s: string) => s.trim();
 /** Clave dentro de `avisos` o clave local del portal. */
 export type Aviso = { clave: string; valores?: Record<string, string | number> };
 
+/**
+ * Todas las claves de aviso del portal, en un solo sitio.
+ *
+ * Aquí viven también las que sólo devuelve la ruta del servidor y que el
+ * navegador nunca dispara: mientras estuvieron declaradas aparte, ninguna
+ * prueba podía recorrerlas y `portal_miradas_paper_max_35_paginas` llegó a
+ * producción sin texto en ningún catálogo —el autor veía el código en bruto—.
+ */
 const AVISO = {
   nombre: "escribe_tu_nombre_completo",
   correo: "escribe_un_correo_de_contacto_valido",
   perfil: "elige_tu_perfil_de_autor",
   afiliacion: "indica_tu_institucion_o_afiliacion",
+  coautores: "portal_coautores_max_2",
   seccion: "elige_la_seccion_que_mejor_le_queda_a_tu_trabajo",
   genero: "portal_genero_requerido",
   titulo: "tu_manuscrito_necesita_un_titulo",
@@ -102,10 +104,19 @@ const AVISO = {
   fotosCapital: "portal_capital_fotos_1_4",
   pies: "portal_capital_pies_requeridos",
   cronicaExcelencia: "portal_excelencia_cronica_requerida",
+  rol: "portal_rol_no_corresponde",
   usoIA: "indica_si_usaste_herramientas_de_inteligencia_ar_1e5d",
   declaraciones: "confirma_las_cuatro_declaraciones_para_poder_env_9d6c",
   extension: "a_no_es_pdf_ni_docx",
   peso: "a_pesa_mas_de_20_mb",
+  archivos: "puedes_adjuntar_como_maximo_5_archivos",
+  total: "entre_todos_los_archivos_se_pasan_de_50_mb",
+  // Sólo las devuelve `POST /api/envios`; el navegador no puede alcanzarlas.
+  limite: "demasiados_intentos",
+  servidor: "no_pudimos_registrar_tu_envio",
+  formato: "portal_archivo_tipo",
+  subida: "no_pudimos_subir_a",
+  paginas: "portal_miradas_paper_max_35_paginas",
 } as const;
 
 export { AVISO };
@@ -116,6 +127,18 @@ export function contarPalabras(texto: string): number {
 
 const archivosDe = (archivos: ArchivoLike[], rol: RolArchivo) =>
   archivos.filter((a) => a.rol === rol);
+
+/**
+ * Cuenta coautores separando por coma.
+ *
+ * Limitación aceptada: quien escriba «Pérez, Ana» pensando en una sola persona
+ * cuenta como dos. Distinguir «apellido, nombre» de «autor, autor» sin
+ * preguntar no tiene solución fiable, y equivocarse hacia el lado estricto sólo
+ * cuesta que el autor reescriba «Ana Pérez».
+ */
+function contarCoautores(texto: string): number {
+  return v(texto).split(",").filter((s) => s.trim()).length;
+}
 
 function repositorioValido(url: string): boolean {
   if (!v(url)) return true;
@@ -137,8 +160,17 @@ export function validarPaso(
     if (!CORREO.test(v(d.correo))) return { clave: AVISO.correo };
     if (!v(d.perfil)) return { clave: AVISO.perfil };
     if (!v(d.afiliacion)) return { clave: AVISO.afiliacion };
+    // Campo opcional: vacío es válido, pero el tope de dos que anuncia el texto
+    // de ayuda no lo comprobaba nadie.
+    if (contarCoautores(d.coautores) > 2) return { clave: AVISO.coautores };
     if (!esSeccionEnvio(d.seccion)) return { clave: AVISO.seccion };
-    if (!v(d.genero)) return { clave: AVISO.genero };
+    /**
+     * El género se contrasta contra su catálogo, no sólo contra el vacío,
+     * porque viaja como variable de plantilla hasta Resend: sin esta línea es
+     * una cadena que elige quien manda la petición y que acaba cruzando a un
+     * tercero dentro de un correo que firmamos nosotros.
+     */
+    if (!esGeneroEnvio(v(d.genero))) return { clave: AVISO.genero };
   }
 
   if (i === 1) {
@@ -150,6 +182,10 @@ export function validarPaso(
 
   if (i === 2) {
     const c = d.campos;
+    // Guarda contra peticiones manipuladas: desde el formulario es inalcanzable
+    // porque `cambiarSeccion` vacía los archivos. Va antes que las reglas por
+    // sección para que un rol ajeno no llegue a contarse como uno de los suyos.
+    if (archivos.some((a) => !rolPermitido(d.seccion, a.rol))) return { clave: AVISO.rol };
     if (!repositorioValido(c.repositorio)) return { clave: AVISO.repositorio };
 
     if (d.seccion === "Datanomics") {
@@ -161,7 +197,9 @@ export function validarPaso(
 
     if (d.seccion === "La Voz de la Experiencia") {
       if (!v(c.semblanza)) return { clave: AVISO.semblanza };
-      if (!v(c.modalidadEntrevista)) return { clave: AVISO.modalidad };
+      // Contra el catálogo por lo mismo que el género: es texto que llega del
+      // cliente y acaba en la ficha editorial sin que nadie lo acote después.
+      if (!esModalidadEntrevista(v(c.modalidadEntrevista))) return { clave: AVISO.modalidad };
       if (archivosDe(archivos, "foto").length !== 1) return { clave: AVISO.foto };
       if (archivosDe(archivos, "cesion_imagen").length !== 1) return { clave: AVISO.cesion };
     }
@@ -224,7 +262,7 @@ export function validarEnvio(d: DatosEnvio, archivos: ArchivoLike[]): Aviso | nu
     const aviso = validarPaso(i, d, archivos);
     if (aviso) return aviso;
   }
-  if (archivos.length > MAX_ARCHIVOS) return { clave: "puedes_adjuntar_como_maximo_5_archivos" };
-  if (archivos.reduce((s, a) => s + a.size, 0) > MAX_BYTES_TOTAL) return { clave: "entre_todos_los_archivos_se_pasan_de_50_mb" };
+  if (archivos.length > MAX_ARCHIVOS) return { clave: AVISO.archivos };
+  if (archivos.reduce((s, a) => s + a.size, 0) > MAX_BYTES_TOTAL) return { clave: AVISO.total };
   return null;
 }

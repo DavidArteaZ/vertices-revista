@@ -12,10 +12,24 @@ export type Acuse = {
   origen: string;
 };
 
+/**
+ * Resend tiene una plantilla publicada por idioma —`confirmacion_ES` y
+ * `confirmacion_ENG`—, no una sola parametrizada. El sitio habla seis idiomas y
+ * las plantillas son dos: sólo el español tiene la suya, los otros cinco caen
+ * en la inglesa. Es la misma regla que ya seguía la variable `lang`.
+ */
+export function plantillaDeLocale(locale: string): string | undefined {
+  return locale === "es"
+    ? process.env.RESEND_CONFIRMACION_TEMPLATE_ES
+    : process.env.RESEND_CONFIRMACION_TEMPLATE_ENG;
+}
+
 export function enviarAcuse(a: Acuse): Promise<Envio> {
-  const plantilla = process.env.RESEND_CONFIRMACION_TEMPLATE_ID;
+  const plantilla = plantillaDeLocale(a.locale);
   if (plantilla) {
     return mandarPlantilla(a.a, plantilla, {
+      // Se sigue mandando aunque la plantilla ya sea de un idioma: si la
+      // declara y no llega, Resend usa el valor de reserva en vez del real.
       lang: a.locale === "es" ? "es" : "eng",
       genero: a.genero,
       seccion: a.seccion,
@@ -25,7 +39,8 @@ export function enviarAcuse(a: Acuse): Promise<Envio> {
   }
 
   // El sitio sigue siendo utilizable en desarrollo aunque la plantilla todavía
-  // no esté configurada. En producción basta definir el id publicado de Resend.
+  // no esté configurada. En producción basta definir el alias publicado en
+  // Resend de las dos plantillas.
   return mandar(a.a, a.locale, (t) => ({
     asunto: t("asunto_acuse", { folio: a.folio }),
     lineas: [

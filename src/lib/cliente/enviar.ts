@@ -73,10 +73,26 @@ export async function enviarManuscrito(
   }
 }
 
+const MIME_POR_EXTENSION: Record<string, string> = {
+  pdf: "application/pdf",
+  jpg: "image/jpeg",
+  jpeg: "image/jpeg",
+  png: "image/png",
+  webp: "image/webp",
+};
+
 async function subirA(url: string, archivo: File): Promise<boolean> {
   const cuerpo = new FormData();
   cuerpo.append("cacheControl", "0");
-  cuerpo.append("", archivo);
+  // El tipo lo pone la extensión, no `archivo.type`. Safari entrega tipo vacío
+  // en archivos que vienen de iCloud, y Storage rechaza entonces la subida por
+  // su lista de tipos admitidos: el autor ve fallar un archivo perfectamente
+  // válido. La extensión ya la comprobó `EXT_OK` antes de firmar la URL, así
+  // que es la fuente fiable. `slice` con tipo devuelve una vista del mismo
+  // Blob: no copia los 20 MB en memoria.
+  const ext = archivo.name.toLowerCase().match(/\.([a-z0-9]+)$/)?.[1] ?? "";
+  const tipo = MIME_POR_EXTENSION[ext] ?? archivo.type;
+  cuerpo.append("", archivo.slice(0, archivo.size, tipo), archivo.name);
   try {
     const r = await fetch(url, { method: "PUT", body: cuerpo });
     return r.ok;

@@ -22,27 +22,20 @@ import {
 
 const PASOS = ["autoria", "pieza", "archivos", "declaracion"] as const;
 
-const ERRORES_PORTAL: Record<string, [string, string]> = {
-  portal_genero_requerido: ["Elige una opción de género.", "Choose a gender option."],
-  portal_datanomics_texto_200_800: ["El texto explicativo debe tener entre 200 y 800 palabras.", "The explanatory text must contain 200 to 800 words."],
-  portal_datanomics_visualizacion_1_3: ["Adjunta de 1 a 3 imágenes para la visualización.", "Attach 1 to 3 images for the visualization."],
-  portal_repositorio_url: ["Escribe un enlace válido para el repositorio.", "Enter a valid repository link."],
-  portal_semblanza_requerida: ["Completa la semblanza.", "Complete the profile."],
-  portal_modalidad_requerida: ["Elige la modalidad de entrevista.", "Choose the interview format."],
-  portal_foto_requerida: ["Adjunta la foto solicitada.", "Attach the requested photo."],
-  portal_cesion_requerida: ["Adjunta la cesión de derechos de imagen firmada en PDF.", "Attach the signed image rights release as a PDF."],
-  portal_miradas_resumen_100_300: ["El resumen debe tener entre 100 y 300 palabras.", "The abstract must contain 100 to 300 words."],
-  portal_miradas_paper_requerido: ["Adjunta el paper en PDF.", "Attach the paper as a PDF."],
-  portal_miradas_anexos_max_3: ["Puedes adjuntar como máximo 3 anexos.", "You can attach up to 3 appendices."],
-  portal_horizonte_resumen_max_200: ["El resumen debe tener entre 1 y 200 palabras.", "The summary must contain 1 to 200 words."],
-  portal_horizonte_articulo_requerido: ["Adjunta el artículo en PDF.", "Attach the article as a PDF."],
-  portal_sabias_dato_max_200: ["El dato debe tener entre 1 y 200 palabras.", "The fact must contain 1 to 200 words."],
-  portal_sabias_imagen_max_1: ["Puedes adjuntar como máximo una imagen.", "You can attach at most one image."],
-  portal_capital_cronica_500_900: ["La crónica debe tener entre 500 y 900 palabras.", "The chronicle must contain 500 to 900 words."],
-  portal_capital_fotos_1_4: ["Adjunta de 1 a 4 fotos.", "Attach 1 to 4 photos."],
-  portal_capital_pies_requeridos: ["Escribe los pies de imagen en orden, separados por coma.", "Enter the image captions in order, separated by commas."],
-  portal_excelencia_cronica_requerida: ["Completa la crónica.", "Complete the chronicle."],
-  portal_archivo_tipo: ["El tipo de archivo no corresponde con este campo.", "The file type does not match this field."],
+/** Las etiquetas de los cuatro pasos, en el orden de PASOS. */
+const CLAVE_PASO = ["paso_autoria", "paso_pieza", "paso_archivos", "paso_declaracion"] as const;
+
+/**
+ * El valor de cada opción de género viaja en español hasta la base y hasta la
+ * plantilla del correo, así que no puede ser la clave de traducción: sólo la
+ * etiqueta que se lee cambia de idioma. Las cuatro claves ya estaban en el
+ * catálogo.
+ */
+const CLAVE_GENERO: Record<(typeof GENEROS_ENVIO)[number], string> = {
+  "Prefiero no responder aquí": "prefiero_no_responder_aqui",
+  Femenino: "femenino",
+  Masculino: "masculino",
+  Otro: "otro",
 };
 
 export default function FormularioEnvio() {
@@ -50,7 +43,6 @@ export default function FormularioEnvio() {
   const tAviso = useTranslations("avisos");
   const locale = useLocale();
   const { tema, seccion: nombreSeccion } = useCatalogo();
-  const es = locale === "es";
   const [paso, setPaso] = useState(0);
   const [datos, setDatos] = useState<DatosEnvio>(vacio);
   const [archivos, setArchivos] = useState<ArchivoEnvio[]>([]);
@@ -114,14 +106,8 @@ export default function FormularioEnvio() {
   }
 
   function textoError(a: Aviso): string {
-    const local = ERRORES_PORTAL[a.clave];
-    if (local) return local[es ? 0 : 1];
     return tAviso(a.clave, a.valores);
   }
-
-  const etiquetasPaso = es
-    ? ["Autoría", "Información de la pieza", "Archivos", "Declaración"]
-    : ["Authorship", "Piece information", "Files", "Declaration"];
 
   if (folio) {
     return (
@@ -146,7 +132,7 @@ export default function FormularioEnvio() {
       <ol className="wiz-pasos" id="wizPasos">
         {PASOS.map((p, k) => (
           <li key={p} className={k === paso ? "activo" : k < paso ? "hecho" : undefined} data-paso={k} onClick={() => { if (k < paso) { setPaso(k); setError(null); } }}>
-            <i>{k + 1}</i>{etiquetasPaso[k]}
+            <i>{k + 1}</i>{t(CLAVE_PASO[k])}
           </li>
         ))}
       </ol>
@@ -188,7 +174,7 @@ export default function FormularioEnvio() {
         <div className="fila2 campo">
           <div>
             <div className="etiqueta-fila">
-              <label htmlFor="seccion">{es ? "Sección *" : "Section *"}</label>
+              <label htmlFor="seccion">{t("campo_seccion")}</label>
               <Link href="/lineamientos#secciones" className="enlace-secciones">{t("consulta_las_secciones")}</Link>
             </div>
             <select id="seccion" value={datos.seccion} onChange={(e) => cambiarSeccion(e.target.value)}>
@@ -197,19 +183,19 @@ export default function FormularioEnvio() {
             </select>
           </div>
           <div>
-            <label htmlFor="genero">{es ? "Género *" : "Gender *"}</label>
+            <label htmlFor="genero">{t("campo_genero")}</label>
             <select id="genero" value={datos.genero} onChange={(e) => set("genero", e.target.value)}>
-              <option value="">{es ? "Elige una opción" : "Choose an option"}</option>
-              {GENEROS_ENVIO.map((x) => <option key={x} value={x}>{x === "Prefiero no responder aquí" && !es ? "Prefer not to answer here" : x}</option>)}
+              <option value="">{t("elige_una_opcion")}</option>
+              {GENEROS_ENVIO.map((x) => <option key={x} value={x}>{t(CLAVE_GENERO[x])}</option>)}
             </select>
           </div>
         </div>
       </fieldset>
 
       <fieldset className={`paso${paso === 1 ? " activo" : ""}`} data-paso="1">
-        <legend>{es ? "Sobre la pieza" : "About the piece"}</legend>
+        <legend>{t("sobre_la_pieza")}</legend>
         <div className="campo">
-          <label htmlFor="tituloArt">{es ? "Título *" : "Title *"}</label>
+          <label htmlFor="tituloArt">{t("campo_titulo")}</label>
           <input type="text" id="tituloArt" value={datos.titulo} onChange={(e) => set("titulo", e.target.value)} />
         </div>
         <div className="campo">
@@ -228,8 +214,8 @@ export default function FormularioEnvio() {
       </fieldset>
 
       <fieldset className={`paso${paso === 2 ? " activo" : ""}`} data-paso="2">
-        <legend>{es ? "Archivos y contenido de la pieza" : "Files and piece content"}</legend>
-        <CamposArchivosEnvio seccion={datos.seccion} campos={datos.campos} archivos={archivos} locale={locale} onCampo={setCampo} onArchivos={ponerArchivos} onQuitar={(i) => setArchivos((a) => a.filter((_, k) => k !== i))} />
+        <legend>{t("archivos_y_contenido_de_la_pieza")}</legend>
+        <CamposArchivosEnvio seccion={datos.seccion} campos={datos.campos} archivos={archivos} onCampo={setCampo} onArchivos={ponerArchivos} onQuitar={(i) => setArchivos((a) => a.filter((_, k) => k !== i))} />
       </fieldset>
 
       <fieldset className={`paso${paso === 3 ? " activo" : ""}`} data-paso="3">
@@ -254,7 +240,7 @@ export default function FormularioEnvio() {
       <div className="wiz-acciones">
         <button type="button" className="boton" disabled={paso === 0 || !!enviando} onClick={() => { if (paso > 0) { setPaso(paso - 1); setError(null); } }}>{t("regresar")}</button>
         <button type="button" className="boton boton--lleno" disabled={!!enviando} onClick={continuar}>
-          {enviando === "subiendo" ? t("subiendo_archivos") : enviando === "registrando" ? t("registrando_envio") : paso === 3 ? (es ? "Enviar" : "Submit") : (es ? "Continuar" : "Continue")}
+          {enviando === "subiendo" ? t("subiendo_archivos") : enviando === "registrando" ? t("registrando_envio") : paso === 3 ? t("enviar") : t("continuar")}
         </button>
       </div>
     </form>

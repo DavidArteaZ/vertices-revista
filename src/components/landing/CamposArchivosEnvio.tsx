@@ -1,5 +1,7 @@
 "use client";
 
+import { useTranslations } from "next-intl";
+
 import type { ArchivoEnvio } from "@/lib/cliente/enviar";
 import type { RolArchivo } from "@/lib/datos/portal-envios";
 import { MODALIDADES_ENTREVISTA } from "@/lib/datos/portal-envios";
@@ -9,13 +11,18 @@ type Props = {
   seccion: string;
   campos: CamposSeccion;
   archivos: ArchivoEnvio[];
-  locale: string;
   onCampo: <K extends keyof CamposSeccion>(clave: K, valor: CamposSeccion[K]) => void;
   onArchivos: (rol: RolArchivo, files: File[], maximo: number) => void;
   onQuitar: (indice: number) => void;
 };
 
 const CESION = "/documentos/cesion-derechos-uso-imagen.pdf";
+
+/** Por lo mismo que el género: el valor se guarda en español, sólo la etiqueta se traduce. */
+const CLAVE_MODALIDAD: Record<(typeof MODALIDADES_ENTREVISTA)[number], string> = {
+  Presencial: "presencial",
+  "En línea": "en_linea",
+};
 
 function CampoArchivo({
   id,
@@ -38,6 +45,7 @@ function CampoArchivo({
   onArchivos: Props["onArchivos"];
   onQuitar: Props["onQuitar"];
 }) {
+  const t = useTranslations("camposarchivosenvio");
   const propios = archivos
     .map((x, indice) => ({ ...x, indice }))
     .filter((x) => x.rol === rol);
@@ -46,7 +54,7 @@ function CampoArchivo({
     <div className="campo">
       <label htmlFor={id}>{titulo}</label>
       <label className="zona-archivo zona-archivo--compacta" htmlFor={id}>
-        <strong>{propios.length ? `${propios.length} archivo${propios.length === 1 ? "" : "s"}` : "Seleccionar archivo"}</strong>
+        <strong>{propios.length ? t("n_archivos", { n: propios.length }) : t("seleccionar_archivo")}</strong>
         <span>{ayuda}</span>
       </label>
       <input
@@ -65,7 +73,7 @@ function CampoArchivo({
           {propios.map(({ archivo, indice }) => (
             <li key={`${rol}-${archivo.name}-${archivo.size}-${indice}`}>
               <span>{archivo.name}</span>
-              <button type="button" onClick={() => onQuitar(indice)} aria-label={`Quitar ${archivo.name}`}>✕</button>
+              <button type="button" onClick={() => onQuitar(indice)} aria-label={t("quitar_a", { a: archivo.name })}>✕</button>
             </li>
           ))}
         </ul>
@@ -75,18 +83,15 @@ function CampoArchivo({
 }
 
 export default function CamposArchivosEnvio(props: Props) {
-  const { seccion, campos, archivos, locale, onCampo, onArchivos, onQuitar } = props;
-  const es = locale === "es";
-  const palabras = (texto: string) => contarPalabras(texto);
+  const { seccion, campos, archivos, onCampo, onArchivos, onQuitar } = props;
+  const t = useTranslations("camposarchivosenvio");
   const contador = (texto: string, min: number | null, max: number) => {
-    const n = palabras(texto);
-    return es
-      ? `${n} palabras${min ? ` · mínimo ${min}` : ""} · máximo ${max}`
-      : `${n} words${min ? ` · minimum ${min}` : ""} · maximum ${max}`;
+    const n = contarPalabras(texto);
+    return min === null ? t("contador_max", { n, max }) : t("contador_min_max", { n, min, max });
   };
   const repo = (
     <div className="campo">
-      <label htmlFor="repositorio">{es ? "Repositorio (opcional)" : "Repository (optional)"}</label>
+      <label htmlFor="repositorio">{t("repositorio_opcional")}</label>
       <input
         id="repositorio"
         type="url"
@@ -101,11 +106,11 @@ export default function CamposArchivosEnvio(props: Props) {
     return (
       <>
         <div className="campo">
-          <label htmlFor="textoExplicativo">{es ? "Texto explicativo *" : "Explanatory text *"}</label>
+          <label htmlFor="textoExplicativo">{t("texto_explicativo")}</label>
           <textarea id="textoExplicativo" rows={8} value={campos.textoExplicativo} onChange={(e) => onCampo("textoExplicativo", e.target.value)} />
           <p className="ayuda contador">{contador(campos.textoExplicativo, 200, 800)}</p>
         </div>
-        <CampoArchivo id="visualizacion" titulo={es ? "Visualización *" : "Visualization *"} ayuda={es ? "Hasta 3 imágenes (JPG, PNG o WebP)" : "Up to 3 images (JPG, PNG or WebP)"} rol="visualizacion" accept="image/jpeg,image/png,image/webp" maximo={3} archivos={archivos} onArchivos={onArchivos} onQuitar={onQuitar} />
+        <CampoArchivo id="visualizacion" titulo={t("visualizacion")} ayuda={t("hasta_3_imagenes_jpg_png_o_webp")} rol="visualizacion" accept="image/jpeg,image/png,image/webp" maximo={3} archivos={archivos} onArchivos={onArchivos} onQuitar={onQuitar} />
         {repo}
       </>
     );
@@ -115,19 +120,19 @@ export default function CamposArchivosEnvio(props: Props) {
     return (
       <>
         <div className="campo">
-          <label htmlFor="semblanza">{es ? "Semblanza *" : "Profile *"}</label>
-          <textarea id="semblanza" rows={6} placeholder={es ? "Cargo, años de experiencia, trayectoria" : "Role, years of experience, career path"} value={campos.semblanza} onChange={(e) => onCampo("semblanza", e.target.value)} />
+          <label htmlFor="semblanza">{t("semblanza")}</label>
+          <textarea id="semblanza" rows={6} placeholder={t("cargo_anos_de_experiencia_trayectoria")} value={campos.semblanza} onChange={(e) => onCampo("semblanza", e.target.value)} />
         </div>
         <div className="campo">
-          <label htmlFor="modalidadEntrevista">{es ? "Modalidad de entrevista *" : "Interview format *"}</label>
+          <label htmlFor="modalidadEntrevista">{t("modalidad_de_entrevista")}</label>
           <select id="modalidadEntrevista" value={campos.modalidadEntrevista} onChange={(e) => onCampo("modalidadEntrevista", e.target.value)}>
-            <option value="">{es ? "Elige una modalidad" : "Choose a format"}</option>
-            {MODALIDADES_ENTREVISTA.map((x) => <option key={x} value={x}>{x}</option>)}
+            <option value="">{t("elige_una_modalidad")}</option>
+            {MODALIDADES_ENTREVISTA.map((x) => <option key={x} value={x}>{t(CLAVE_MODALIDAD[x])}</option>)}
           </select>
         </div>
-        <CampoArchivo id="fotoVoz" titulo={es ? "Foto suya *" : "Portrait photo *"} ayuda={es ? "1 imagen (JPG, PNG o WebP)" : "1 image (JPG, PNG or WebP)"} rol="foto" accept="image/jpeg,image/png,image/webp" maximo={1} archivos={archivos} onArchivos={onArchivos} onQuitar={onQuitar} />
-        <CampoArchivo id="cesionVoz" titulo={es ? "Cesión de derechos de imagen llenada y firmada *" : "Signed image rights release *"} ayuda="PDF" rol="cesion_imagen" accept="application/pdf" maximo={1} archivos={archivos} onArchivos={onArchivos} onQuitar={onQuitar} />
-        <p className="ayuda enlace-documento"><a href={CESION} target="_blank" rel="noopener noreferrer">{es ? "Cesión de derechos de imagen" : "Image rights release"}</a></p>
+        <CampoArchivo id="fotoVoz" titulo={t("foto_suya")} ayuda={t("1_imagen_jpg_png_o_webp")} rol="foto" accept="image/jpeg,image/png,image/webp" maximo={1} archivos={archivos} onArchivos={onArchivos} onQuitar={onQuitar} />
+        <CampoArchivo id="cesionVoz" titulo={t("cesion_de_derechos_de_imagen_llenada_y_firmada")} ayuda="PDF" rol="cesion_imagen" accept="application/pdf" maximo={1} archivos={archivos} onArchivos={onArchivos} onQuitar={onQuitar} />
+        <p className="ayuda enlace-documento"><a href={CESION} target="_blank" rel="noopener noreferrer">{t("cesion_de_derechos_de_imagen")}</a></p>
       </>
     );
   }
@@ -136,12 +141,12 @@ export default function CamposArchivosEnvio(props: Props) {
     return (
       <>
         <div className="campo">
-          <label htmlFor="resumenMiradas">{es ? "Resumen *" : "Abstract *"}</label>
+          <label htmlFor="resumenMiradas">{t("resumen_miradas")}</label>
           <textarea id="resumenMiradas" rows={7} value={campos.resumen} onChange={(e) => onCampo("resumen", e.target.value)} />
           <p className="ayuda contador">{contador(campos.resumen, 100, 300)}</p>
         </div>
-        <CampoArchivo id="paper" titulo={es ? "Paper *" : "Paper *"} ayuda={es ? "PDF · máximo 35 cuartillas" : "PDF · maximum 35 pages"} rol="paper" accept="application/pdf" maximo={1} archivos={archivos} onArchivos={onArchivos} onQuitar={onQuitar} />
-        <CampoArchivo id="anexos" titulo={es ? "Anexos (opcional)" : "Appendices (optional)"} ayuda={es ? "Hasta 3 archivos PDF" : "Up to 3 PDF files"} rol="anexo" accept="application/pdf" maximo={3} archivos={archivos} onArchivos={onArchivos} onQuitar={onQuitar} />
+        <CampoArchivo id="paper" titulo={t("paper")} ayuda={t("pdf_maximo_35_cuartillas")} rol="paper" accept="application/pdf" maximo={1} archivos={archivos} onArchivos={onArchivos} onQuitar={onQuitar} />
+        <CampoArchivo id="anexos" titulo={t("anexos_opcional")} ayuda={t("hasta_3_archivos_pdf")} rol="anexo" accept="application/pdf" maximo={3} archivos={archivos} onArchivos={onArchivos} onQuitar={onQuitar} />
         {repo}
       </>
     );
@@ -151,11 +156,11 @@ export default function CamposArchivosEnvio(props: Props) {
     return (
       <>
         <div className="campo">
-          <label htmlFor="resumenHorizonte">{es ? "Resumen *" : "Summary *"}</label>
+          <label htmlFor="resumenHorizonte">{t("resumen_horizonte")}</label>
           <textarea id="resumenHorizonte" rows={7} value={campos.resumen} onChange={(e) => onCampo("resumen", e.target.value)} />
           <p className="ayuda contador">{contador(campos.resumen, null, 200)}</p>
         </div>
-        <CampoArchivo id="articulo" titulo={es ? "Artículo *" : "Article *"} ayuda={es ? "PDF · 800 a 1500 palabras · incluir gráficas en el PDF" : "PDF · 800 to 1,500 words · include charts in the PDF"} rol="articulo" accept="application/pdf" maximo={1} archivos={archivos} onArchivos={onArchivos} onQuitar={onQuitar} />
+        <CampoArchivo id="articulo" titulo={t("articulo")} ayuda={t("pdf_800_a_1500_palabras_incluir_graficas_en_el_p_f838")} rol="articulo" accept="application/pdf" maximo={1} archivos={archivos} onArchivos={onArchivos} onQuitar={onQuitar} />
       </>
     );
   }
@@ -164,11 +169,11 @@ export default function CamposArchivosEnvio(props: Props) {
     return (
       <>
         <div className="campo">
-          <label htmlFor="dato">{es ? "Dato *" : "Fact *"}</label>
+          <label htmlFor="dato">{t("dato")}</label>
           <textarea id="dato" rows={7} value={campos.dato} onChange={(e) => onCampo("dato", e.target.value)} />
           <p className="ayuda contador">{contador(campos.dato, null, 200)}</p>
         </div>
-        <CampoArchivo id="imagenSabias" titulo={es ? "Imagen (opcional)" : "Image (optional)"} ayuda={es ? "Máximo 1 imagen (JPG, PNG o WebP)" : "Maximum 1 image (JPG, PNG or WebP)"} rol="foto" accept="image/jpeg,image/png,image/webp" maximo={1} archivos={archivos} onArchivos={onArchivos} onQuitar={onQuitar} />
+        <CampoArchivo id="imagenSabias" titulo={t("imagen_opcional")} ayuda={t("maximo_1_imagen_jpg_png_o_webp")} rol="foto" accept="image/jpeg,image/png,image/webp" maximo={1} archivos={archivos} onArchivos={onArchivos} onQuitar={onQuitar} />
       </>
     );
   }
@@ -177,14 +182,14 @@ export default function CamposArchivosEnvio(props: Props) {
     return (
       <>
         <div className="campo">
-          <label htmlFor="cronicaCapital">{es ? "Crónica *" : "Chronicle *"}</label>
+          <label htmlFor="cronicaCapital">{t("cronica")}</label>
           <textarea id="cronicaCapital" rows={9} value={campos.cronica} onChange={(e) => onCampo("cronica", e.target.value)} />
           <p className="ayuda contador">{contador(campos.cronica, 500, 900)}</p>
         </div>
-        <CampoArchivo id="fotosCapital" titulo={es ? "Foto *" : "Photos *"} ayuda={es ? "De 1 a 4 imágenes (JPG, PNG o WebP)" : "1 to 4 images (JPG, PNG or WebP)"} rol="foto" accept="image/jpeg,image/png,image/webp" maximo={4} archivos={archivos} onArchivos={onArchivos} onQuitar={onQuitar} />
+        <CampoArchivo id="fotosCapital" titulo={t("foto")} ayuda={t("de_1_a_4_imagenes_jpg_png_o_webp")} rol="foto" accept="image/jpeg,image/png,image/webp" maximo={4} archivos={archivos} onArchivos={onArchivos} onQuitar={onQuitar} />
         <div className="campo">
-          <label htmlFor="piesImagen">{es ? "Pies de imagen *" : "Image captions *"}</label>
-          <textarea id="piesImagen" rows={4} placeholder={es ? "En orden, separados por coma" : "In order, separated by commas"} value={campos.piesImagen} onChange={(e) => onCampo("piesImagen", e.target.value)} />
+          <label htmlFor="piesImagen">{t("pies_de_imagen")}</label>
+          <textarea id="piesImagen" rows={4} placeholder={t("en_orden_separados_por_coma")} value={campos.piesImagen} onChange={(e) => onCampo("piesImagen", e.target.value)} />
         </div>
       </>
     );
@@ -194,19 +199,19 @@ export default function CamposArchivosEnvio(props: Props) {
     return (
       <>
         <div className="campo">
-          <label htmlFor="semblanzaExcelencia">{es ? "Semblanza *" : "Profile *"}</label>
-          <textarea id="semblanzaExcelencia" rows={6} placeholder={es ? "Semestre, logro, historia breve, etc." : "Semester, achievement, brief story, etc."} value={campos.semblanza} onChange={(e) => onCampo("semblanza", e.target.value)} />
+          <label htmlFor="semblanzaExcelencia">{t("semblanza")}</label>
+          <textarea id="semblanzaExcelencia" rows={6} placeholder={t("semestre_logro_historia_breve_etc")} value={campos.semblanza} onChange={(e) => onCampo("semblanza", e.target.value)} />
         </div>
         <div className="campo">
-          <label htmlFor="cronicaExcelencia">{es ? "Crónica *" : "Chronicle *"}</label>
-          <textarea id="cronicaExcelencia" rows={8} placeholder={es ? "¿Cómo consiguió la oportunidad? ¿Cuáles fueron los mayores desafíos? ¿Qué aprendizajes le dejó?" : "How did you get the opportunity? What were the biggest challenges? What did you learn?"} value={campos.cronica} onChange={(e) => onCampo("cronica", e.target.value)} />
+          <label htmlFor="cronicaExcelencia">{t("cronica")}</label>
+          <textarea id="cronicaExcelencia" rows={8} placeholder={t("como_consiguio_la_oportunidad_cuales_fueron_los_d695")} value={campos.cronica} onChange={(e) => onCampo("cronica", e.target.value)} />
         </div>
-        <CampoArchivo id="fotoExcelencia" titulo={es ? "Foto suya *" : "Portrait photo *"} ayuda={es ? "1 imagen (JPG, PNG o WebP)" : "1 image (JPG, PNG or WebP)"} rol="foto" accept="image/jpeg,image/png,image/webp" maximo={1} archivos={archivos} onArchivos={onArchivos} onQuitar={onQuitar} />
-        <CampoArchivo id="cesionExcelencia" titulo={es ? "Cesión de derechos de imagen llenada y firmada *" : "Signed image rights release *"} ayuda="PDF" rol="cesion_imagen" accept="application/pdf" maximo={1} archivos={archivos} onArchivos={onArchivos} onQuitar={onQuitar} />
-        <p className="ayuda enlace-documento"><a href={CESION} target="_blank" rel="noopener noreferrer">{es ? "Cesión de derechos de imagen" : "Image rights release"}</a></p>
+        <CampoArchivo id="fotoExcelencia" titulo={t("foto_suya")} ayuda={t("1_imagen_jpg_png_o_webp")} rol="foto" accept="image/jpeg,image/png,image/webp" maximo={1} archivos={archivos} onArchivos={onArchivos} onQuitar={onQuitar} />
+        <CampoArchivo id="cesionExcelencia" titulo={t("cesion_de_derechos_de_imagen_llenada_y_firmada")} ayuda="PDF" rol="cesion_imagen" accept="application/pdf" maximo={1} archivos={archivos} onArchivos={onArchivos} onQuitar={onQuitar} />
+        <p className="ayuda enlace-documento"><a href={CESION} target="_blank" rel="noopener noreferrer">{t("cesion_de_derechos_de_imagen")}</a></p>
       </>
     );
   }
 
-  return <p className="ayuda">{es ? "Selecciona una sección en el paso de Autoría." : "Choose a section in the Authorship step."}</p>;
+  return <p className="ayuda">{t("selecciona_una_seccion_en_el_paso_de_autoria")}</p>;
 }

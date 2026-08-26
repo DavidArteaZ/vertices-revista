@@ -1,16 +1,18 @@
 import { randomUUID } from "node:crypto";
 import { PDFDocument } from "pdf-lib";
 import { servidor, BUCKET_PRIVADO } from "@/lib/supabase/servidor";
-import { bitacora, cuerpoJson, huellaIp, json } from "@/lib/api/peticion";
+import { bitacora, cuerpoJson, huellaIp, json, type Bitacora } from "@/lib/api/peticion";
 import { catalogos } from "@/lib/datos/catalogos";
 import { tipoDeSeccion, esRolArchivo, type RolArchivo } from "@/lib/datos/portal-envios";
 import { reconocer, MIME, type Formato } from "@/lib/archivos/formato";
 import { limpiar } from "@/lib/archivos/limpiar";
+import type { MedidaImagen } from "@/lib/archivos/imagen";
 import { enviarAcuse } from "@/lib/correo/acuse";
 import { guardarContacto } from "@/lib/correo/contacto";
 import {
   validarEnvio,
   vacio,
+  AVISO,
   MAX_ARCHIVOS,
   MAX_BYTES,
   MAX_BYTES_TOTAL,
@@ -26,21 +28,35 @@ export const maxDuration = 60;
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 const IMAGENES = new Set<Formato>(["jpeg", "png", "webp"]);
 
-const AVISO = {
-  limite: "demasiados_intentos",
-  servidor: "no_pudimos_registrar_tu_envio",
-  archivos: "puedes_adjuntar_como_maximo_5_archivos",
-  total: "entre_todos_los_archivos_se_pasan_de_50_mb",
-  formato: "portal_archivo_tipo",
-  subida: "no_pudimos_subir_a",
-  paginas: "portal_miradas_paper_max_35_paginas",
-} as const;
-
 type ArchivoEntrante = { path: string; nombre: string; bytes: number; rol: RolArchivo };
 
 function formatoPermitido(rol: RolArchivo, formato: Formato): boolean {
   if (rol === "foto" || rol === "visualizacion") return IMAGENES.has(formato);
   return formato === "pdf";
+}
+
+/**
+ * Un fallo de red contra Storage es casi siempre transitorio, así que la copia
+ * limpia se reintenta una vez. Más de uno no se justifica a este volumen —unas
+ * decenas de envíos al año— y alargaría una petición que ya tiene 60 segundos
+ * de techo. Si la segunda también falla, quien llama sigue adelante con el
+ * original en vez de perder el envío.
+ */
+async function subirCopiaLimpia(
+  sb: ReturnType<typeof servidor>,
+  path: string,
+  bytes: Uint8Array,
+  mime: string,
+  log: Bitacora,
+): Promise<boolean> {
+  for (let intento = 1; intento <= 2; intento++) {
+    const { error } = await sb.storage
+      .from(BUCKET_PRIVADO)
+      .upload(path, bytes, { contentType: mime, cacheControl: "0" });
+    if (!error) return true;
+    log.error("resubida_fallida", { path, intento, error: error.message });
+  }
+  return false;
 }
 
 function resumenEditorial(d: DatosEnvio): string {
@@ -130,6 +146,7 @@ export async function POST(req: Request) {
       rol: RolArchivo;
       limpio: boolean;
       motivo?: string;
+      medida?: MedidaImagen;
     }[] = [];
 
     for (const a of archivos) {
@@ -156,31 +173,43 @@ export async function POST(req: Request) {
       }
 
       const limpieza = await limpiar(crudos, formato);
-      const limpioPath = randomUUID();
-      const { error: eSubida } = await sb.storage
-        .from(BUCKET_PRIVADO)
-        .upload(limpioPath, limpieza.bytes, {
-          contentType: MIME[formato],
-          cacheControl: "0",
-        });
-
-      if (eSubida) {
-        log.error("resubida_fallida", { path: limpioPath, error: eSubida.message });
-        return json({ aviso: AVISO.subida, valores: { a: a.nombre } }, 500);
+      if (IMAGENES.has(formato) && !limpieza.limpio) {
+        log.error("imagen_no_optimizada", { nombre: a.nombre, motivo: limpieza.motivo });
       }
 
-      const { error: eBorrado } = await sb.storage.from(BUCKET_PRIVADO).remove([a.path]);
-      if (eBorrado) log.error("borrado_original_fallido", { path: a.path, error: eBorrado.message });
+      const limpioPath = randomUUID();
+      const guardada = await subirCopiaLimpia(sb, limpioPath, limpieza.bytes, MIME[formato], log);
+
+      // Si la copia limpia no se pudo guardar, el envío sigue adelante con el
+      // archivo original, que ya está en el bucket. Es seguro: el defecto que
+      // motivó `20260821130300_ruta_limpia.sql` era escribir la copia limpia
+      // ENCIMA de la sucia y que el CDN siguiera sirviendo la sucia cacheada
+      // desde esa misma ruta; una ruta que nunca se reescribió no tiene ese
+      // problema. Lo que sí sería un defecto es lo que pasaba antes: un fallo
+      // de red contra Storage a mitad del bucle devolvía un error sin folio y
+      // dejaba huérfanos los archivos ya subidos, o sea el envío perdido.
+      const guardado = guardada ? limpioPath : a.path;
+
+      // El original sólo se borra si hay copia que lo sustituya.
+      if (guardada) {
+        const { error: eBorrado } = await sb.storage.from(BUCKET_PRIVADO).remove([a.path]);
+        if (eBorrado) log.error("borrado_original_fallido", { path: a.path, error: eBorrado.message });
+      }
 
       preparados.push({
         subida_path: a.path,
-        storage_path: limpioPath,
+        storage_path: guardado,
         nombre_original: a.nombre,
         mime: MIME[formato],
-        bytes: limpieza.bytes.byteLength,
+        bytes: guardada ? limpieza.bytes.byteLength : crudos.byteLength,
         rol: a.rol,
-        limpio: limpieza.limpio,
-        motivo: limpieza.motivo,
+        limpio: guardada && limpieza.limpio,
+        motivo: guardada
+          ? limpieza.motivo
+          : "no se pudo guardar la copia limpia; queda el archivo tal como se subió",
+        // La medida describe la copia optimizada: si no se guardó, no hay nada
+        // que medir y contarla inflaría la reducción que se vigila.
+        medida: guardada ? limpieza.medida : undefined,
       });
     }
 
@@ -234,6 +263,23 @@ export async function POST(req: Request) {
         envio_id: creado.id,
         tipo: "metadatos_no_limpiados",
         payload: { archivos: sucios.map((s) => ({ path: s.storage_path, rol: s.rol, motivo: s.motivo })) },
+      });
+    }
+
+    // Lo que el optimizador de imágenes ahorró de verdad, archivo por archivo.
+    // Sin esto, el 70-85 % de reducción que justifica no conservar los
+    // originales sería una suposición, y un optimizador que empezara a fallar
+    // en todas las fotos se vería igual que uno que funciona. `envio_eventos`
+    // acepta cualquier `tipo`, así que no hace falta migración. Cómo mirarlo:
+    // `docs/operacion.md §4`.
+    const medidas = preparados.flatMap((p) =>
+      p.medida ? [{ path: p.storage_path, rol: p.rol, ...p.medida }] : [],
+    );
+    if (medidas.length) {
+      await sb.from("envio_eventos").insert({
+        envio_id: creado.id,
+        tipo: "imagen_optimizada",
+        payload: { archivos: medidas },
       });
     }
 

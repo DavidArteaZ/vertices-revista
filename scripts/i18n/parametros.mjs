@@ -13,6 +13,7 @@
  * Por eso toda clave con llaves tiene que estar declarada aquí con los
  * parámetros que admite. Si no está, generar.mjs falla.
  */
+import { parse as parseICU, TYPE } from "@formatjs/icu-messageformat-parser";
 
 export const PARAMETRIZADOS = {
   "panelarticulos.n_de_m_temas": ["n", "m"],
@@ -23,6 +24,10 @@ export const PARAMETRIZADOS = {
   "avisos.a_pesa_mas_de_20_mb": ["a"],
   "formularioenvio.contador_singular": ["n"],
   "formularioenvio.contador_plural": ["n"],
+  "camposarchivosenvio.contador_min_max": ["n", "min", "max"],
+  "camposarchivosenvio.contador_max": ["n", "max"],
+  "camposarchivosenvio.n_archivos": ["n"],
+  "camposarchivosenvio.quitar_a": ["a"],
   "avisos.no_pudimos_subir_a": ["a"],
   "avisos.a_no_es_un_pdf_ni_un_documento_de_word": ["a"],
   "estadoenvio.recibido_el_f": ["f"],
@@ -35,12 +40,44 @@ export const PARAMETRIZADOS = {
   "articulo.numero_n": ["n"],
 };
 
+/**
+ * Recoge los nombres de argumento de un mensaje recorriendo su árbol ICU.
+ *
+ * Leerlos con una expresión regular sobre las llaves parecía suficiente
+ * mientras todos los mensajes eran `{n} de {m}`, pero un plural
+ * —`{n, plural, one {# palabra} other {# palabras}}`— anida llaves, y el regex
+ * devolvía «n, plural, one {# palabra» como si fuera un parámetro. Ninguna
+ * clave con plural podía declararse, así que la generación entera fallaba.
+ */
+export function argumentosDe(elementos, acc = new Set()) {
+  for (const el of elementos) {
+    if (el.type === TYPE.literal || el.type === TYPE.pound) continue;
+    if (el.type === TYPE.tag) {
+      argumentosDe(el.children, acc);
+      continue;
+    }
+    acc.add(el.value);
+    // select y plural llevan su propio sub-árbol por opción, y ahí dentro
+    // puede haber más argumentos.
+    if (el.options) for (const o of Object.values(el.options)) argumentosDe(o.value, acc);
+  }
+  return acc;
+}
+
 export function verificaParametros(claves) {
   const problemas = [];
   for (const [espacio, entradas] of Object.entries(claves)) {
     for (const [clave, espanol] of Object.entries(entradas)) {
       const completa = `${espacio}.${clave}`;
-      const llaves = [...espanol.matchAll(/\{([^}]*)\}/g)].map((m) => m[1]);
+      let llaves;
+      try {
+        llaves = [...argumentosDe(parseICU(espanol))];
+      } catch (e) {
+        // Un mensaje que no compila es un problema más de esta lista, no una
+        // excepción que tumbe la generación sin decir de qué clave se trata.
+        problemas.push(`${completa} no compila como ICU: ${e.message}`);
+        continue;
+      }
       if (!llaves.length) continue;
       const declarados = PARAMETRIZADOS[completa];
       if (!declarados) {

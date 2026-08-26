@@ -175,6 +175,65 @@ begin
   end if;
   afirmaciones := afirmaciones + 1;
 
+  -- Y QUÉ ACEPTA cada uno, que es la otra mitad y la que faltaba. Ser privado
+  -- no dice nada sobre si la subida llega: la del portal va del navegador
+  -- directamente a Storage, sin pasar por ninguna ruta nuestra, así que un tipo
+  -- que el código admite y el bucket no rebota con un error que el autor no
+  -- sabe leer y que no aparece en los registros de la app. Es exactamente lo
+  -- que pasó con las fotografías: `EXT_OK` (`src/lib/validacion.ts`) las
+  -- aceptaba desde el primer día del rediseño y `allowed_mime_types` seguía
+  -- teniendo sólo PDF y Word. Nada habría chillado hasta el primer envío con
+  -- foto de la convocatoria, que es el peor momento para enterarse.
+  if not exists (
+    select 1 from storage.buckets
+     where id = 'manuscritos'
+       and allowed_mime_types @> array['image/jpeg', 'image/png', 'image/webp']) then
+    raise exception 'FALLO: manuscritos no admite los tipos de imagen que el portal deja subir';
+  end if;
+  afirmaciones := afirmaciones + 1;
+
+  -- Y que al añadir los nuevos no se hayan caído los de antes: la migración
+  -- reescribe la fila entera (`insert … on conflict do update`), así que
+  -- olvidar una línea no da error, da un bucket que deja de aceptar
+  -- manuscritos. Son los tres no-imagen de `MIME` (`src/lib/archivos/formato.ts`).
+  if not exists (
+    select 1 from storage.buckets
+     where id = 'manuscritos'
+       and allowed_mime_types @> array[
+         'application/pdf',
+         'application/msword',
+         'application/vnd.openxmlformats-officedocument.wordprocessingml.document']) then
+    raise exception 'FALLO: manuscritos dejó de admitir PDF o Word';
+  end if;
+  afirmaciones := afirmaciones + 1;
+
+  -- El tope del bucket es MAX_BYTES_TOTAL (50 MB, el del envío entero), no
+  -- MAX_BYTES (20 MB, el de un archivo suelto). La subida firmada viaja como
+  -- multipart —el archivo envuelto en un formulario con sus cabeceras—, así
+  -- que si los dos números coincidieran, un archivo de justo 20 MB pasaría la
+  -- validación del formulario y rebotaría en el almacén por unos cientos de
+  -- bytes de envoltura, otra vez sin nada que lo cuente. Se afirma exacto: si
+  -- cambia el tope del formulario, esta línea obliga a mirar el bucket.
+  if not exists (
+    select 1 from storage.buckets
+     where id = 'manuscritos' and file_size_limit = 52428800) then
+    raise exception 'FALLO: el tope de manuscritos no es 50 MB (MAX_BYTES_TOTAL)';
+  end if;
+  afirmaciones := afirmaciones + 1;
+
+  -- `publicaciones` NO cambia con las imágenes, y se afirma justamente por eso:
+  -- la migración vuelve a declarar su fila entera cada vez que se aplica, y un
+  -- arrastre sin querer —admitir imágenes en el bucket PÚBLICO— no se vería en
+  -- ningún otro sitio.
+  if not exists (
+    select 1 from storage.buckets
+     where id = 'publicaciones'
+       and file_size_limit = 20971520
+       and allowed_mime_types = array['application/pdf']) then
+    raise exception 'FALLO: publicaciones cambió de tope o de tipos admitidos';
+  end if;
+  afirmaciones := afirmaciones + 1;
+
   -- Las dos mitades de "nadie que no salte RLS toca el bucket privado": RLS
   -- activo sobre storage.objects, y ni una política que lo abra. Cualquiera de
   -- las dos por separado no dice nada — RLS sin políticas deniega, políticas
@@ -224,7 +283,7 @@ begin
   reset role;
 
   raise notice 'superficie de API: % afirmaciones, todas pasaron', afirmaciones;
-  if afirmaciones <> 19 then
-    raise exception 'se esperaban 19 afirmaciones y corrieron %', afirmaciones;
+  if afirmaciones <> 23 then
+    raise exception 'se esperaban 23 afirmaciones y corrieron %', afirmaciones;
   end if;
 end $$;

@@ -10,7 +10,7 @@
     "typecheck": "tsc --noEmit",
     "i18n:generar": "node scripts/i18n/generar.mjs",
     "i18n:verificar": "node scripts/i18n/verificar.mjs",
-    "test": "node scripts/i18n/verificar.mjs && vitest run",
+    "test": "node scripts/i18n/verificar.mjs && tsc --noEmit && vitest run",
     "test:watch": "vitest",
     "e2e": "node scripts/e2e/envio.mjs",
     "baseline": "playwright test capturar-baseline",
@@ -28,7 +28,8 @@
     "react": "19.2.8",
     "react-dom": "19.2.8",
     "resend": "^6.21.0",
-    "server-only": "^0.0.1"
+    "server-only": "^0.0.1",
+    "sharp": "0.35.3"
   },
   "devDependencies": {
     "@formatjs/icu-messageformat-parser": "^3.5.17",

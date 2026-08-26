@@ -99,7 +99,26 @@ El paso humano de comprobar que el manuscrito no lleva el nombre del autor
 impreso en la portada, el encabezado o los agradecimientos. Distinto de quitar
 los metadatos, que sí es automático. La revista promete lo segundo y pide lo
 primero.
-_Evitar_: usar «anonimización» para hablar del borrado de metadatos.
+_Evitar_: usar «anonimización» para hablar del borrado de metadatos, o del
+reprocesado de las imágenes.
+
+**Limpieza de metadatos**:
+Quitar del archivo los datos ocultos que delatan al autor: EXIF, XMP, el nombre
+del equipo, la ubicación GPS de la foto. Es automática y no depende de nadie:
+`limpiar()` la aplica a todo archivo que entra. Es lo que la revista **promete**;
+la anonimización es lo que **pide**.
+_Evitar_: anonimización, limpiar el archivo a secas (se limpia el manuscrito
+también, y eso es otra cosa).
+
+**Optimización de imagen**:
+Bajar el peso y las dimensiones de una foto al recibirla —tope de 3600 px en el
+lado largo— para que quepa en el almacén. Ocurre en la misma pasada que la
+limpieza de metadatos y por eso se confunden, pero persiguen cosas distintas:
+una protege al autor, la otra protege el almacén. Si el reprocesado falla se
+guarda el original —con sus metadatos dentro—, marcado y anotado en la
+bitácora: el envío nunca se rechaza por una foto. El porqué del tope y del
+formato de salida está en `docs/adr/0001-fotos-optimizadas-al-recibirlas.md`.
+_Evitar_: comprimir, redimensionar, limpiar la imagen.
 
 **Bitácora**:
 `envio_eventos`. Sólo se añade: nadie tiene UPDATE ni DELETE, ni el comité. Es

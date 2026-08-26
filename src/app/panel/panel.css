@@ -68,6 +68,25 @@ h3{
   padding:20px 22px; margin-bottom:18px;
 }
 
+/* El contenido que escribió el autor: etiqueta encima y texto debajo, en vez
+   de la rejilla de dos columnas del bloque del manuscrito. Aquí no hay campos
+   de una línea, hay crónicas de 900 palabras. */
+.campos-seccion{ margin:0; }
+.campos-seccion > div{ margin-bottom:22px; }
+.campos-seccion > div:last-child{ margin-bottom:0; }
+.campos-seccion dt{
+  font:500 10px var(--f-ui); letter-spacing:.18em; text-transform:uppercase;
+  color:var(--gris); margin-bottom:7px;
+}
+.campos-seccion dd{ margin:0; }
+
+/* pre-wrap conserva los saltos de párrafo en pantalla y también al copiar, que
+   es como el comité lleva el texto a su plantilla. */
+.texto-largo{
+  font:400 15px/1.65 var(--f-sub); color:var(--texto);
+  white-space:pre-wrap; overflow-wrap:anywhere; margin:0;
+}
+
 .cifras{ display:flex; gap:10px; flex-wrap:wrap; margin-bottom:26px; }
 .cifra{
   flex:1 1 130px; background:var(--papel); border:1px solid var(--linea);
