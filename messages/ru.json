@@ -3,7 +3,7 @@
     "titulo": "Vértices · Академический журнал по экономике · Дизайн-система",
     "descripcion": "Vértices es la revista académica de economía creada por la comunidad estudiantil de la Licenciatura en Economía del Tec de Monterrey, Campus Ciudad de México. Rigurosa en evidencia y amable en lectura. Explora por tema y sección, y publica tu trabajo.",
     "og_titulo": "Vértices · Академический журнал по экономике",
-    "og_descripcion": "El punto donde las ideas se conectan. Explora la revista y publica tu trabajo."
+    "og_descripcion": "Точка, где встречаются идеи. Изучите журнал и опубликуйте свою работу."
   },
   "marco": {
     "vertices": "Vértices",
@@ -74,7 +74,7 @@
     "publicarse": "публикации",
     "publica_tu_articulo": "Опубликуйте свою статью",
     "conoce_el_proceso": "Узнайте о процессе",
-    "subtitulo": "Точка, где соединяются идеи"
+    "subtitulo": "Точка, где встречаются идеи"
   },
   "carrusel": {
     "articulos_destacados": "Избранные статьи",
@@ -87,7 +87,7 @@
     "convocatoria_abierta": "Приём статей открыт",
     "publica_en": "Публикуйтесь в",
     "vertices": "Vértices",
-    "vertices_es_la_revista_academica_de_economia_cre_388b": "Vértices — академический журнал по экономике, созданный студенческим сообществом бакалавриата по экономике Tec de Monterrey, кампус Мехико. Журнал экономистов для экономистов и для всех, кто хочет понять: строгий в доказательствах и лёгкий в чтении. Мы публикуем аннотации исследований и статьи, материалы и визуализации с данными, интервью и материалы академической жизни. Приём открыт для студентов, дипломированных экономистов, специалистов по данным и социальных наук.",
+    "vertices_es_la_revista_academica_de_economia_cre_388b": "Vértices — академический журнал по экономике, созданный студенческим сообществом бакалавриата по экономике Tec de Monterrey, кампус Мехико. Журнал экономистов для экономистов и для всех, кто хочет понять: строгий в доказательствах и лёгкий в чтении. Мы публикуем аннотации исследований и статьи, материалы и визуализации с данными, интервью и материалы академической жизни. Приём открыт: опубликовать может кто угодно, если его исследование, статья, документ или интервью отвечают на экономический вопрос.",
     "temas": "тем",
     "secciones": "разделов",
     "formatos_de_pieza": "форматов материалов",
@@ -461,7 +461,7 @@
     "2_la_voz_de_la_experiencia": "2 · Голос опыта",
     "nivel_c": "Уровень C",
     "conversar_con_economistas_en_activo_para_aprende_364f": "Беседовать с практикующими экономистами, чтобы узнать, как думают и работают в реальном мире, получать аргументированные позиции и направлять профессиональное развитие сообщества.",
-    "entrevista_presencial_extractos_de_100_a_200_pal_d73e": "Очное интервью, фрагменты от 100 до 200 слов.",
+    "entrevista_presencial_extractos_de_100_a_200_pal_d73e": "Очное или онлайн-интервью, публикуются различные фрагменты. У интервьюируемого запрашивается личная фотография и краткая биография объёмом не более 300 слов (полное имя, должность, стаж и профессиональный путь).",
     "consejos_accionables_habilidades_portafolio_entr_cf06": "Практические советы: навыки, портфолио, собеседования, первые роли, магистратура.",
     "opiniones_ancladas_en_evidencia_o_experiencia_ve_2a08": "Мнения, опирающиеся на проверяемые доказательства или опыт, с контекстом и ограничениями.",
     "recomendaciones_de_lectura_herramientas_y_decisi_4916": "Рекомендации по чтению, инструментам и карьерным решениям с примерами.",
@@ -479,7 +479,7 @@
     "3_miradas_economicas": "3 · Экономические взгляды",
     "nivel_a": "Уровень A",
     "difundir_investigaciones_economicas_breves_para_492a": "Распространять краткие экономические исследования, чтобы приблизить академическое знание к сообществу и широкой публике. Это флагманский исследовательский раздел и знак строгости журнала.",
-    "paper_breve_de_hasta_5_cuartillas_aprox_2_000_a_27ae": "Краткая статья до 5 страниц (примерно 2000-2500 слов) + QR-код на полный документ. Дискретная пометка о магистратуре/докторантуре справа вверху при необходимости. Подраздел для зарубежных исследований.",
+    "paper_breve_de_hasta_5_cuartillas_aprox_2_000_a_27ae": "Принимаются статьи объёмом до 35 страниц (без учёта приложений и библиографии); из них публикуется краткая версия до 5 страниц (примерно 2000-2500 слов) + QR-код на полный документ. Дискретная пометка о магистратуре/докторантуре справа вверху при необходимости. Подраздел для зарубежных исследований.",
     "investigacion_original_con_metodologia_cualitati_c2d5": "Оригинальное исследование с качественной или количественной методологией и ясной теоретической рамкой.",
     "estudios_de_caso_modelos_economicos_y_analisis_d_42cb": "Кейсы, экономические модели и анализ публичной политики.",
     "evidencias_finales_de_materias_y_trabajos_de_equ_a20f": "Итоговые работы курсов и работы команд-победителей конкурсов.",
@@ -564,9 +564,9 @@
     "b_reforzada_datos": "B · Усиленная + данные",
     "200_a_800_palabras_1_a_3_graficas": "200-800 слов + 1-3 графика",
     "c_editorial_fact_check": "C · Редактура + факт-чекинг",
-    "extractos_de_100_a_200_palabras": "Фрагменты от 100 до 200 слов",
+    "extractos_de_100_a_200_palabras": "Профессиональный путь + опыт, макс. 300 слов",
     "a_doble_ciego_por_pares": "A · Двойное слепое",
-    "hasta_5_cuartillas_qr": "До 5 страниц + QR",
+    "hasta_5_cuartillas_qr": "Макс. 35 страниц (без учёта приложений и библиографии)",
     "b_a_si_es_paper": "B (A, если статья)",
     "800_a_1500_palabras": "800-1500 слов",
     "c_fact_check": "C · Факт-чекинг",
@@ -574,7 +574,7 @@
     "c_editorial_imagen": "C · Редактура + изображение",
     "500_a_900_palabras_fotos": "500-900 слов + фото",
     "c_verificacion_del_logro": "C · Проверка достижения",
-    "capsula_foto_texto": "Капсула (фото + текст)",
+    "capsula_foto_texto": "Фото + биография и достижение, макс. 300 слов",
     "tu_pieza_ya_cumple_con_su_seccion_el_asistente_d_609a": "Ваш материал уже соответствует своему разделу? Помощник подачи проведёт вас за 4 шага.",
     "publica_tu_articulo": "Опубликуйте свою статью",
     "titulo_documento": "Редакционные правила · Vértices"
@@ -582,7 +582,7 @@
   "quienessomos": {
     "vertices_revista_academica_de_economia": "Vértices · Академический журнал по экономике",
     "acerca_de": "О нас",
-    "el_punto_donde_las_ideas_se_conectan": "Точка, где соединяются идеи",
+    "el_punto_donde_las_ideas_se_conectan": "Точка, где встречаются идеи",
     "vertices_es_la_revista_estudiantil_de_economia_d_54c4": "Vértices es la revista estudiantil de economía del Tecnológico de Monterrey, Campus Ciudad de México, creada por y para la comunidad de la Licenciatura en Economía (LEC). Nace de una idea sencilla: un espacio",
     "de_economistas_para_economistas": "para dialogar sobre economía desde distintas perspectivas",
     "rigurosa_en_la_evidencia_y_amable_en_la_lectura": ", riguroso en la evidencia y amable en la lectura.",

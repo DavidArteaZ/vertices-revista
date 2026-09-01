@@ -75,7 +75,7 @@ export type MotorOpciones = {
 export type Motor = { destruir: () => void };
 
 /** El subtítulo que el lienzo dibuja bajo la palabra (index.html:2354). */
-export const SUBTITULO_ES = "El punto donde las ideas se conectan";
+export const SUBTITULO_ES = "El punto donde las ideas se encuentran";
 
 type Particula = {
   x: number; y: number; vx: number; vy: number;

@@ -3,7 +3,7 @@
     "titulo": "Vértices · Revue académique d'économie · Système de design",
     "descripcion": "Vértices es la revista académica de economía creada por la comunidad estudiantil de la Licenciatura en Economía del Tec de Monterrey, Campus Ciudad de México. Rigurosa en evidencia y amable en lectura. Explora por tema y sección, y publica tu trabajo.",
     "og_titulo": "Vértices · Revue académique d'économie",
-    "og_descripcion": "El punto donde las ideas se conectan. Explora la revista y publica tu trabajo."
+    "og_descripcion": "Le point où les idées se rencontrent. Découvrez la revue et publiez votre travail."
   },
   "marco": {
     "vertices": "Vértices",
@@ -74,7 +74,7 @@
     "publicarse": "publiée",
     "publica_tu_articulo": "Publiez votre article",
     "conoce_el_proceso": "Découvrez le processus",
-    "subtitulo": "Le point où les idées se connectent"
+    "subtitulo": "Le point où les idées se rencontrent"
   },
   "carrusel": {
     "articulos_destacados": "Articles à la une",
@@ -87,7 +87,7 @@
     "convocatoria_abierta": "Appel à contributions ouvert",
     "publica_en": "Publiez dans",
     "vertices": "Vértices",
-    "vertices_es_la_revista_academica_de_economia_cre_388b": "Vértices est la revue académique d'économie créée par la communauté étudiante de la licence en économie du Tec de Monterrey, campus de Mexico. Une revue d'économistes pour les économistes et pour quiconque veut comprendre : rigoureuse dans les preuves et agréable à lire. Nous publions des résumés de recherche et des papers, des articles et visualisations de données, des entretiens et du contenu de vie académique. L'appel est ouvert aux étudiants, aux économistes diplômés, aux data scientists et aux chercheurs en sciences sociales.",
+    "vertices_es_la_revista_academica_de_economia_cre_388b": "Vértices est la revue académique d'économie créée par la communauté étudiante de la licence en économie du Tec de Monterrey, campus de Mexico. Une revue d'économistes pour les économistes et pour quiconque veut comprendre : rigoureuse dans les preuves et agréable à lire. Nous publions des résumés de recherche et des papers, des articles et visualisations de données, des entretiens et du contenu de vie académique. L'appel est ouvert : toute personne peut publier, à condition que sa recherche, son article, son document ou son entretien réponde à une question économique.",
     "temas": "thèmes",
     "secciones": "sections",
     "formatos_de_pieza": "formats de contribution",
@@ -461,7 +461,7 @@
     "2_la_voz_de_la_experiencia": "2 · La Voix de l'Expérience",
     "nivel_c": "Niveau C",
     "conversar_con_economistas_en_activo_para_aprende_364f": "Converser avec des économistes en activité pour apprendre comment on pense et on travaille dans le monde réel, recueillir des positions argumentées et orienter le développement professionnel de la communauté.",
-    "entrevista_presencial_extractos_de_100_a_200_pal_d73e": "Entretien en personne, extraits de 100 à 200 mots.",
+    "entrevista_presencial_extractos_de_100_a_200_pal_d73e": "Entretien en personne ou virtuel ; plusieurs extraits sont publiés. Il est demandé à la personne interviewée d'envoyer une photo personnelle et une notice biographique de 300 mots maximum (nom complet, poste, années d'expérience et parcours).",
     "consejos_accionables_habilidades_portafolio_entr_cf06": "Conseils actionnables : compétences, portfolio, entretiens, premiers postes, études supérieures.",
     "opiniones_ancladas_en_evidencia_o_experiencia_ve_2a08": "Opinions ancrées dans des preuves ou une expérience vérifiable, avec contexte et limites.",
     "recomendaciones_de_lectura_herramientas_y_decisi_4916": "Recommandations de lecture, outils et décisions de carrière avec des exemples.",
@@ -479,7 +479,7 @@
     "3_miradas_economicas": "3 · Regards Économiques",
     "nivel_a": "Niveau A",
     "difundir_investigaciones_economicas_breves_para_492a": "Diffuser des recherches économiques brèves pour rapprocher le savoir académique de la communauté et du grand public. C'est la section phare de recherche et le sceau de rigueur de la revue.",
-    "paper_breve_de_hasta_5_cuartillas_aprox_2_000_a_27ae": "Paper bref de 5 pages maximum (env. 2 000 à 2 500 mots) + code QR vers le document complet. Étiquette discrète de master/doctorat en haut à droite le cas échéant. Sous-section pour les recherches de l'étranger.",
+    "paper_breve_de_hasta_5_cuartillas_aprox_2_000_a_27ae": "Les articles de 35 pages maximum sont acceptés (annexes et bibliographie non comprises) ; une version brève de 5 pages maximum (env. 2 000 à 2 500 mots) est publiée + code QR vers le document complet. Étiquette discrète de master/doctorat en haut à droite le cas échéant. Sous-section pour les recherches de l'étranger.",
     "investigacion_original_con_metodologia_cualitati_c2d5": "Recherche originale avec méthodologie qualitative ou quantitative et cadre théorique clair.",
     "estudios_de_caso_modelos_economicos_y_analisis_d_42cb": "Études de cas, modèles économiques et analyse de politiques publiques.",
     "evidencias_finales_de_materias_y_trabajos_de_equ_a20f": "Travaux finaux de cours et travaux d'équipes gagnantes de défis.",
@@ -564,9 +564,9 @@
     "b_reforzada_datos": "B · Renforcée + données",
     "200_a_800_palabras_1_a_3_graficas": "200 à 800 mots + 1 à 3 graphiques",
     "c_editorial_fact_check": "C · Éditorial + fact-check",
-    "extractos_de_100_a_200_palabras": "Extraits de 100 à 200 mots",
+    "extractos_de_100_a_200_palabras": "Parcours + expérience, 300 mots max",
     "a_doble_ciego_por_pares": "A · Double aveugle par les pairs",
-    "hasta_5_cuartillas_qr": "Jusqu'à 5 pages + QR",
+    "hasta_5_cuartillas_qr": "35 pages max (annexes et bibliographie non comprises)",
     "b_a_si_es_paper": "B (A si paper)",
     "800_a_1500_palabras": "800 à 1500 mots",
     "c_fact_check": "C · Fact-check",
@@ -574,7 +574,7 @@
     "c_editorial_imagen": "C · Éditorial + image",
     "500_a_900_palabras_fotos": "500 à 900 mots + photos",
     "c_verificacion_del_logro": "C · Vérification de la réussite",
-    "capsula_foto_texto": "Capsule (photo + texte)",
+    "capsula_foto_texto": "Photo + notice et réalisation, 300 mots max",
     "tu_pieza_ya_cumple_con_su_seccion_el_asistente_d_609a": "Votre texte répond-il déjà à sa section ? L'assistant de soumission vous guide en 4 étapes.",
     "publica_tu_articulo": "Publiez votre article",
     "titulo_documento": "Lignes directrices éditoriales · Vértices"
@@ -582,7 +582,7 @@
   "quienessomos": {
     "vertices_revista_academica_de_economia": "Vértices · Revue académique d'économie",
     "acerca_de": "À propos",
-    "el_punto_donde_las_ideas_se_conectan": "Le point où les idées se connectent",
+    "el_punto_donde_las_ideas_se_conectan": "Le point où les idées se rencontrent",
     "vertices_es_la_revista_estudiantil_de_economia_d_54c4": "Vértices es la revista estudiantil de economía del Tecnológico de Monterrey, Campus Ciudad de México, creada por y para la comunidad de la Licenciatura en Economía (LEC). Nace de una idea sencilla: un espacio",
     "de_economistas_para_economistas": "para dialogar sobre economía desde distintas perspectivas",
     "rigurosa_en_la_evidencia_y_amable_en_la_lectura": ", riguroso en la evidencia y amable en la lectura.",
