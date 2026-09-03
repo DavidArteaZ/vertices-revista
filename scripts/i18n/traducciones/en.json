@@ -59,5 +59,14 @@
   "camposarchivosenvio.en_orden_separados_por_coma": "In order, separated by commas",
   "camposarchivosenvio.semestre_logro_historia_breve_etc": "Semester, achievement, brief story, etc.",
   "camposarchivosenvio.como_consiguio_la_oportunidad_cuales_fueron_los_d695": "How did you get the opportunity? What were the biggest challenges? What did you learn?",
-  "camposarchivosenvio.selecciona_una_seccion_en_el_paso_de_autoria": "Choose a section in the Authorship step."
+  "camposarchivosenvio.selecciona_una_seccion_en_el_paso_de_autoria": "Choose a section in the Authorship step.",
+  "lineamientos.entrevista_presencial_extractos_de_100_a_200_pal_d73e": "In-person or virtual interview; several excerpts are published. The interviewee is asked to send a personal photo and a bio of up to 300 words (full name, position, years of experience, and career background).",
+  "lineamientos.paper_breve_de_hasta_5_cuartillas_aprox_2_000_a_27ae": "Papers of up to 35 pages are accepted (not including appendices or bibliography); of these, a brief version of up to 5 pages (approx. 2,000 to 2,500 words) is published + QR code to the full document. Discreet graduate label at the top right when applicable. Subsection for research from abroad.",
+  "lineamientos.extractos_de_100_a_200_palabras": "Background + experience, 300 words max",
+  "lineamientos.hasta_5_cuartillas_qr": "35 pages max (not including appendices or bibliography)",
+  "lineamientos.capsula_foto_texto": "Photo + bio and achievement, 300 words max",
+  "quienessomos.el_punto_donde_las_ideas_se_conectan": "The point where ideas meet",
+  "lienzo.subtitulo": "The point where ideas meet",
+  "meta.og_descripcion": "The point where ideas meet. Explore the journal and publish your work.",
+  "convocatoria.vertices_es_la_revista_academica_de_economia_cre_388b": "Vértices is the academic economics journal created by the student community of the Economics undergraduate program at Tec de Monterrey, Mexico City Campus. A journal by economists, for economists, and for anyone who wants to understand: rigorous in evidence and friendly to read. We publish research abstracts and papers, data-driven articles and visualizations, interviews and academic life content. The call is open: anyone can publish, as long as their research, article, document, or interview answers an economic question."
 }

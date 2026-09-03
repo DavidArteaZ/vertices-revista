@@ -3,7 +3,7 @@
     "titulo": "Vértices · Revista académica de economía · Sistema de diseño",
     "descripcion": "Vértices es la revista académica de economía creada por la comunidad estudiantil de la Licenciatura en Economía del Tec de Monterrey, Campus Ciudad de México. Rigurosa en evidencia y amable en lectura. Explora por tema y sección, y publica tu trabajo.",
     "og_titulo": "Vértices · Revista académica de economía",
-    "og_descripcion": "El punto donde las ideas se conectan. Explora la revista y publica tu trabajo."
+    "og_descripcion": "El punto donde las ideas se encuentran. Explora la revista y publica tu trabajo."
   },
   "marco": {
     "vertices": "Vértices",
@@ -74,7 +74,7 @@
     "publicarse": "publicarse",
     "publica_tu_articulo": "Publica tu artículo",
     "conoce_el_proceso": "Conoce el proceso",
-    "subtitulo": "El punto donde las ideas se conectan"
+    "subtitulo": "El punto donde las ideas se encuentran"
   },
   "carrusel": {
     "articulos_destacados": "Artículos destacados",
@@ -87,7 +87,7 @@
     "convocatoria_abierta": "Convocatoria abierta",
     "publica_en": "Publica en",
     "vertices": "Vértices",
-    "vertices_es_la_revista_academica_de_economia_cre_388b": "Vértices es la revista académica de economía creada por la comunidad estudiantil de la Licenciatura en Economía del Tec de Monterrey, Campus Ciudad de México. Una revista de economistas para economistas y para quien quiera entender: rigurosa en evidencia y amable en lectura. Publicamos abstracts de investigaciones y papers, artículos y visualizaciones con datos, entrevistas y contenido de vida académica. La convocatoria está abierta a estudiantes, economistas titulados, científicos de datos y científicos sociales.",
+    "vertices_es_la_revista_academica_de_economia_cre_388b": "Vértices es la revista académica de economía creada por la comunidad estudiantil de la Licenciatura en Economía del Tec de Monterrey, Campus Ciudad de México. Una revista de economistas para economistas y para quien quiera entender: rigurosa en evidencia y amable en lectura. Publicamos abstracts de investigaciones y papers, artículos y visualizaciones con datos, entrevistas y contenido de vida académica. La convocatoria es abierta: puede publicar cualquier persona mientras su investigación, artículo, documento o entrevista responda a una pregunta económica.",
     "temas": "temas",
     "secciones": "secciones",
     "formatos_de_pieza": "formatos de pieza",
@@ -461,7 +461,7 @@
     "2_la_voz_de_la_experiencia": "2 · La Voz de la Experiencia",
     "nivel_c": "Nivel C",
     "conversar_con_economistas_en_activo_para_aprende_364f": "Conversar con economistas en activo para aprender cómo se piensa y se trabaja en el mundo real, obtener posturas argumentadas y orientar el desarrollo profesional de la comunidad.",
-    "entrevista_presencial_extractos_de_100_a_200_pal_d73e": "Entrevista presencial, extractos de 100 a 200 palabras.",
+    "entrevista_presencial_extractos_de_100_a_200_pal_d73e": "Entrevista presencial o virtual, se publican diversos extractos. Se solicita al entrevistado enviar una fotografía propia y semblanza de máximo 300 palabras (nombre completo, cargo, años de experiencia y trayectoria).",
     "consejos_accionables_habilidades_portafolio_entr_cf06": "Consejos accionables: habilidades, portafolio, entrevistas, primeros roles, posgrado.",
     "opiniones_ancladas_en_evidencia_o_experiencia_ve_2a08": "Opiniones ancladas en evidencia o experiencia verificable, con contexto y límites.",
     "recomendaciones_de_lectura_herramientas_y_decisi_4916": "Recomendaciones de lectura, herramientas y decisiones de carrera con ejemplos.",
@@ -479,7 +479,7 @@
     "3_miradas_economicas": "3 · Miradas Económicas",
     "nivel_a": "Nivel A",
     "difundir_investigaciones_economicas_breves_para_492a": "Difundir investigaciones económicas breves para acercar el conocimiento académico a la comunidad y al público general. Es la sección insignia de investigación y el sello de rigor de la revista.",
-    "paper_breve_de_hasta_5_cuartillas_aprox_2_000_a_27ae": "Paper breve de hasta 5 cuartillas (aprox. 2,000 a 2,500 palabras) + código QR al documento completo. Etiqueta discreta de posgrado en la parte superior derecha cuando aplique. Subsección para investigaciones del extranjero.",
+    "paper_breve_de_hasta_5_cuartillas_aprox_2_000_a_27ae": "Se reciben papers de hasta 35 cuartillas (sin incluir anexos ni bibliografía); de estos, se publica una versión breve de hasta 5 cuartillas (aprox. 2,000 a 2,500 palabras) + código QR al documento completo. Etiqueta discreta de posgrado en la parte superior derecha cuando aplique. Subsección para investigaciones del extranjero.",
     "investigacion_original_con_metodologia_cualitati_c2d5": "Investigación original con metodología cualitativa o cuantitativa y marco teórico claro.",
     "estudios_de_caso_modelos_economicos_y_analisis_d_42cb": "Estudios de caso, modelos económicos y análisis de política pública.",
     "evidencias_finales_de_materias_y_trabajos_de_equ_a20f": "Evidencias finales de materias y trabajos de equipos ganadores de retos.",
@@ -564,9 +564,9 @@
     "b_reforzada_datos": "B · Reforzada + datos",
     "200_a_800_palabras_1_a_3_graficas": "200 a 800 palabras + 1 a 3 gráficas",
     "c_editorial_fact_check": "C · Editorial + fact-check",
-    "extractos_de_100_a_200_palabras": "Extractos de 100 a 200 palabras",
+    "extractos_de_100_a_200_palabras": "Trayectoria + experiencia, 300 palabras máx",
     "a_doble_ciego_por_pares": "A · Doble ciego por pares",
-    "hasta_5_cuartillas_qr": "Hasta 5 cuartillas + QR",
+    "hasta_5_cuartillas_qr": "35 cuartillas máx (sin incluir anexos ni bibliografía)",
     "b_a_si_es_paper": "B (A si es paper)",
     "800_a_1500_palabras": "800 a 1500 palabras",
     "c_fact_check": "C · Fact-check",
@@ -574,7 +574,7 @@
     "c_editorial_imagen": "C · Editorial + imagen",
     "500_a_900_palabras_fotos": "500 a 900 palabras + fotos",
     "c_verificacion_del_logro": "C · Verificación del logro",
-    "capsula_foto_texto": "Cápsula (foto + texto)",
+    "capsula_foto_texto": "Foto + semblanza y logro, 300 palabras máx",
     "tu_pieza_ya_cumple_con_su_seccion_el_asistente_d_609a": "¿Tu pieza ya cumple con su sección? El asistente de envío te guía en 4 pasos.",
     "publica_tu_articulo": "Publica tu artículo",
     "titulo_documento": "Lineamientos editoriales · Vértices"
@@ -582,7 +582,7 @@
   "quienessomos": {
     "vertices_revista_academica_de_economia": "Vértices · Revista académica de economía",
     "acerca_de": "Acerca de",
-    "el_punto_donde_las_ideas_se_conectan": "El punto donde las ideas se conectan",
+    "el_punto_donde_las_ideas_se_conectan": "El punto donde las ideas se encuentran",
     "vertices_es_la_revista_estudiantil_de_economia_d_54c4": "Vértices es la revista estudiantil de economía del Tecnológico de Monterrey, Campus Ciudad de México, creada por y para la comunidad de la Licenciatura en Economía (LEC). Nace de una idea sencilla: un espacio",
     "de_economistas_para_economistas": "para dialogar sobre economía desde distintas perspectivas",
     "rigurosa_en_la_evidencia_y_amable_en_la_lectura": ", riguroso en la evidencia y amable en la lectura.",
