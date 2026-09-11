@@ -5,6 +5,11 @@ import { revalidatePath } from "next/cache";
 import { sesion, personal } from "@/lib/supabase/sesion";
 import { servidor, BUCKET_PRIVADO } from "@/lib/supabase/servidor";
 import { enviarDecision } from "@/lib/correo/decision";
+import {
+  esDecisionFinal,
+  ordenDecisionFinal,
+  requiereComentarios,
+} from "@/lib/decisiones-finales";
 
 /**
  * Las acciones del panel (spec §4.2).
@@ -16,9 +21,9 @@ import { enviarDecision } from "@/lib/correo/decision";
  *
  * Las transiciones que desvelan algo —dictamen enviado, anonimización
  * revisada, decisión grabada, revisión vinculada— no se escriben aquí sino en
- * las funciones de 20260821140000_panel.sql, porque el UPDATE y su fila en
- * envio_eventos tienen que ir en la misma transacción. Un desvelado sin
- * registro vuelve falsa la afirmación de §7.
+ * funciones de base, porque el UPDATE y su fila en envio_eventos tienen que ir
+ * en la misma transacción. Un desvelado sin registro vuelve falsa la afirmación
+ * de §7.
  */
 
 export type Resultado = { ok: boolean; mensaje?: string };
@@ -234,62 +239,137 @@ export async function registrarDecision(datos: FormData): Promise<Resultado> {
   if (!quien) return NO_AUTORIZADO;
 
   const envio = String(datos.get("envio") ?? "");
-  const decision = Number(datos.get("decision") ?? 0);
-  if (!envio || !decision) return { ok: false, mensaje: "Elige una decisión." };
+  const decisionFinal = String(datos.get("decision") ?? "");
+  const comentarios = String(datos.get("comentarios") ?? "").trim();
+  const confirmacionNombre = String(datos.get("confirmacion_nombre") ?? "").trim();
+  const edicionId = Number(datos.get("edicion") ?? 0);
+
+  if (!envio || !esDecisionFinal(decisionFinal)) {
+    return { ok: false, mensaje: "Elige una decisión válida." };
+  }
+  if (requiereComentarios(decisionFinal) && !comentarios) {
+    return { ok: false, mensaje: "Escribe las revisiones o comentarios antes de continuar." };
+  }
+  if (!edicionId) return { ok: false, mensaje: "Elige una edición para completar el correo." };
+  if (!confirmacionNombre) return { ok: false, mensaje: "Escribe tu nombre para confirmar la decisión." };
 
   const sb = await sesion();
-  const { error } = await sb.rpc("registrar_decision", { p_envio: envio, p_decision: decision });
+  const { data: pieza } = await sb
+    .from("envios")
+    .select("seccion_dictamen_id, locale")
+    .eq("id", envio)
+    .maybeSingle();
+
+  if (!pieza?.seccion_dictamen_id) {
+    return { ok: false, mensaje: "Esta pieza todavía no tiene instrumento de dictamen." };
+  }
+
+  const { data: rubrica } = await sb
+    .from("rubrica_versiones")
+    .select("id")
+    .eq("seccion_id", pieza.seccion_dictamen_id)
+    .eq("vigente", true)
+    .maybeSingle();
+
+  if (!rubrica) return { ok: false, mensaje: "No hay rúbrica vigente para esta pieza." };
+
+  // decision_id sigue apuntando a la fila equivalente del instrumento para no
+  // cambiar el motor de rúbricas, la ceguera ni la regla que habilita artículos.
+  const { data: decisionTecnica } = await sb
+    .from("decisiones")
+    .select("id")
+    .eq("rubrica_version_id", rubrica.id)
+    .eq("orden", ordenDecisionFinal(decisionFinal))
+    .eq("es_falla", false)
+    .maybeSingle();
+
+  if (!decisionTecnica) {
+    return { ok: false, mensaje: "No se encontró la equivalencia de esta decisión en la rúbrica." };
+  }
+
+  const { data: edicion } = await sb
+    .from("ediciones")
+    .select("id, numero, fecha_lanzamiento, ubicacion_evento_lanzamiento, fecha_limite_revisiones")
+    .eq("id", edicionId)
+    .maybeSingle();
+
+  if (!edicion) return { ok: false, mensaje: "La edición seleccionada ya no existe." };
+
+  const { error } = await sb.rpc("registrar_decision", {
+    p_envio: envio,
+    p_decision: decisionTecnica.id,
+    p_decision_final: decisionFinal,
+    p_nombre_confirmacion: confirmacionNombre,
+    p_comentarios: comentarios || null,
+    p_edicion: edicionId,
+  });
   if (error) return { ok: false, mensaje: error.message };
 
-  // Sólo AHORA se puede leer la autoría: grabar la decisión es el segundo
-  // disparador de desvelado de §7.2, y RLS se evalúa por sentencia, así que
-  // esta consulta pasa el predicado que la anterior no habría pasado. Si la
-  // ceguera se rompiera, esto devolvería null y el autor no recibiría aviso —
-  // se notaría, que es como debe fallar.
-  const [pieza, autoria, etiqueta] = await Promise.all([
-    sb.from("envios").select("folio, titulo, locale").eq("id", envio).maybeSingle(),
-    sb.from("envios_autoria").select("nombre, correo").eq("envio_id", envio).maybeSingle(),
-    sb.from("decisiones").select("etiqueta").eq("id", decision).maybeSingle(),
-  ]);
+  // La autoría se consulta después de la decisión. decision_id sigue siendo el
+  // disparador de desvelado usado por las políticas existentes.
+  const { data: autoria } = await sb
+    .from("envios_autoria")
+    .select("nombre, correo, genero")
+    .eq("envio_id", envio)
+    .maybeSingle();
 
   let avisado = false;
+  let motivo = "faltan datos de autoría después de registrar la decisión";
 
-  if (pieza.data && autoria.data && etiqueta.data) {
+  if (autoria) {
     const aviso = await enviarDecision({
-      a: autoria.data.correo,
-      nombre: autoria.data.nombre,
-      folio: pieza.data.folio,
-      titulo: pieza.data.titulo,
-      decision: etiqueta.data.etiqueta,
-      locale: pieza.data.locale,
+      a: autoria.correo,
+      nombre: autoria.nombre,
+      genero: autoria.genero ?? "",
+      decision: decisionFinal,
+      comentarios,
+      locale: pieza.locale,
+      edicion: {
+        numero: edicion.numero,
+        fecha_lanzamiento: edicion.fecha_lanzamiento,
+        ubicacion_evento_lanzamiento: edicion.ubicacion_evento_lanzamiento,
+        fecha_limite_revisiones: edicion.fecha_limite_revisiones,
+      },
     });
-
-    // Igual que con el acuse: un correo que no sale no invalida la decisión,
-    // pero tiene que quedar anotado o nadie se entera de que el autor no supo.
     avisado = aviso.enviado;
-    if (!aviso.enviado) {
-      await sb.from("envio_eventos").insert({
-        envio_id: envio,
-        actor_id: quien.id,
-        tipo: "aviso_decision_no_enviado",
-        payload: { motivo: aviso.motivo ?? "desconocido" },
-      });
-    }
+    motivo = aviso.motivo ?? "desconocido";
+  }
+
+  if (!avisado) {
+    await sb.from("envio_eventos").insert({
+      envio_id: envio,
+      actor_id: quien.id,
+      tipo: "aviso_decision_no_enviado",
+      payload: { motivo },
+    });
   }
 
   revalidatePath(`/panel/envios/${envio}`);
   revalidatePath("/panel");
+  revalidatePath("/panel/ediciones");
 
-  // La decisión queda grabada pase lo que pase con el correo, pero decir «y
-  // avisada al autor» cuando no salió deja al comité creyendo que la persona ya
-  // se enteró. Es el mismo defecto que motivó la reescritura, un paso más
-  // adelante: algo que se da por comunicado y no lo está.
   return avisado
     ? { ok: true, mensaje: "Decisión registrada y avisada al autor." }
     : {
         ok: true,
         mensaje: "Decisión registrada, pero el aviso al autor NO salió. Queda en la bitácora; avísale por otra vía.",
       };
+}
+
+// ------------------------------------------------------------------- borrado
+
+export async function borrarEnvio(datos: FormData): Promise<Resultado> {
+  if (!(await personal())) return NO_AUTORIZADO;
+
+  const envio = String(datos.get("envio") ?? "");
+  if (!envio) return { ok: false, mensaje: "Falta el envío." };
+
+  const sb = await sesion();
+  const { error } = await sb.rpc("borrar_envio_sin_decision", { p_envio: envio });
+  if (error) return { ok: false, mensaje: error.message };
+
+  revalidatePath("/panel");
+  return { ok: true, mensaje: "Envío eliminado de la base." };
 }
 
 // ---------------------------------------------------------------- revisiones

@@ -178,7 +178,7 @@ export default function FormularioEnvio() {
           </div>
           <div>
             <label htmlFor="coautores">{t("coautores_opcional")}</label>
-            <input type="text" id="coautores" placeholder={t("nombres_separados_por_comas_maximo_dos")} value={datos.coautores} onChange={(e) => set("coautores", e.target.value)} />
+            <input type="text" id="coautores" value={datos.coautores} onChange={(e) => set("coautores", e.target.value)} />
           </div>
         </div>
         <div className="fila2 campo">

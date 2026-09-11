@@ -1,5 +1,6 @@
 import { sesion } from "@/lib/supabase/sesion";
 import { exigePersonal, Cabecera } from "./guardia";
+import BorrarEnvio from "./BorrarEnvio";
 
 /**
  * La cola (spec §16, etapa 5).
@@ -47,14 +48,11 @@ export default async function Cola() {
   const enviadosDe = (id: string) =>
     (dictamenes ?? []).filter((d) => d.envio_id === id && d.estado === "enviado").length;
 
-  // Lo que el comité necesita ver de un vistazo, que es lo que hoy nadie ve:
-  // qué lleva sin asignar y qué lleva asignado sin dictaminar.
   const sinTriaje = lista.filter((e) => !e.nivel).length;
   const sinAsignar = lista.filter((e) => e.nivel && porEnvio(e.id).length === 0).length;
   const enCurso = lista.filter((e) => porEnvio(e.id).length > 0 && !e.decision_id).length;
   const decididos = lista.filter((e) => e.decision_id).length;
 
-  // Lo mío: dónde estoy asignada y todavía no he enviado dictamen.
   const mios = lista.filter(
     (e) =>
       porEnvio(e.id).some((a) => a.revisor_id === quien.id) &&
@@ -103,7 +101,13 @@ export default async function Cola() {
         {lista.length === 0 ? (
           <p className="nota">Todavía no hay envíos.</p>
         ) : (
-          <Tabla filas={lista} nombreSeccion={nombreSeccion} porEnvio={porEnvio} enviadosDe={enviadosDe} />
+          <Tabla
+            filas={lista}
+            nombreSeccion={nombreSeccion}
+            porEnvio={porEnvio}
+            enviadosDe={enviadosDe}
+            permitirBorrado
+          />
         )}
       </div>
     </main>
@@ -126,11 +130,13 @@ function Tabla({
   nombreSeccion,
   porEnvio,
   enviadosDe,
+  permitirBorrado = false,
 }: {
   filas: Fila[];
   nombreSeccion: Map<number, string>;
   porEnvio: (id: string) => { revisor_id: string }[];
   enviadosDe: (id: string) => number;
+  permitirBorrado?: boolean;
 }) {
   return (
     <table>
@@ -143,6 +149,7 @@ function Tabla({
           <th>Dictámenes</th>
           <th>Estado</th>
           <th>Recibido</th>
+          {permitirBorrado && <th>Acciones</th>}
         </tr>
       </thead>
       <tbody>
@@ -170,6 +177,11 @@ function Tabla({
                 <span className={`etiqueta ${estado.clase}`}>{estado.texto}</span>
               </td>
               <td>{fecha(e.created_at)}</td>
+              {permitirBorrado && (
+                <td style={{ position: "relative", zIndex: 1, textAlign: "right" }}>
+                  {!e.decision_id && <BorrarEnvio envio={e.id} folio={e.folio} />}
+                </td>
+              )}
             </tr>
           );
         })}

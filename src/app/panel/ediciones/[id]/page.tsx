@@ -2,15 +2,21 @@ import { notFound } from "next/navigation";
 import { sesion } from "@/lib/supabase/sesion";
 import { exigePersonal, Cabecera } from "../../guardia";
 import Accion from "../../Accion";
-import { adjuntar, ajustarArticulo, quitarArticulo, publicar } from "../acciones";
+import {
+  adjuntar,
+  ajustarArticulo,
+  guardarParametros,
+  quitarArticulo,
+  publicar,
+} from "../acciones";
 
 /**
- * Armar un número: colgarle piezas, ajustarlas y publicarlo (spec §9.2, §9.3).
+ * Armar un número: definir sus parámetros, convertir piezas aceptadas en
+ * artículos, ajustarlas y publicar el número (spec §9.2, §9.3).
  *
- * El selector de piezas sólo ofrece envíos con decisión ACEPTANTE. No es
- * cortesía de la interfaz: adjuntar_articulo lo vuelve a comprobar y falla si
- * no, porque un «requiere reelaboración» colgado de una edición convertiría un
- * veredicto en una publicación por descuido.
+ * Aceptar una pieza NO crea un artículo. El selector de abajo es el paso
+ * editorial explícito que hace esa conversión y `adjuntar_articulo` vuelve a
+ * comprobar en base que la decisión técnica sea aceptante.
  */
 
 export const dynamic = "force-dynamic";
@@ -38,19 +44,15 @@ export default async function DetalleEdicion({ params }: { params: Promise<{ id:
       .eq("edicion_id", edicionId)
       .order("id"),
     sb.from("secciones").select("id, nombre_display"),
-    // Aceptadas y todavía sin artículo: lo que se puede colgar de un número.
     sb
       .from("envios")
-      .select("id, folio, titulo, decision_id, decisiones(es_aceptante)")
+      .select("id, folio, titulo, decision_id, edicion_id")
       .not("decision_id", "is", null)
       .is("archivado_at", null),
   ]);
 
   const nombreSeccion = new Map((secciones ?? []).map((s) => [s.id, s.nombre_display]));
 
-  // Relationships está vacío en los tipos generados, así que el join anidado no
-  // se puede usar: las decisiones aceptantes se resuelven en una consulta
-  // aparte, que además es más barata.
   const { data: aceptantes } = await sb
     .from("decisiones")
     .select("id")
@@ -64,7 +66,11 @@ export default async function DetalleEdicion({ params }: { params: Promise<{ id:
   const yaTienen = new Set((yaPublicados ?? []).map((a) => a.envio_id));
 
   const disponibles = (candidatos ?? []).filter(
-    (e) => e.decision_id && idsAceptantes.has(e.decision_id) && !yaTienen.has(e.id),
+    (e) =>
+      e.decision_id &&
+      idsAceptantes.has(e.decision_id) &&
+      !yaTienen.has(e.id) &&
+      (e.edicion_id === edicionId || e.edicion_id === null),
   );
 
   return (
@@ -83,10 +89,52 @@ export default async function DetalleEdicion({ params }: { params: Promise<{ id:
         )}
       </p>
 
+      <h3>Parámetros</h3>
+      <div className="tarjeta">
+        <Accion accion={guardarParametros} etiqueta="Guardar parámetros">
+          <input type="hidden" name="edicion" value={edicionId} />
+          <div className="fila">
+            <div className="campo">
+              <label htmlFor="fecha_lanzamiento">Fecha de lanzamiento</label>
+              <input
+                id="fecha_lanzamiento"
+                type="date"
+                name="fecha_lanzamiento"
+                defaultValue={edicion.fecha_lanzamiento ?? ""}
+              />
+              {!edicion.fecha_lanzamiento && <p className="nota">por decidir</p>}
+            </div>
+            <div className="campo">
+              <label htmlFor="ubicacion_evento_lanzamiento">Ubicación evento lanzamiento</label>
+              <input
+                id="ubicacion_evento_lanzamiento"
+                type="text"
+                name="ubicacion_evento_lanzamiento"
+                placeholder="por decidir"
+                defaultValue={edicion.ubicacion_evento_lanzamiento ?? ""}
+              />
+            </div>
+            <div className="campo">
+              <label htmlFor="fecha_limite_revisiones">Fecha límite para revisiones</label>
+              <input
+                id="fecha_limite_revisiones"
+                type="date"
+                name="fecha_limite_revisiones"
+                defaultValue={edicion.fecha_limite_revisiones ?? ""}
+              />
+              {!edicion.fecha_limite_revisiones && <p className="nota">por decidir</p>}
+            </div>
+          </div>
+          <p className="nota" style={{ marginBottom: 14 }}>
+            Los campos sin definir se comunican como «por decidir»; las fechas se guardan como fecha y los correos las escriben en palabras.
+          </p>
+        </Accion>
+      </div>
+
       <h3>Piezas del número</h3>
       <div className="tarjeta">
         {(articulos ?? []).length === 0 ? (
-          <p className="nota" style={{ marginTop: 0 }}>Todavía no hay piezas.</p>
+          <p className="nota" style={{ marginTop: 0 }}>Todavía no hay piezas convertidas en artículos.</p>
         ) : (
           <table>
             <thead>
@@ -161,19 +209,18 @@ export default async function DetalleEdicion({ params }: { params: Promise<{ id:
 
       {!publicada && (
         <>
-          <h3>Añadir una pieza aceptada</h3>
+          <h3>Convertir una pieza aceptada en artículo</h3>
           <div className="tarjeta">
             {disponibles.length === 0 ? (
               <p className="nota" style={{ marginTop: 0 }}>
-                No hay piezas aceptadas sin número. Sólo se puede publicar lo que el
-                comité aceptó.
+                No hay piezas aceptadas pendientes de convertir en artículo.
               </p>
             ) : (
-              <Accion accion={adjuntar} etiqueta="Añadir al número">
+              <Accion accion={adjuntar} etiqueta="Convertir en artículo">
                 <input type="hidden" name="edicion" value={edicionId} />
                 <div className="fila">
                   <div className="campo">
-                    <label htmlFor="envio">Pieza</label>
+                    <label htmlFor="envio">Pieza aceptada</label>
                     <select id="envio" name="envio" defaultValue="">
                       <option value="">Elige una</option>
                       {disponibles.map((e) => (
@@ -195,7 +242,7 @@ export default async function DetalleEdicion({ params }: { params: Promise<{ id:
           <h3>Publicar</h3>
           <div className="tarjeta">
             <p className="nota" style={{ marginTop: 0 }}>
-              Copia el PDF de cada pieza del bucket privado al público y enciende el
+              Copia el PDF de cada artículo del bucket privado al público y enciende el
               número entero de una vez. Sólo se copian PDF: una pieza enviada en Word
               necesita su versión maquetada antes.
             </p>
@@ -203,7 +250,7 @@ export default async function DetalleEdicion({ params }: { params: Promise<{ id:
               accion={publicar}
               etiqueta="Publicar el número"
               lleno
-              confirmar="Publicar deja las piezas y sus PDF accesibles a cualquiera. ¿Continuar?"
+              confirmar="Publicar deja los artículos y sus PDF accesibles a cualquiera. ¿Continuar?"
             >
               <input type="hidden" name="edicion" value={edicionId} />
             </Accion>

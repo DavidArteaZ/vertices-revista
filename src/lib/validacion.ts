@@ -80,7 +80,6 @@ const AVISO = {
   correo: "escribe_un_correo_de_contacto_valido",
   perfil: "elige_tu_perfil_de_autor",
   afiliacion: "indica_tu_institucion_o_afiliacion",
-  coautores: "portal_coautores_max_2",
   seccion: "elige_la_seccion_que_mejor_le_queda_a_tu_trabajo",
   genero: "portal_genero_requerido",
   titulo: "tu_manuscrito_necesita_un_titulo",
@@ -128,18 +127,6 @@ export function contarPalabras(texto: string): number {
 const archivosDe = (archivos: ArchivoLike[], rol: RolArchivo) =>
   archivos.filter((a) => a.rol === rol);
 
-/**
- * Cuenta coautores separando por coma.
- *
- * Limitación aceptada: quien escriba «Pérez, Ana» pensando en una sola persona
- * cuenta como dos. Distinguir «apellido, nombre» de «autor, autor» sin
- * preguntar no tiene solución fiable, y equivocarse hacia el lado estricto sólo
- * cuesta que el autor reescriba «Ana Pérez».
- */
-function contarCoautores(texto: string): number {
-  return v(texto).split(",").filter((s) => s.trim()).length;
-}
-
 function repositorioValido(url: string): boolean {
   if (!v(url)) return true;
   try {
@@ -160,9 +147,6 @@ export function validarPaso(
     if (!CORREO.test(v(d.correo))) return { clave: AVISO.correo };
     if (!v(d.perfil)) return { clave: AVISO.perfil };
     if (!v(d.afiliacion)) return { clave: AVISO.afiliacion };
-    // Campo opcional: vacío es válido, pero el tope de dos que anuncia el texto
-    // de ayuda no lo comprobaba nadie.
-    if (contarCoautores(d.coautores) > 2) return { clave: AVISO.coautores };
     if (!esSeccionEnvio(d.seccion)) return { clave: AVISO.seccion };
     /**
      * El género se contrasta contra su catálogo, no sólo contra el vacío,
@@ -197,8 +181,6 @@ export function validarPaso(
 
     if (d.seccion === "La Voz de la Experiencia") {
       if (!v(c.semblanza)) return { clave: AVISO.semblanza };
-      // Contra el catálogo por lo mismo que el género: es texto que llega del
-      // cliente y acaba en la ficha editorial sin que nadie lo acote después.
       if (!esModalidadEntrevista(v(c.modalidadEntrevista))) return { clave: AVISO.modalidad };
       if (archivosDe(archivos, "foto").length !== 1) return { clave: AVISO.foto };
       if (archivosDe(archivos, "cesion_imagen").length !== 1) return { clave: AVISO.cesion };
@@ -219,7 +201,7 @@ export function validarPaso(
 
     if (d.seccion === "¿Sabías Qué?") {
       const n = contarPalabras(c.dato);
-      if (n < 1 || n > 200) return { clave: AVISO.dato, valores: { n } };
+      if (n < 1 || n > 200) return { clave: AVISO.dato };
       if (archivosDe(archivos, "foto").length > 1) return { clave: AVISO.imagen };
     }
 
