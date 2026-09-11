@@ -56,6 +56,7 @@ export default async function Decision({ envio }: { envio: Tabla<"envios"> }) {
   const { data: ediciones } = await sb
     .from("ediciones")
     .select("id, numero, titulo")
+    .eq("estado", "borrador")
     .order("numero", { ascending: false });
 
   return (
@@ -67,7 +68,7 @@ export default async function Decision({ envio }: { envio: Tabla<"envios"> }) {
           se deja de ocultar la autoría a todo el comité y queda registro de quién la confirmó.
         </p>
         {(ediciones ?? []).length === 0 ? (
-          <p className="aviso">Crea primero una edición: el correo de decisión necesita sus datos editoriales.</p>
+          <p className="aviso">Crea primero una edición en borrador: el correo de decisión necesita sus datos editoriales.</p>
         ) : (
           <FormularioDecision envio={envio.id} ediciones={ediciones ?? []} locale={envio.locale} />
         )}
