@@ -149,6 +149,7 @@ export type Database = {
         estado: string;
         decision_id: number | null;
         decision_final: string | null;
+        edicion_id: number | null;
         decision_final_por: string | null;
         decision_final_at: string | null;
         revision_de_envio_id: string | null;
