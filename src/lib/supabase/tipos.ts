@@ -148,6 +148,7 @@ export type Database = {
         seccion_dictamen_id: number | null;
         estado: string;
         decision_id: number | null;
+        decision_final: string | null;
         decision_final_por: string | null;
         decision_final_at: string | null;
         revision_de_envio_id: string | null;
@@ -201,21 +202,21 @@ export type Database = {
       >;
       dictamenes: Fila<
         {
-        id: string;
-        envio_id: string;
-        revisor_id: string;
-        rubrica_version_id: number;
-        estado: string;
-        sin_conflicto: boolean;
-        comentarios: string | null;
-        puntaje: number | null;
-        maximo: number | null;
-        puertas_ok: boolean | null;
-        criticos_ok: boolean | null;
-        decision_sugerida_id: number | null;
-        enviado_at: string | null;
-        created_at: string;
-        updated_at: string;
+          id: string;
+          envio_id: string;
+          revisor_id: string;
+          rubrica_version_id: number;
+          estado: string;
+          sin_conflicto: boolean;
+          comentarios: string | null;
+          puntaje: number | null;
+          maximo: number | null;
+          puertas_ok: boolean | null;
+          criticos_ok: boolean | null;
+          decision_sugerida_id: number | null;
+          enviado_at: string | null;
+          created_at: string;
+          updated_at: string;
         },
         {
           id?: string;
@@ -253,6 +254,9 @@ export type Database = {
           estado: string;
           publicada_at: string | null;
           created_at: string;
+          fecha_lanzamiento: string | null;
+          ubicacion_evento_lanzamiento: string | null;
+          fecha_limite_revisiones: string | null;
         },
         {
           id?: number;
@@ -261,23 +265,26 @@ export type Database = {
           estado?: string;
           publicada_at?: string | null;
           created_at?: string;
+          fecha_lanzamiento?: string | null;
+          ubicacion_evento_lanzamiento?: string | null;
+          fecha_limite_revisiones?: string | null;
         }
       >;
       articulos: Fila<
         {
-        id: number;
-        envio_id: string | null;
-        edicion_id: number | null;
-        titulo: string;
-        autor: string;
-        seccion_id: number;
-        minutos_lectura: number | null;
-        destacado: boolean;
-        slug: string;
-        pdf_publico_path: string | null;
-        es_placeholder: boolean;
-        orden: number | null;
-        created_at: string;
+          id: number;
+          envio_id: string | null;
+          edicion_id: number | null;
+          titulo: string;
+          autor: string;
+          seccion_id: number;
+          minutos_lectura: number | null;
+          destacado: boolean;
+          slug: string;
+          pdf_publico_path: string | null;
+          es_placeholder: boolean;
+          orden: number | null;
+          created_at: string;
         },
         {
           id?: number;
@@ -348,7 +355,18 @@ export type Database = {
         };
         Returns: undefined;
       };
-      registrar_decision: { Args: { p_envio: string; p_decision: number }; Returns: undefined };
+      registrar_decision: {
+        Args: {
+          p_envio: string;
+          p_decision: number;
+          p_decision_final: string;
+          p_nombre_confirmacion: string;
+          p_comentarios: string | null;
+          p_edicion: number;
+        };
+        Returns: undefined;
+      };
+      borrar_envio_sin_decision: { Args: { p_envio: string }; Returns: undefined };
       marcar_anonimizacion: {
         Args: { p_envio: string; p_antiplagio?: string | null };
         Returns: undefined;
