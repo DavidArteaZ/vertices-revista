@@ -126,7 +126,7 @@ export async function generaRegistro(
       manuscrito,
       mios.length ? `${mios.length} dictamen(es)` : "",
       puntajes,
-      e.decision_id ? (decision.get(e.decision_id) ?? "") : "",
+      e.decision_final ?? (e.decision_id ? (decision.get(e.decision_id) ?? "") : ""),
       e.estado,
       quien?.notas_internas ?? (quien ? "" : OCULTO),
     ]);
