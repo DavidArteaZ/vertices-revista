@@ -46,7 +46,7 @@ export default async function DetalleEdicion({ params }: { params: Promise<{ id:
     sb.from("secciones").select("id, nombre_display"),
     sb
       .from("envios")
-      .select("id, folio, titulo, decision_id")
+      .select("id, folio, titulo, decision_id, edicion_id")
       .not("decision_id", "is", null)
       .is("archivado_at", null),
   ]);
@@ -66,7 +66,11 @@ export default async function DetalleEdicion({ params }: { params: Promise<{ id:
   const yaTienen = new Set((yaPublicados ?? []).map((a) => a.envio_id));
 
   const disponibles = (candidatos ?? []).filter(
-    (e) => e.decision_id && idsAceptantes.has(e.decision_id) && !yaTienen.has(e.id),
+    (e) =>
+      e.decision_id &&
+      idsAceptantes.has(e.decision_id) &&
+      !yaTienen.has(e.id) &&
+      (e.edicion_id === edicionId || e.edicion_id === null),
   );
 
   return (
@@ -98,6 +102,7 @@ export default async function DetalleEdicion({ params }: { params: Promise<{ id:
                 name="fecha_lanzamiento"
                 defaultValue={edicion.fecha_lanzamiento ?? ""}
               />
+              {!edicion.fecha_lanzamiento && <p className="nota">por decidir</p>}
             </div>
             <div className="campo">
               <label htmlFor="ubicacion_evento_lanzamiento">Ubicación evento lanzamiento</label>
@@ -117,6 +122,7 @@ export default async function DetalleEdicion({ params }: { params: Promise<{ id:
                 name="fecha_limite_revisiones"
                 defaultValue={edicion.fecha_limite_revisiones ?? ""}
               />
+              {!edicion.fecha_limite_revisiones && <p className="nota">por decidir</p>}
             </div>
           </div>
           <p className="nota" style={{ marginBottom: 14 }}>
