@@ -89,7 +89,31 @@ export default function FormularioDecision({
           </select>
         </div>
 
-        <div className="campo">
+        {pideComentarios && (
+          <div className="campo">
+            <label htmlFor="comentarios">Revisiones o comentarios</label>
+            <textarea id="comentarios" name="comentarios" required />
+            {locale !== "es" && (
+              <p className="nota">
+                Este autor recibirá la plantilla en inglés. Escribe los comentarios directamente en inglés.
+              </p>
+            )}
+          </div>
+        )}
+      </div>
+
+      <div style={{ display: "flex", gap: 14, alignItems: "flex-end", flexWrap: "wrap" }}>
+        <button
+          type="button"
+          className="boton boton--lleno"
+          onClick={abrirConfirmacion}
+          disabled={pendiente}
+          style={{ marginBottom: 16 }}
+        >
+          {pendiente ? "Guardando…" : "Grabar decisión"}
+        </button>
+
+        <div className="campo" style={{ flex: "1 1 300px" }}>
           <label htmlFor="edicion">Edición para el correo</label>
           <select id="edicion" name="edicion" defaultValue="" required>
             <option value="">Elige una</option>
@@ -103,24 +127,9 @@ export default function FormularioDecision({
       </div>
 
       <p className="nota" style={{ marginTop: -6, marginBottom: 16 }}>
-        La edición se usa para completar el correo. No convierte la pieza en artículo ni la vincula automáticamente al número.
+        La edición se usa para completar el correo. Sólo las decisiones aceptantes quedan vinculadas a ese número;
+        convertir la pieza en artículo sigue siendo una acción manual desde Ediciones.
       </p>
-
-      {pideComentarios && (
-        <div className="campo">
-          <label htmlFor="comentarios">Revisiones o comentarios</label>
-          <textarea id="comentarios" name="comentarios" required />
-          {locale !== "es" && (
-            <p className="nota">
-              Este autor recibirá la plantilla en inglés. Escribe los comentarios directamente en inglés.
-            </p>
-          )}
-        </div>
-      )}
-
-      <button type="button" className="boton boton--lleno" onClick={abrirConfirmacion} disabled={pendiente}>
-        {pendiente ? "Guardando…" : "Grabar decisión"}
-      </button>
 
       {estado?.mensaje && (
         <p className={`aviso${estado.ok ? " aviso--ok" : ""}`}>{estado.mensaje}</p>
