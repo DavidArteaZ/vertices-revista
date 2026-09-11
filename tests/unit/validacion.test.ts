@@ -116,12 +116,11 @@ describe("paso 0 — autoría", () => {
     expect(clave(0, { ...autoria, correo: "a b@c.mx" }, [])).toBe("escribe_un_correo_de_contacto_valido");
   });
 
-  it("admite hasta dos coautores y no cuenta las comas sobrantes", () => {
+  it("no limita la cantidad de coautores", () => {
     expect(clave(0, { ...autoria, coautores: "" }, [])).toBeNull();
     expect(clave(0, { ...autoria, coautores: "Beto Ruiz" }, [])).toBeNull();
     expect(clave(0, { ...autoria, coautores: "Beto Ruiz, Cris Lima" }, [])).toBeNull();
-    expect(clave(0, { ...autoria, coautores: "a, b," }, [])).toBeNull();
-    expect(clave(0, { ...autoria, coautores: "a, b, c" }, [])).toBe("portal_coautores_max_2");
+    expect(clave(0, { ...autoria, coautores: "a, b, c, d, e, f" }, [])).toBeNull();
   });
 
   it("exige una sección del catálogo", () => {
@@ -203,7 +202,6 @@ describe("paso 2 — requisitos por sección", () => {
     const cesion = archivo("cesion_imagen", "cesion.pdf");
     expect(clave(2, voz({ semblanza: "" }), [foto, cesion])).toBe("portal_semblanza_requerida");
     expect(clave(2, voz({ modalidadEntrevista: "" }), [foto, cesion])).toBe("portal_modalidad_requerida");
-    // Fuera del catálogo: no basta con que la modalidad venga escrita.
     expect(clave(2, voz({ modalidadEntrevista: "Por Zoom" }), [foto, cesion])).toBe("portal_modalidad_requerida");
     expect(clave(2, voz(), [cesion])).toBe("portal_foto_requerida");
     expect(clave(2, voz(), [foto])).toBe("portal_cesion_requerida");
