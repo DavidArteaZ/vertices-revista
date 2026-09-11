@@ -12,6 +12,7 @@ alter table public.ediciones
 
 alter table public.envios
   add column decision_final text,
+  add column edicion_id bigint references public.ediciones(id) on delete set null,
   add constraint envios_decision_final_valida check (
     decision_final is null or decision_final in (
       'Aceptada',
@@ -21,9 +22,13 @@ alter table public.envios
     )
   );
 
+create index envios_edicion_id_idx on public.envios (edicion_id);
+
 comment on column public.envios.decision_final is
   'Decisión final del comité en el vocabulario común. decision_id conserva la '
   'fila equivalente de la rúbrica para compatibilidad con ceguera y publicación.';
+comment on column public.envios.edicion_id is
+  'Edición editorial de una pieza aceptada. Sólo se fija para Aceptada o Aceptada con revisiones menores; no crea un artículo.';
 
 comment on column public.ediciones.fecha_lanzamiento is
   'Fecha comunicada al autor en los correos de aceptación. NULL se muestra como por decidir.';
@@ -34,8 +39,8 @@ comment on column public.ediciones.fecha_limite_revisiones is
 
 -- La firma nueva vuelve obligatorios la decisión canónica, el nombre escrito
 -- en la confirmación, los comentarios cuando corresponden y la edición usada
--- para construir el correo. La edición queda en la bitácora, no como relación
--- editorial del envío ni como artículo.
+-- para construir el correo. Sólo una decisión aceptante conserva además esa
+-- edición como relación editorial; ninguna decisión crea un artículo.
 create function public.registrar_decision(
   p_envio uuid,
   p_decision bigint,
@@ -104,14 +109,18 @@ begin
     raise exception 'los comentarios son obligatorios para esta decisión' using errcode = 'check_violation';
   end if;
 
-  perform 1 from public.ediciones where id = p_edicion;
+  perform 1 from public.ediciones where id = p_edicion and estado = 'borrador';
   if not found then
-    raise exception 'elige una edición válida' using errcode = 'check_violation';
+    raise exception 'elige una edición en borrador válida' using errcode = 'check_violation';
   end if;
 
   update public.envios
      set decision_id        = p_decision,
          decision_final     = p_decision_final,
+         edicion_id         = case
+           when p_decision_final in ('Aceptada', 'Aceptada con revisiones menores') then p_edicion
+           else null
+         end,
          decision_final_por = (select auth.uid()),
          decision_final_at  = now(),
          estado             = 'decidido',
@@ -134,7 +143,7 @@ begin
       'decision_final', p_decision_final,
       'nombre_confirmacion', trim(p_nombre_confirmacion),
       'comentarios', nullif(trim(coalesce(p_comentarios, '')), ''),
-      'edicion', p_edicion
+      'edicion_correo', p_edicion
     )
   );
 end;
