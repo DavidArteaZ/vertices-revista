@@ -11,12 +11,28 @@ export default async function Decision({ envio }: { envio: Tabla<"envios"> }) {
   const sb = await sesion();
 
   if (envio.decision_id) {
-    const [{ data: decision }, { data: quienGrabo }] = await Promise.all([
+    const [{ data: decision }, { data: quienGrabo }, { data: evento }] = await Promise.all([
       sb.from("decisiones").select("etiqueta").eq("id", envio.decision_id).maybeSingle(),
       envio.decision_final_por
         ? sb.from("usuarios").select("nombre").eq("id", envio.decision_final_por).maybeSingle()
         : Promise.resolve({ data: null }),
+      sb
+        .from("envio_eventos")
+        .select("payload")
+        .eq("envio_id", envio.id)
+        .eq("tipo", "decision_registrada")
+        .order("at", { ascending: false })
+        .limit(1)
+        .maybeSingle(),
     ]);
+
+    const nombreConfirmacion =
+      evento?.payload &&
+      typeof evento.payload === "object" &&
+      !Array.isArray(evento.payload) &&
+      typeof evento.payload.nombre_confirmacion === "string"
+        ? evento.payload.nombre_confirmacion
+        : null;
 
     return (
       <>
@@ -34,6 +50,7 @@ export default async function Decision({ envio }: { envio: Tabla<"envios"> }) {
                 })
               : "—"}
             .
+            {nombreConfirmacion && <> Nombre escrito en la confirmación: {nombreConfirmacion}.</>}
           </p>
         </div>
       </>
