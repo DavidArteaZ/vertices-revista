@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useRef, useState } from "react";
+import { useActionState, useRef, useState, type CSSProperties } from "react";
 import {
   DECISIONES_FINALES,
   requiereComentarios,
@@ -9,6 +9,27 @@ import {
 import { registrarDecision, type Resultado } from "../../acciones";
 
 type Edicion = { id: number; numero: number; titulo: string };
+
+const fondoModal: CSSProperties = {
+  position: "fixed",
+  inset: 0,
+  zIndex: 1000,
+  display: "grid",
+  placeItems: "center",
+  padding: 24,
+  background: "rgba(45,35,46,.45)",
+};
+
+const panelModal: CSSProperties = {
+  width: "min(560px, 100%)",
+  maxHeight: "90vh",
+  overflowY: "auto",
+  background: "var(--fondo)",
+  border: "1px solid var(--linea-fuerte)",
+  borderRadius: 14,
+  padding: 22,
+  boxShadow: "0 20px 60px rgba(45,35,46,.25)",
+};
 
 export default function FormularioDecision({
   envio,
@@ -106,11 +127,13 @@ export default function FormularioDecision({
       )}
 
       {confirmando && (
-        <div className="modal-fondo" role="presentation">
-          <div className="modal-panel" role="dialog" aria-modal="true" aria-labelledby="confirmar-decision-titulo">
+        <div style={fondoModal} role="presentation">
+          <div style={panelModal} role="dialog" aria-modal="true" aria-labelledby="confirmar-decision-titulo">
             <h3 id="confirmar-decision-titulo" style={{ marginTop: 0 }}>Confirmar decisión</h3>
             <p className="nota">La decisión que se registrará y comunicará al autor es:</p>
-            <p className="decision-confirmada">{decision.toUpperCase()}</p>
+            <p style={{ fontWeight: 700, fontSize: 18, color: "var(--tinta)" }}>
+              {decision.toUpperCase()}
+            </p>
             <div className="campo">
               <label htmlFor="confirmacion_nombre">Escribe tu nombre para dejar constancia</label>
               <input
@@ -123,7 +146,7 @@ export default function FormularioDecision({
                 required
               />
             </div>
-            <div className="modal-acciones">
+            <div style={{ display: "flex", justifyContent: "flex-end", gap: 10, flexWrap: "wrap" }}>
               <button type="button" className="boton" onClick={() => setConfirmando(false)} disabled={pendiente}>
                 Cancelar
               </button>
