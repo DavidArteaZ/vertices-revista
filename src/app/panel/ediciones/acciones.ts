@@ -17,6 +17,7 @@ import type { Resultado } from "../acciones";
  */
 
 const NO_AUTORIZADO: Resultado = { ok: false, mensaje: "No tienes acceso al panel." };
+const FECHA = /^\d{4}-\d{2}-\d{2}$/;
 
 export async function crearEdicion(datos: FormData): Promise<Resultado> {
   if (!(await personal())) return NO_AUTORIZADO;
@@ -36,6 +37,39 @@ export async function crearEdicion(datos: FormData): Promise<Resultado> {
 
   revalidatePath("/panel/ediciones");
   return { ok: true, mensaje: `Número ${numero} creado.` };
+}
+
+export async function guardarParametros(datos: FormData): Promise<Resultado> {
+  if (!(await personal())) return NO_AUTORIZADO;
+
+  const edicion = Number(datos.get("edicion") ?? 0);
+  const fechaLanzamiento = String(datos.get("fecha_lanzamiento") ?? "").trim();
+  const ubicacion = String(datos.get("ubicacion_evento_lanzamiento") ?? "").trim();
+  const fechaLimite = String(datos.get("fecha_limite_revisiones") ?? "").trim();
+
+  if (!edicion) return { ok: false, mensaje: "Falta la edición." };
+  if (fechaLanzamiento && !FECHA.test(fechaLanzamiento)) {
+    return { ok: false, mensaje: "La fecha de lanzamiento no es válida." };
+  }
+  if (fechaLimite && !FECHA.test(fechaLimite)) {
+    return { ok: false, mensaje: "La fecha límite de revisiones no es válida." };
+  }
+
+  const sb = await sesion();
+  const { error } = await sb
+    .from("ediciones")
+    .update({
+      fecha_lanzamiento: fechaLanzamiento || null,
+      ubicacion_evento_lanzamiento: ubicacion || null,
+      fecha_limite_revisiones: fechaLimite || null,
+    })
+    .eq("id", edicion);
+
+  if (error) return { ok: false, mensaje: error.message };
+
+  revalidatePath(`/panel/ediciones/${edicion}`);
+  revalidatePath("/panel/ediciones");
+  return { ok: true, mensaje: "Parámetros guardados." };
 }
 
 export async function adjuntar(datos: FormData): Promise<Resultado> {
@@ -63,7 +97,7 @@ export async function adjuntar(datos: FormData): Promise<Resultado> {
   if (error) return { ok: false, mensaje: error.message };
 
   revalidatePath(`/panel/ediciones/${edicion}`);
-  return { ok: true, mensaje: "Pieza añadida al número." };
+  return { ok: true, mensaje: "Pieza convertida en artículo y añadida al número." };
 }
 
 export async function ajustarArticulo(datos: FormData): Promise<Resultado> {
