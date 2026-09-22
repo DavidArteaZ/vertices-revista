@@ -9,6 +9,27 @@ Referencias: spec §13 (seguridad), §14 (migración y cutover), §15
 
 ---
 
+## 0. Migraciones de Supabase antes de desplegar cambios de esquema
+
+Vercel compila y despliega Next.js, pero **no aplica automáticamente** los
+archivos de `supabase/migrations/` al proyecto de Supabase. Un cambio que añada
+columnas o funciones puede pasar el build y aun así fallar en ejecución con
+mensajes como `Could not find ... in the schema cache`.
+
+Antes de probar una branch que cambie el esquema:
+
+1. Aplicar las migraciones pendientes al mismo proyecto de Supabase al que apunta
+   `SUPABASE_URL` en ese entorno.
+2. Si el cambio añade columnas o funciones expuestas por PostgREST, recargar su
+   cache con `NOTIFY pgrst, 'reload schema';`.
+3. Sólo entonces probar las acciones del panel.
+
+Para el flujo de dictaminaciones existe una migración de reparación idempotente:
+`20260921190000_dictaminaciones_reparacion.sql`. Puede ejecutarse aunque la
+migración original no se haya aplicado o haya quedado a medias.
+
+---
+
 ## 1. Variables de entorno
 
 La lista canónica es `.env.example`. En local viven en `.env` de la raíz, y
