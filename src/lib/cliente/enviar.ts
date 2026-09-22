@@ -75,6 +75,8 @@ export async function enviarManuscrito(
 
 const MIME_POR_EXTENSION: Record<string, string> = {
   pdf: "application/pdf",
+  doc: "application/msword",
+  docx: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
   jpg: "image/jpeg",
   jpeg: "image/jpeg",
   png: "image/png",

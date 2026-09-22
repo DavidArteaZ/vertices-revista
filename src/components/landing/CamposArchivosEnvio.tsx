@@ -145,8 +145,8 @@ export default function CamposArchivosEnvio(props: Props) {
           <textarea id="resumenMiradas" rows={7} value={campos.resumen} onChange={(e) => onCampo("resumen", e.target.value)} />
           <p className="ayuda contador">{contador(campos.resumen, 100, 300)}</p>
         </div>
-        <CampoArchivo id="paper" titulo={t("paper")} ayuda={t("pdf_maximo_35_cuartillas")} rol="paper" accept="application/pdf" maximo={1} archivos={archivos} onArchivos={onArchivos} onQuitar={onQuitar} />
-        <CampoArchivo id="anexos" titulo={t("anexos_opcional")} ayuda={t("hasta_3_archivos_pdf")} rol="anexo" accept="application/pdf" maximo={3} archivos={archivos} onArchivos={onArchivos} onQuitar={onQuitar} />
+        <CampoArchivo id="paper" titulo={t("paper")} ayuda={t("pdf_maximo_35_cuartillas").replace(/pdf/gi, "DOC/DOCX")} rol="paper" accept=".doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document" maximo={1} archivos={archivos} onArchivos={onArchivos} onQuitar={onQuitar} />
+        <CampoArchivo id="anexos" titulo={t("anexos_opcional")} ayuda={t("hasta_3_archivos_pdf").replace(/pdf/gi, "DOC/DOCX")} rol="anexo" accept=".doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document" maximo={3} archivos={archivos} onArchivos={onArchivos} onQuitar={onQuitar} />
         {repo}
       </>
     );
@@ -160,7 +160,7 @@ export default function CamposArchivosEnvio(props: Props) {
           <textarea id="resumenHorizonte" rows={7} value={campos.resumen} onChange={(e) => onCampo("resumen", e.target.value)} />
           <p className="ayuda contador">{contador(campos.resumen, null, 200)}</p>
         </div>
-        <CampoArchivo id="articulo" titulo={t("articulo")} ayuda={t("pdf_800_a_1500_palabras_incluir_graficas_en_el_p_f838")} rol="articulo" accept="application/pdf" maximo={1} archivos={archivos} onArchivos={onArchivos} onQuitar={onQuitar} />
+        <CampoArchivo id="articulo" titulo={t("articulo")} ayuda={t("pdf_800_a_1500_palabras_incluir_graficas_en_el_p_f838").replace(/pdf/gi, "DOC/DOCX")} rol="articulo" accept=".doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document" maximo={1} archivos={archivos} onArchivos={onArchivos} onQuitar={onQuitar} />
       </>
     );
   }

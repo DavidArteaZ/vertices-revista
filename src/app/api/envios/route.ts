@@ -1,5 +1,4 @@
 import { randomUUID } from "node:crypto";
-import { PDFDocument } from "pdf-lib";
 import { servidor, BUCKET_PRIVADO } from "@/lib/supabase/servidor";
 import { bitacora, cuerpoJson, huellaIp, json, type Bitacora } from "@/lib/api/peticion";
 import { catalogos } from "@/lib/datos/catalogos";
@@ -32,6 +31,9 @@ type ArchivoEntrante = { path: string; nombre: string; bytes: number; rol: RolAr
 
 function formatoPermitido(rol: RolArchivo, formato: Formato): boolean {
   if (rol === "foto" || rol === "visualizacion") return IMAGENES.has(formato);
+  if (rol === "paper" || rol === "anexo" || rol === "articulo") {
+    return formato === "doc" || formato === "docx";
+  }
   return formato === "pdf";
 }
 
@@ -161,15 +163,6 @@ export async function POST(req: Request) {
       if (!formato || !formatoPermitido(a.rol, formato)) {
         log.info("formato_rechazado", { nombre: a.nombre, rol: a.rol, formato });
         return json({ aviso: AVISO.formato }, 400);
-      }
-
-      if (a.rol === "paper") {
-        try {
-          const pdf = await PDFDocument.load(crudos, { ignoreEncryption: true });
-          if (pdf.getPageCount() > 35) return json({ aviso: AVISO.paginas }, 400);
-        } catch {
-          return json({ aviso: AVISO.formato }, 400);
-        }
       }
 
       const limpieza = await limpiar(crudos, formato);

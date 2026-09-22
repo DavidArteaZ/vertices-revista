@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest";
 import {
   AVISO,
+  WORD_OK,
+  EXT_OK,
+  PDF_OK,
   validarEnvio,
   validarPaso,
   vacio,
@@ -34,6 +37,7 @@ const mensaje = (a: Aviso | null): string | null => {
 
 const palabras = (n: number) => Array(n).fill("palabra").join(" ");
 const archivo = (rol: RolArchivo, name = "a.pdf", size = 100) => ({ name, size, rol });
+const word = (rol: RolArchivo, name = "a.docx", size = 100) => ({ name, size, rol });
 
 /** Devuelve la clave, pero de paso comprueba que esa clave tiene texto. */
 const clave = (...args: Parameters<typeof validarPaso>) => {
@@ -169,6 +173,21 @@ const voz = (campos: Partial<CamposSeccion> = {}) =>
 const excelencia = (campos: Partial<CamposSeccion> = {}) =>
   enSeccion("Excelencia en Acción", { semblanza: "Semblanza", cronica: palabras(300), ...campos });
 
+describe("formatos de archivo", () => {
+  it("reconoce DOC y DOCX como Word, sin confundirlos con PDF", () => {
+    expect(WORD_OK.test("pieza.doc")).toBe(true);
+    expect(WORD_OK.test("pieza.docx")).toBe(true);
+    expect(WORD_OK.test("pieza.PDF")).toBe(false);
+    expect(PDF_OK.test("pieza.pdf")).toBe(true);
+    expect(PDF_OK.test("pieza.docx")).toBe(false);
+  });
+
+  it("permite firmar Word además de los formatos existentes", () => {
+    expect(EXT_OK.test("pieza.doc")).toBe(true);
+    expect(EXT_OK.test("pieza.docx")).toBe(true);
+  });
+});
+
 describe("paso 2 — guardas comunes", () => {
   /** Inalcanzable desde el formulario; es la guarda contra peticiones manipuladas. */
   it("rechaza un archivo cuyo rol no corresponde a la sección", () => {
@@ -212,10 +231,10 @@ describe("paso 2 — requisitos por sección", () => {
     const d = miradas(100);
     expect(clave(2, d, [])).toBe("portal_miradas_paper_requerido");
     expect(clave(2, d, [archivo("paper"), archivo("paper")])).toBe("portal_miradas_paper_requerido");
-    expect(clave(2, d, [archivo("paper")])).toBeNull();
-    expect(clave(2, d, [archivo("paper"), archivo("anexo"), archivo("anexo"), archivo("anexo")])).toBeNull();
+    expect(clave(2, d, [word("paper")])).toBeNull();
+    expect(clave(2, d, [word("paper"), word("anexo"), word("anexo"), word("anexo")])).toBeNull();
     expect(
-      clave(2, d, [archivo("paper"), archivo("anexo"), archivo("anexo"), archivo("anexo"), archivo("anexo")]),
+      clave(2, d, [word("paper"), word("anexo"), word("anexo"), word("anexo"), word("anexo")]),
     ).toBe("portal_miradas_anexos_max_3");
   });
 
@@ -223,7 +242,7 @@ describe("paso 2 — requisitos por sección", () => {
     const d = horizonte(150);
     expect(clave(2, d, [])).toBe("portal_horizonte_articulo_requerido");
     expect(clave(2, d, [archivo("articulo"), archivo("articulo")])).toBe("portal_horizonte_articulo_requerido");
-    expect(clave(2, d, [archivo("articulo")])).toBeNull();
+    expect(clave(2, d, [word("articulo")])).toBeNull();
   });
 
   it("¿Sabías Qué?: la imagen es opcional pero como mucho una", () => {
@@ -268,7 +287,7 @@ describe("paso 2 — los límites de palabras en su borde exacto", () => {
   });
 
   it("Miradas Económicas: 100 y 300 pasan, 99 y 301 no", () => {
-    const con = (n: number) => clave(2, miradas(n), [archivo("paper")]);
+    const con = (n: number) => clave(2, miradas(n), [word("paper")]);
     expect(con(99)).toBe("portal_miradas_resumen_100_300");
     expect(con(100)).toBeNull();
     expect(con(300)).toBeNull();
@@ -284,7 +303,7 @@ describe("paso 2 — los límites de palabras en su borde exacto", () => {
   });
 
   it("los dos campos de 200 palabras: 200 pasa, 201 y el vacío no", () => {
-    const conArticulo = (n: number) => clave(2, horizonte(n), [archivo("articulo")]);
+    const conArticulo = (n: number) => clave(2, horizonte(n), [word("articulo")]);
     expect(conArticulo(0)).toBe("portal_horizonte_resumen_max_200");
     expect(conArticulo(200)).toBeNull();
     expect(conArticulo(201)).toBe("portal_horizonte_resumen_max_200");
