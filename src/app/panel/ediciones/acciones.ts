@@ -65,7 +65,18 @@ export async function guardarParametros(datos: FormData): Promise<Resultado> {
     })
     .eq("id", edicion);
 
-  if (error) return { ok: false, mensaje: error.message };
+  if (error) {
+    const esquemaDesactualizado =
+      error.message.includes("schema cache") ||
+      error.message.includes("fecha_lanzamiento") ||
+      error.code === "PGRST204";
+    return {
+      ok: false,
+      mensaje: esquemaDesactualizado
+        ? "La base de Supabase no tiene aplicada la migración de dictaminaciones. Los parámetros de edición todavía no existen en el esquema."
+        : error.message,
+    };
+  }
 
   revalidatePath(`/panel/ediciones/${edicion}`);
   revalidatePath("/panel/ediciones");
