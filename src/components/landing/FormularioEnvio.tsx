@@ -13,6 +13,7 @@ import {
   vacio,
   IMAGEN_OK,
   PDF_OK,
+  WORD_OK,
   MAX_BYTES,
   AVISO,
   type Aviso,
@@ -74,9 +75,11 @@ export default function FormularioEnvio() {
 
   function ponerArchivos(rol: RolArchivo, nuevos: File[], maximo: number) {
     const esImagen = rol === "foto" || rol === "visualizacion";
+    const esWord = rol === "paper" || rol === "anexo" || rol === "articulo";
+    const patron = esImagen ? IMAGEN_OK : esWord ? WORD_OK : PDF_OK;
     const validos: File[] = [];
     for (const archivo of nuevos.slice(0, maximo)) {
-      if (!(esImagen ? IMAGEN_OK : PDF_OK).test(archivo.name)) {
+      if (!patron.test(archivo.name)) {
         setError({ clave: "portal_archivo_tipo" });
         return;
       }
