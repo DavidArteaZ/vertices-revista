@@ -315,7 +315,18 @@ export async function registrarDecision(datos: FormData): Promise<Resultado> {
     p_comentarios: comentarios || null,
     p_edicion: edicionId,
   });
-  if (error) return { ok: false, mensaje: error.message };
+  if (error) {
+    const esquemaDesactualizado =
+      error.message.includes("schema cache") ||
+      error.message.includes("registrar_decision") ||
+      error.code === "PGRST202";
+    return {
+      ok: false,
+      mensaje: esquemaDesactualizado
+        ? "La base de Supabase no tiene aplicada la migración de dictaminaciones. Falta la función nueva para registrar la decisión."
+        : error.message,
+    };
+  }
 
   // La autoría se consulta después de la decisión. decision_id sigue siendo el
   // disparador de desvelado usado por las políticas existentes.
