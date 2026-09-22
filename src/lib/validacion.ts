@@ -233,8 +233,9 @@ export function pesoTexto(b: number): string {
 }
 
 export const PDF_OK = /\.pdf$/i;
+export const WORD_OK = /\.(docx?|DOCX?)$/i;
 export const IMAGEN_OK = /\.(jpe?g|png|webp)$/i;
-export const EXT_OK = /\.(pdf|jpe?g|png|webp)$/i;
+export const EXT_OK = /\.(pdf|docx?|jpe?g|png|webp)$/i;
 export const MAX_BYTES = 20 * 1048576;
 export const MAX_ARCHIVOS = 5;
 export const MAX_BYTES_TOTAL = 50 * 1048576;
