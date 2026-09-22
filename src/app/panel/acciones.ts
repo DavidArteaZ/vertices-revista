@@ -287,12 +287,24 @@ export async function registrarDecision(datos: FormData): Promise<Resultado> {
     return { ok: false, mensaje: "No se encontró la equivalencia de esta decisión en la rúbrica." };
   }
 
-  const { data: edicion } = await sb
+  const { data: edicion, error: eEdicion } = await sb
     .from("ediciones")
     .select("id, numero, fecha_lanzamiento, ubicacion_evento_lanzamiento, fecha_limite_revisiones")
     .eq("id", edicionId)
     .maybeSingle();
 
+  if (eEdicion) {
+    const esquemaDesactualizado =
+      eEdicion.message.includes("schema cache") ||
+      eEdicion.message.includes("fecha_lanzamiento") ||
+      eEdicion.code === "PGRST204";
+    return {
+      ok: false,
+      mensaje: esquemaDesactualizado
+        ? "La base de Supabase no tiene aplicada la migración de dictaminaciones. Faltan los parámetros de edición en el esquema."
+        : eEdicion.message,
+    };
+  }
   if (!edicion) return { ok: false, mensaje: "La edición seleccionada ya no existe." };
 
   const { error } = await sb.rpc("registrar_decision", {
@@ -364,9 +376,48 @@ export async function borrarEnvio(datos: FormData): Promise<Resultado> {
   const envio = String(datos.get("envio") ?? "");
   if (!envio) return { ok: false, mensaje: "Falta el envío." };
 
-  const sb = await sesion();
-  const { error } = await sb.rpc("borrar_envio_sin_decision", { p_envio: envio });
-  if (error) return { ok: false, mensaje: error.message };
+  // Este borrado no depende de una RPC añadida por una migración. La acción ya
+  // comprobó que quien llama pertenece al comité y usa service_role sólo aquí,
+  // para poder borrar la fila y dejar que actúen las FK en cascada.
+  const admin = servidor();
+
+  const [{ data: pieza, error: ePieza }, { data: revision, error: eRevision }] = await Promise.all([
+    admin.from("envios").select("id, decision_id").eq("id", envio).maybeSingle(),
+    admin.from("envios").select("id").eq("revision_de_envio_id", envio).limit(1).maybeSingle(),
+  ]);
+
+  if (ePieza || eRevision) {
+    return { ok: false, mensaje: ePieza?.message ?? eRevision?.message ?? "No se pudo comprobar el envío." };
+  }
+  if (!pieza) return { ok: false, mensaje: "El envío ya no existe." };
+  if (pieza.decision_id) {
+    return { ok: false, mensaje: "No se puede eliminar un envío que ya tiene una decisión registrada." };
+  }
+  if (revision) {
+    return { ok: false, mensaje: "No se puede eliminar: otro envío está vinculado como revisión de éste." };
+  }
+
+  // El filtro decision_id IS NULL vuelve a comprobar la condición en la misma
+  // sentencia de borrado, por si alguien registró una decisión entre las dos
+  // consultas anteriores.
+  const { data: borrados, error } = await admin
+    .from("envios")
+    .delete()
+    .eq("id", envio)
+    .is("decision_id", null)
+    .select("id");
+
+  if (error) {
+    return {
+      ok: false,
+      mensaje: error.code === "23503"
+        ? "No se puede eliminar porque otro registro depende de este envío."
+        : error.message,
+    };
+  }
+  if (!borrados?.length) {
+    return { ok: false, mensaje: "El envío ya no existe o recibió una decisión antes de borrarse." };
+  }
 
   revalidatePath("/panel");
   return { ok: true, mensaje: "Envío eliminado de la base." };
