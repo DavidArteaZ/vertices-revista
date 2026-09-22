@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   AVISO,
-  DOC_OK,
+  WORD_OK,
   EXT_OK,
   PDF_OK,
   validarEnvio,
@@ -175,9 +175,9 @@ const excelencia = (campos: Partial<CamposSeccion> = {}) =>
 
 describe("formatos de archivo", () => {
   it("reconoce DOC y DOCX como Word, sin confundirlos con PDF", () => {
-    expect(DOC_OK.test("pieza.doc")).toBe(true);
-    expect(DOC_OK.test("pieza.docx")).toBe(true);
-    expect(DOC_OK.test("pieza.PDF")).toBe(false);
+    expect(WORD_OK.test("pieza.doc")).toBe(true);
+    expect(WORD_OK.test("pieza.docx")).toBe(true);
+    expect(WORD_OK.test("pieza.PDF")).toBe(false);
     expect(PDF_OK.test("pieza.pdf")).toBe(true);
     expect(PDF_OK.test("pieza.docx")).toBe(false);
   });
