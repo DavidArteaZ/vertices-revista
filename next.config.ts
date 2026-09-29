@@ -5,6 +5,12 @@ import createNextIntlPlugin from "next-intl/plugin";
 const conIntl = createNextIntlPlugin("./src/i18n/peticion.ts");
 
 const nextConfig: NextConfig = {
+  // El dictamen puede adjuntar PDF/DOCX de hasta 20 MB. Server Actions limita
+  // el body a 1 MB por defecto, así que dejamos margen para multipart.
+  experimental: {
+    serverActions: { bodySizeLimit: "21mb" },
+  },
+
   // Hay un package-lock.json suelto en el directorio padre, fuera del repo.
   // Sin esto, Turbopack lo detecta y advierte en cada build.
   turbopack: { root: path.resolve(__dirname) },
