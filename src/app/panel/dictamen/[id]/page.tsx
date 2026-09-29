@@ -46,6 +46,12 @@ export default async function PaginaDictamen({ params }: { params: Promise<{ id:
 
   const respuestas = await cargaRespuestas(sb, id);
 
+  const { data: archivoDobleCiego } = await sb
+    .from("dictamen_archivos")
+    .select("nombre_original, bytes")
+    .eq("dictamen_id", id)
+    .maybeSingle();
+
   // Vista previa del veredicto con lo que hay ahora mismo. `decidir` lanza si
   // una dimensión que no admite N/A viene en null, que es el mismo invariante
   // que impone el disparador; aquí eso no debería pasar y si pasa hay que
@@ -100,6 +106,7 @@ export default async function PaginaDictamen({ params }: { params: Promise<{ id:
         sinConflicto={dictamen.sin_conflicto}
         soloLectura={!propio || enviado}
         enviado={enviado}
+        archivoDobleCiego={archivoDobleCiego}
         previa={
           previa && {
             puntaje: previa.puntaje,

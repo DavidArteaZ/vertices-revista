@@ -2,8 +2,11 @@
 
 import { revalidatePath } from "next/cache";
 import { sesion, personal } from "@/lib/supabase/sesion";
+import { servidor, BUCKET_PRIVADO } from "@/lib/supabase/servidor";
 import { cargaRubrica, cargaRespuestas } from "@/lib/dictamen/cargar";
 import { decidir } from "@/lib/dictamen/decidir";
+import { MIME, reconocer } from "@/lib/archivos/formato";
+import { enviarDictamen } from "@/lib/correo/dictamen";
 import type { Resultado } from "../acciones";
 
 /**
@@ -96,6 +99,15 @@ async function escribe(dictamen: string, datos: FormData): Promise<string | null
   return null;
 }
 
+const MAX_ARCHIVO_DOBLE_CIEGO = 20 * 1024 * 1024;
+
+function tipoArchivoDobleCiego(nombre: string): { extension: "pdf" | "docx"; mime: string } | null {
+  const limpio = nombre.toLowerCase();
+  if (limpio.endsWith(".pdf")) return { extension: "pdf", mime: MIME.pdf };
+  if (limpio.endsWith(".docx")) return { extension: "docx", mime: MIME.docx };
+  return null;
+}
+
 export async function guardarBorrador(datos: FormData): Promise<Resultado> {
   if (!(await personal())) return NO_AUTORIZADO;
 
@@ -108,7 +120,8 @@ export async function guardarBorrador(datos: FormData): Promise<Resultado> {
 }
 
 export async function enviar(datos: FormData): Promise<Resultado> {
-  if (!(await personal())) return NO_AUTORIZADO;
+  const quien = await personal();
+  if (!quien) return NO_AUTORIZADO;
 
   const dictamen = String(datos.get("dictamen") ?? "");
 
@@ -121,11 +134,16 @@ export async function enviar(datos: FormData): Promise<Resultado> {
   const sb = await sesion();
   const { data: cabecera } = await sb
     .from("dictamenes")
-    .select("id, envio_id, rubrica_version_id, sin_conflicto")
+    .select("id, envio_id, revisor_id, rubrica_version_id, sin_conflicto, estado")
     .eq("id", dictamen)
     .maybeSingle();
 
-  if (!cabecera) return { ok: false, mensaje: "No encuentro ese dictamen." };
+  if (!cabecera || cabecera.revisor_id !== quien.id) {
+    return { ok: false, mensaje: "No encuentro ese dictamen entre tus asignaciones." };
+  }
+  if (cabecera.estado === "enviado") {
+    return { ok: false, mensaje: "Este dictamen ya fue enviado." };
+  }
 
   // El correo no detecta la coautoría, así que la autodeclaración es la única
   // barrera que hay contra ella (spec §7.3).
@@ -135,6 +153,17 @@ export async function enviar(datos: FormData): Promise<Resultado> {
       mensaje: "Confirma que no participaste en la elaboración de esta pieza.",
     };
   }
+
+  const [{ data: pieza }, { data: archivoExistente }] = await Promise.all([
+    sb.from("envios").select("titulo").eq("id", cabecera.envio_id).maybeSingle(),
+    sb
+      .from("dictamen_archivos")
+      .select("dictamen_id, storage_path, nombre_original, mime, bytes, guardado_at")
+      .eq("dictamen_id", dictamen)
+      .maybeSingle(),
+  ]);
+
+  if (!pieza) return { ok: false, mensaje: "No encuentro la pieza de este dictamen." };
 
   const rubrica = await cargaRubrica(sb, cabecera.rubrica_version_id);
   if (!rubrica) return { ok: false, mensaje: "No encuentro la rúbrica del dictamen." };
@@ -152,10 +181,116 @@ export async function enviar(datos: FormData): Promise<Resultado> {
     return { ok: false, mensaje: "No has calificado ninguna dimensión." };
   }
 
-  // La instantánea la calcula el servidor y se guarda tal cual. El disparador
-  // de la base comprueba además que la tarjeta esté completa —toda puerta ★
-  // contestada y toda dimensión calificada salvo la que admite N/A—, así que
-  // una tarjeta a medias no puede desvelar la autoría.
+  let archivoGuardado = archivoExistente;
+  let contenidoAdjunto: Buffer | null = null;
+
+  // El navegador sube los bytes directamente al bucket privado mediante una
+  // URL firmada. Aquí sólo llegan la ruta y metadatos pequeños; el servidor
+  // vuelve a descargar y validar el objeto antes de asociarlo al dictamen.
+  const nuevoPath = String(datos.get("doble_ciego_path") ?? "").trim();
+  const nuevoNombre = String(datos.get("doble_ciego_nombre") ?? "").trim();
+  const bytesDeclarados = Number(datos.get("doble_ciego_bytes") ?? NaN);
+
+  if (nuevoPath) {
+    const prefijo = `dictamenes/${dictamen}/`;
+    const tipoPath = tipoArchivoDobleCiego(nuevoPath);
+    const tipoNombre = tipoArchivoDobleCiego(nuevoNombre);
+
+    if (
+      !nuevoPath.startsWith(prefijo) ||
+      !tipoPath ||
+      !tipoNombre ||
+      tipoPath.extension !== tipoNombre.extension
+    ) {
+      return { ok: false, mensaje: "La plantilla subida no corresponde a este dictamen o tiene un formato inválido." };
+    }
+
+    if (
+      !Number.isFinite(bytesDeclarados) ||
+      bytesDeclarados <= 0 ||
+      bytesDeclarados > MAX_ARCHIVO_DOBLE_CIEGO
+    ) {
+      return { ok: false, mensaje: "La plantilla llenada no puede superar 20 MB." };
+    }
+
+    const admin = servidor();
+    const { data: blob, error: eDescargaNueva } = await admin
+      .storage
+      .from(BUCKET_PRIVADO)
+      .download(nuevoPath);
+
+    if (eDescargaNueva || !blob) {
+      return { ok: false, mensaje: "No se pudo recuperar la plantilla recién subida." };
+    }
+
+    contenidoAdjunto = Buffer.from(await blob.arrayBuffer());
+
+    if (
+      contenidoAdjunto.length !== bytesDeclarados ||
+      contenidoAdjunto.length > MAX_ARCHIVO_DOBLE_CIEGO
+    ) {
+      await admin.storage.from(BUCKET_PRIVADO).remove([nuevoPath]);
+      return { ok: false, mensaje: "El tamaño de la plantilla subida no coincide con el archivo seleccionado." };
+    }
+
+    if (reconocer(contenidoAdjunto) !== tipoPath.extension) {
+      await admin.storage.from(BUCKET_PRIVADO).remove([nuevoPath]);
+      return {
+        ok: false,
+        mensaje: tipoPath.extension === "pdf"
+          ? "El archivo no parece ser un PDF válido."
+          : "El archivo no parece ser un DOCX válido.",
+      };
+    }
+
+    const { data: guardado, error: eRegistro } = await sb
+      .from("dictamen_archivos")
+      .upsert(
+        {
+          dictamen_id: dictamen,
+          storage_path: nuevoPath,
+          nombre_original: nuevoNombre,
+          mime: tipoPath.mime,
+          bytes: contenidoAdjunto.length,
+          guardado_at: new Date().toISOString(),
+        },
+        { onConflict: "dictamen_id" },
+      )
+      .select("dictamen_id, storage_path, nombre_original, mime, bytes, guardado_at")
+      .maybeSingle();
+
+    if (eRegistro || !guardado) {
+      await admin.storage.from(BUCKET_PRIVADO).remove([nuevoPath]);
+      return { ok: false, mensaje: eRegistro?.message ?? "No se pudo registrar la plantilla." };
+    }
+
+    if (archivoExistente && archivoExistente.storage_path !== guardado.storage_path) {
+      await admin.storage.from(BUCKET_PRIVADO).remove([archivoExistente.storage_path]);
+    }
+
+    archivoGuardado = guardado;
+    revalidatePath(`/panel/dictamen/${dictamen}`);
+  }
+
+  if (!archivoGuardado) {
+    return { ok: false, mensaje: "Adjunta la plantilla de doble ciego antes de enviar el dictamen." };
+  }
+
+  if (!contenidoAdjunto) {
+    const { data: blob, error: eDescarga } = await servidor()
+      .storage
+      .from(BUCKET_PRIVADO)
+      .download(archivoGuardado.storage_path);
+
+    if (eDescarga || !blob) {
+      return { ok: false, mensaje: "No se pudo recuperar la plantilla guardada para adjuntarla al correo." };
+    }
+    contenidoAdjunto = Buffer.from(await blob.arrayBuffer());
+  }
+
+  // La instantánea la calcula el servidor y se guarda tal cual. La base exige
+  // tanto la tarjeta completa como el archivo de doble ciego antes de permitir
+  // la transición irreversible a enviado.
   const { error } = await sb.rpc("enviar_dictamen", {
     p_dictamen: dictamen,
     p_puntaje: veredicto.puntaje,
@@ -168,7 +303,33 @@ export async function enviar(datos: FormData): Promise<Resultado> {
 
   if (error) return { ok: false, mensaje: error.message };
 
+  const aviso = await enviarDictamen({
+    a: "marco.mendez@tec.mx",
+    nombreDictaminador: quien.nombre,
+    nombrePieza: pieza.titulo,
+    puntaje: `${veredicto.puntaje}/${veredicto.maximo}`,
+    adjunto: {
+      nombre: archivoGuardado.nombre_original,
+      contenidoBase64: contenidoAdjunto.toString("base64"),
+    },
+  });
+
+  if (!aviso.enviado) {
+    await sb.from("envio_eventos").insert({
+      envio_id: cabecera.envio_id,
+      actor_id: quien.id,
+      tipo: "aviso_dictamen_no_enviado",
+      payload: { motivo: aviso.motivo ?? "desconocido" },
+    });
+  }
+
   revalidatePath(`/panel/dictamen/${dictamen}`);
   revalidatePath(`/panel/envios/${cabecera.envio_id}`);
-  return { ok: true, mensaje: `Dictamen enviado: ${veredicto.decision.etiqueta}` };
+
+  return aviso.enviado
+    ? { ok: true, mensaje: `Dictamen enviado: ${veredicto.decision.etiqueta}` }
+    : {
+        ok: true,
+        mensaje: `Dictamen enviado: ${veredicto.decision.etiqueta}. El correo a marco.mendez@tec.mx no salió; quedó registrado en la bitácora.`,
+      };
 }

@@ -36,6 +36,53 @@ const MOTIVO: Record<string, string> = {
   banda: "Por puntaje",
 };
 
+type SubidaDobleCiego =
+  | { ok: true; path: string }
+  | { ok: false; mensaje: string };
+
+function mimeDobleCiego(nombre: string): string {
+  return nombre.toLowerCase().endsWith(".pdf")
+    ? "application/pdf"
+    : "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+}
+
+async function subirDobleCiego(dictamenId: string, archivo: File): Promise<SubidaDobleCiego> {
+  try {
+    const firma = await fetch(`/api/panel/dictamen/${dictamenId}/upload`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ nombre: archivo.name, bytes: archivo.size }),
+    });
+
+    const respuesta = (await firma.json()) as {
+      path?: string;
+      url?: string;
+      error?: string;
+    };
+
+    if (!firma.ok || !respuesta.path || !respuesta.url) {
+      return { ok: false, mensaje: respuesta.error ?? "No se pudo preparar la subida." };
+    }
+
+    const cuerpo = new FormData();
+    cuerpo.append("cacheControl", "0");
+    cuerpo.append(
+      "",
+      archivo.slice(0, archivo.size, mimeDobleCiego(archivo.name)),
+      archivo.name,
+    );
+
+    const subida = await fetch(respuesta.url, { method: "PUT", body: cuerpo });
+    if (!subida.ok) {
+      return { ok: false, mensaje: "No se pudo subir la plantilla de doble ciego." };
+    }
+
+    return { ok: true, path: respuesta.path };
+  } catch {
+    return { ok: false, mensaje: "No se pudo subir la plantilla de doble ciego." };
+  }
+}
+
 export default function Tarjeta({
   dictamenId,
   rubrica,
@@ -45,6 +92,7 @@ export default function Tarjeta({
   sinConflicto,
   soloLectura,
   enviado,
+  archivoDobleCiego,
   previa,
 }: {
   dictamenId: string;
@@ -55,11 +103,39 @@ export default function Tarjeta({
   sinConflicto: boolean;
   soloLectura: boolean;
   enviado: boolean;
+  archivoDobleCiego: {
+    nombre_original: string;
+    bytes: number;
+  } | null;
   previa: Previa | null;
 }) {
   const [estado, ejecutar, pendiente] = useActionState<Resultado | null, FormData>(
-    async (_previo, datos) =>
-      datos.get("__accion") === "enviar" ? enviar(datos) : guardarBorrador(datos),
+    async (_previo, datos) => {
+      const accion = datos.get("__accion");
+      const archivo = datos.get("doble_ciego");
+
+      if (accion !== "enviar") {
+        // El archivo sólo se persiste al enviar. Quitarlo del FormData evita
+        // hacerlo pasar por la Function de Vercel aunque alguien lo haya
+        // seleccionado antes de guardar el borrador.
+        datos.delete("doble_ciego");
+        return guardarBorrador(datos);
+      }
+
+      if (archivo instanceof File && archivo.size > 0) {
+        const subida = await subirDobleCiego(dictamenId, archivo);
+        if (!subida.ok) return { ok: false, mensaje: subida.mensaje };
+
+        datos.set("doble_ciego_path", subida.path);
+        datos.set("doble_ciego_nombre", archivo.name);
+        datos.set("doble_ciego_bytes", String(archivo.size));
+      }
+
+      // Los bytes ya fueron directo del navegador a Supabase Storage. A la
+      // Server Action sólo viajan metadatos pequeños y la tarjeta de evaluación.
+      datos.delete("doble_ciego");
+      return enviar(datos);
+    },
     null,
   );
 
@@ -191,30 +267,80 @@ export default function Tarjeta({
       </div>
 
       {!soloLectura && (
-        <div style={{ display: "flex", gap: 12, alignItems: "center", marginTop: 20 }}>
-          <button type="submit" className="boton" disabled={pendiente} name="__accion" value="guardar">
-            {pendiente ? "Guardando…" : "Guardar borrador"}
-          </button>
+        <div style={{ marginTop: 20 }}>
           <button
             type="submit"
-            className="boton boton--lleno"
+            className="boton"
             disabled={pendiente}
             name="__accion"
-            value="enviar"
-            onClick={(e) => {
-              if (
-                !window.confirm(
-                  "Enviar el dictamen es definitivo: no se puede volver a borrador ni corregir después, y a partir de ese momento verás la autoría de esta pieza. ¿Continuar?",
-                )
-              ) {
-                e.preventDefault();
-              }
-            }}
+            value="guardar"
+            formNoValidate
           >
-            Enviar dictamen
+            {pendiente ? "Guardando…" : "Guardar borrador"}
           </button>
         </div>
       )}
+
+      <h3>Doble ciego</h3>
+      <div className="tarjeta">
+        <p className="nota" style={{ marginTop: 0 }}>
+          Descarga la plantilla, llénala y adjúntala antes de enviar tu dictamen.
+          El archivo completado es obligatorio y puede ser PDF o DOCX.
+        </p>
+
+        <a className="boton" href="/Plantilla_Doble_ciego.docx" download>
+          Descargar plantilla
+        </a>
+
+        {archivoDobleCiego && (
+          <p className="nota" style={{ marginBottom: 0 }}>
+            Archivo guardado: <b>{archivoDobleCiego.nombre_original}</b>{" "}
+            ({Math.max(1, Math.round(archivoDobleCiego.bytes / 1024))} KB) ·{" "}
+            <a href={`/panel/dictamen/${dictamenId}/archivo`}>descargar archivo guardado</a>
+          </p>
+        )}
+
+        {!soloLectura && (
+          <>
+            <label
+              className="nota"
+              htmlFor="doble_ciego"
+              style={{ display: "block", marginTop: 18, textTransform: "none", letterSpacing: 0, fontSize: 14 }}
+            >
+              Plantilla llenada
+            </label>
+            <input
+              id="doble_ciego"
+              name="doble_ciego"
+              type="file"
+              accept=".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+              required={!archivoDobleCiego}
+              disabled={pendiente}
+              style={{ marginTop: 8 }}
+            />
+            <p className="nota">Máximo 20 MB. Si ya hay un archivo guardado, seleccionar otro lo reemplaza.</p>
+
+            <button
+              type="submit"
+              className="boton boton--lleno"
+              disabled={pendiente}
+              name="__accion"
+              value="enviar"
+              onClick={(e) => {
+                if (
+                  !window.confirm(
+                    "Enviar el dictamen es definitivo: no se puede volver a borrador ni corregir después, y a partir de ese momento verás la autoría de esta pieza. ¿Continuar?",
+                  )
+                ) {
+                  e.preventDefault();
+                }
+              }}
+            >
+              {pendiente ? "Enviando…" : "Enviar dictamen"}
+            </button>
+          </>
+        )}
+      </div>
 
       {enviado && (
         <p className="nota">

@@ -237,6 +237,14 @@ export type Database = {
           updated_at?: string;
         }
       >;
+      dictamen_archivos: Fila<{
+        dictamen_id: string;
+        storage_path: string;
+        nombre_original: string;
+        mime: string;
+        bytes: number;
+        guardado_at: string;
+      }>;
       dictamen_puertas: Fila<{
         dictamen_id: string;
         puerta_id: number;
