@@ -57,9 +57,7 @@ export default function Tarjeta({
   soloLectura: boolean;
   enviado: boolean;
   archivoDobleCiego: {
-    storage_path: string;
     nombre_original: string;
-    mime: string;
     bytes: number;
   } | null;
   previa: Previa | null;
