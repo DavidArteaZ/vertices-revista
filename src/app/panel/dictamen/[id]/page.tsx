@@ -48,7 +48,7 @@ export default async function PaginaDictamen({ params }: { params: Promise<{ id:
 
   const { data: archivoDobleCiego } = await sb
     .from("dictamen_archivos")
-    .select("storage_path, nombre_original, mime, bytes")
+    .select("nombre_original, bytes")
     .eq("dictamen_id", id)
     .maybeSingle();
 
