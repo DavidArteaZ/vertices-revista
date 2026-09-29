@@ -45,6 +45,7 @@ export default function Tarjeta({
   sinConflicto,
   soloLectura,
   enviado,
+  archivoDobleCiego,
   previa,
 }: {
   dictamenId: string;
@@ -55,6 +56,12 @@ export default function Tarjeta({
   sinConflicto: boolean;
   soloLectura: boolean;
   enviado: boolean;
+  archivoDobleCiego: {
+    storage_path: string;
+    nombre_original: string;
+    mime: string;
+    bytes: number;
+  } | null;
   previa: Previa | null;
 }) {
   const [estado, ejecutar, pendiente] = useActionState<Resultado | null, FormData>(
@@ -191,30 +198,80 @@ export default function Tarjeta({
       </div>
 
       {!soloLectura && (
-        <div style={{ display: "flex", gap: 12, alignItems: "center", marginTop: 20 }}>
-          <button type="submit" className="boton" disabled={pendiente} name="__accion" value="guardar">
-            {pendiente ? "Guardando…" : "Guardar borrador"}
-          </button>
+        <div style={{ marginTop: 20 }}>
           <button
             type="submit"
-            className="boton boton--lleno"
+            className="boton"
             disabled={pendiente}
             name="__accion"
-            value="enviar"
-            onClick={(e) => {
-              if (
-                !window.confirm(
-                  "Enviar el dictamen es definitivo: no se puede volver a borrador ni corregir después, y a partir de ese momento verás la autoría de esta pieza. ¿Continuar?",
-                )
-              ) {
-                e.preventDefault();
-              }
-            }}
+            value="guardar"
+            formNoValidate
           >
-            Enviar dictamen
+            {pendiente ? "Guardando…" : "Guardar borrador"}
           </button>
         </div>
       )}
+
+      <h3>Doble ciego</h3>
+      <div className="tarjeta">
+        <p className="nota" style={{ marginTop: 0 }}>
+          Descarga la plantilla, llénala y adjúntala antes de enviar tu dictamen.
+          El archivo completado es obligatorio y puede ser PDF o DOCX.
+        </p>
+
+        <a className="boton" href="/plantilla-doble-ciego">
+          Descargar plantilla
+        </a>
+
+        {archivoDobleCiego && (
+          <p className="nota" style={{ marginBottom: 0 }}>
+            Archivo guardado: <b>{archivoDobleCiego.nombre_original}</b>{" "}
+            ({Math.max(1, Math.round(archivoDobleCiego.bytes / 1024))} KB) ·{" "}
+            <a href={`/panel/dictamen/${dictamenId}/archivo`}>descargar archivo guardado</a>
+          </p>
+        )}
+
+        {!soloLectura && (
+          <>
+            <label
+              className="nota"
+              htmlFor="doble_ciego"
+              style={{ display: "block", marginTop: 18, textTransform: "none", letterSpacing: 0, fontSize: 14 }}
+            >
+              Plantilla llenada
+            </label>
+            <input
+              id="doble_ciego"
+              name="doble_ciego"
+              type="file"
+              accept=".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+              required={!archivoDobleCiego}
+              disabled={pendiente}
+              style={{ marginTop: 8 }}
+            />
+            <p className="nota">Máximo 20 MB. Si ya hay un archivo guardado, seleccionar otro lo reemplaza.</p>
+
+            <button
+              type="submit"
+              className="boton boton--lleno"
+              disabled={pendiente}
+              name="__accion"
+              value="enviar"
+              onClick={(e) => {
+                if (
+                  !window.confirm(
+                    "Enviar el dictamen es definitivo: no se puede volver a borrador ni corregir después, y a partir de ese momento verás la autoría de esta pieza. ¿Continuar?",
+                  )
+                ) {
+                  e.preventDefault();
+                }
+              }}
+            >
+              {pendiente ? "Enviando…" : "Enviar dictamen"}
+            </button>
+          </>
+        )}
+      </div>
 
       {enviado && (
         <p className="nota">
