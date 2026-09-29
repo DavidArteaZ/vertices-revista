@@ -1,6 +1,5 @@
 "use server";
 
-import { randomUUID } from "node:crypto";
 import { revalidatePath } from "next/cache";
 import { sesion, personal } from "@/lib/supabase/sesion";
 import { servidor, BUCKET_PRIVADO } from "@/lib/supabase/servidor";
@@ -103,10 +102,10 @@ const MAX_ARCHIVO_DOBLE_CIEGO = 20 * 1024 * 1024;
 const MIME_PDF = "application/pdf";
 const MIME_DOCX = "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
 
-function tipoArchivoDobleCiego(archivo: File): { extension: "pdf" | "docx"; mime: string } | null {
-  const nombre = archivo.name.toLowerCase();
-  if (nombre.endsWith(".pdf")) return { extension: "pdf", mime: MIME_PDF };
-  if (nombre.endsWith(".docx")) return { extension: "docx", mime: MIME_DOCX };
+function tipoArchivoDobleCiego(nombre: string): { extension: "pdf" | "docx"; mime: string } | null {
+  const limpio = nombre.toLowerCase();
+  if (limpio.endsWith(".pdf")) return { extension: "pdf", mime: MIME_PDF };
+  if (limpio.endsWith(".docx")) return { extension: "docx", mime: MIME_DOCX };
   return null;
 }
 
@@ -190,36 +189,64 @@ export async function enviar(datos: FormData): Promise<Resultado> {
 
   let archivoGuardado = archivoExistente;
   let contenidoAdjunto: Buffer | null = null;
-  const archivoFormulario = datos.get("doble_ciego");
 
-  if (archivoFormulario instanceof File && archivoFormulario.size > 0) {
-    const tipo = tipoArchivoDobleCiego(archivoFormulario);
-    if (!tipo) {
-      return { ok: false, mensaje: "La plantilla llenada debe ser un archivo PDF o DOCX." };
+  // El navegador sube los bytes directamente al bucket privado mediante una
+  // URL firmada. Aquí sólo llegan la ruta y metadatos pequeños; el servidor
+  // vuelve a descargar y validar el objeto antes de asociarlo al dictamen.
+  const nuevoPath = String(datos.get("doble_ciego_path") ?? "").trim();
+  const nuevoNombre = String(datos.get("doble_ciego_nombre") ?? "").trim();
+  const bytesDeclarados = Number(datos.get("doble_ciego_bytes") ?? NaN);
+
+  if (nuevoPath) {
+    const prefijo = `dictamenes/${dictamen}/`;
+    const tipoPath = tipoArchivoDobleCiego(nuevoPath);
+    const tipoNombre = tipoArchivoDobleCiego(nuevoNombre);
+
+    if (
+      !nuevoPath.startsWith(prefijo) ||
+      !tipoPath ||
+      !tipoNombre ||
+      tipoPath.extension !== tipoNombre.extension
+    ) {
+      return { ok: false, mensaje: "La plantilla subida no corresponde a este dictamen o tiene un formato inválido." };
     }
-    if (archivoFormulario.size > MAX_ARCHIVO_DOBLE_CIEGO) {
+
+    if (
+      !Number.isFinite(bytesDeclarados) ||
+      bytesDeclarados <= 0 ||
+      bytesDeclarados > MAX_ARCHIVO_DOBLE_CIEGO
+    ) {
       return { ok: false, mensaje: "La plantilla llenada no puede superar 20 MB." };
     }
 
-    contenidoAdjunto = Buffer.from(await archivoFormulario.arrayBuffer());
-    if (!firmaValida(contenidoAdjunto, tipo.extension)) {
+    const admin = servidor();
+    const { data: blob, error: eDescargaNueva } = await admin
+      .storage
+      .from(BUCKET_PRIVADO)
+      .download(nuevoPath);
+
+    if (eDescargaNueva || !blob) {
+      return { ok: false, mensaje: "No se pudo recuperar la plantilla recién subida." };
+    }
+
+    contenidoAdjunto = Buffer.from(await blob.arrayBuffer());
+
+    if (
+      contenidoAdjunto.length !== bytesDeclarados ||
+      contenidoAdjunto.length > MAX_ARCHIVO_DOBLE_CIEGO
+    ) {
+      await admin.storage.from(BUCKET_PRIVADO).remove([nuevoPath]);
+      return { ok: false, mensaje: "El tamaño de la plantilla subida no coincide con el archivo seleccionado." };
+    }
+
+    if (!firmaValida(contenidoAdjunto, tipoPath.extension)) {
+      await admin.storage.from(BUCKET_PRIVADO).remove([nuevoPath]);
       return {
         ok: false,
-        mensaje: tipo.extension === "pdf"
+        mensaje: tipoPath.extension === "pdf"
           ? "El archivo no parece ser un PDF válido."
           : "El archivo no parece ser un DOCX válido.",
       };
-    }
-
-    const storagePath = `dictamenes/${dictamen}/${randomUUID()}.${tipo.extension}`;
-    const admin = servidor();
-    const { error: eSubida } = await admin.storage.from(BUCKET_PRIVADO).upload(
-      storagePath,
-      contenidoAdjunto,
-      { contentType: tipo.mime, cacheControl: "0", upsert: false },
-    );
-    if (eSubida) {
-      return { ok: false, mensaje: `No se pudo guardar la plantilla: ${eSubida.message}` };
     }
 
     const { data: guardado, error: eRegistro } = await sb
@@ -227,10 +254,10 @@ export async function enviar(datos: FormData): Promise<Resultado> {
       .upsert(
         {
           dictamen_id: dictamen,
-          storage_path: storagePath,
-          nombre_original: archivoFormulario.name || `plantilla-doble-ciego.${tipo.extension}`,
-          mime: tipo.mime,
-          bytes: archivoFormulario.size,
+          storage_path: nuevoPath,
+          nombre_original: nuevoNombre,
+          mime: tipoPath.mime,
+          bytes: contenidoAdjunto.length,
           guardado_at: new Date().toISOString(),
         },
         { onConflict: "dictamen_id" },
@@ -239,7 +266,7 @@ export async function enviar(datos: FormData): Promise<Resultado> {
       .maybeSingle();
 
     if (eRegistro || !guardado) {
-      await admin.storage.from(BUCKET_PRIVADO).remove([storagePath]);
+      await admin.storage.from(BUCKET_PRIVADO).remove([nuevoPath]);
       return { ok: false, mensaje: eRegistro?.message ?? "No se pudo registrar la plantilla." };
     }
 
