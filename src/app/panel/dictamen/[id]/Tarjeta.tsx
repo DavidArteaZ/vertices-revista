@@ -219,7 +219,7 @@ export default function Tarjeta({
           El archivo completado es obligatorio y puede ser PDF o DOCX.
         </p>
 
-        <a className="boton" href="/plantilla-doble-ciego">
+        <a className="boton" href="/Plantilla_Doble_ciego.docx" download>
           Descargar plantilla
         </a>
 
