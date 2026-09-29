@@ -36,6 +36,53 @@ const MOTIVO: Record<string, string> = {
   banda: "Por puntaje",
 };
 
+type SubidaDobleCiego =
+  | { ok: true; path: string }
+  | { ok: false; mensaje: string };
+
+function mimeDobleCiego(nombre: string): string {
+  return nombre.toLowerCase().endsWith(".pdf")
+    ? "application/pdf"
+    : "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+}
+
+async function subirDobleCiego(dictamenId: string, archivo: File): Promise<SubidaDobleCiego> {
+  try {
+    const firma = await fetch(`/api/panel/dictamen/${dictamenId}/upload`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ nombre: archivo.name, bytes: archivo.size }),
+    });
+
+    const respuesta = (await firma.json()) as {
+      path?: string;
+      url?: string;
+      error?: string;
+    };
+
+    if (!firma.ok || !respuesta.path || !respuesta.url) {
+      return { ok: false, mensaje: respuesta.error ?? "No se pudo preparar la subida." };
+    }
+
+    const cuerpo = new FormData();
+    cuerpo.append("cacheControl", "0");
+    cuerpo.append(
+      "",
+      archivo.slice(0, archivo.size, mimeDobleCiego(archivo.name)),
+      archivo.name,
+    );
+
+    const subida = await fetch(respuesta.url, { method: "PUT", body: cuerpo });
+    if (!subida.ok) {
+      return { ok: false, mensaje: "No se pudo subir la plantilla de doble ciego." };
+    }
+
+    return { ok: true, path: respuesta.path };
+  } catch {
+    return { ok: false, mensaje: "No se pudo subir la plantilla de doble ciego." };
+  }
+}
+
 export default function Tarjeta({
   dictamenId,
   rubrica,
@@ -63,8 +110,32 @@ export default function Tarjeta({
   previa: Previa | null;
 }) {
   const [estado, ejecutar, pendiente] = useActionState<Resultado | null, FormData>(
-    async (_previo, datos) =>
-      datos.get("__accion") === "enviar" ? enviar(datos) : guardarBorrador(datos),
+    async (_previo, datos) => {
+      const accion = datos.get("__accion");
+      const archivo = datos.get("doble_ciego");
+
+      if (accion !== "enviar") {
+        // El archivo sólo se persiste al enviar. Quitarlo del FormData evita
+        // hacerlo pasar por la Function de Vercel aunque alguien lo haya
+        // seleccionado antes de guardar el borrador.
+        datos.delete("doble_ciego");
+        return guardarBorrador(datos);
+      }
+
+      if (archivo instanceof File && archivo.size > 0) {
+        const subida = await subirDobleCiego(dictamenId, archivo);
+        if (!subida.ok) return { ok: false, mensaje: subida.mensaje };
+
+        datos.set("doble_ciego_path", subida.path);
+        datos.set("doble_ciego_nombre", archivo.name);
+        datos.set("doble_ciego_bytes", String(archivo.size));
+      }
+
+      // Los bytes ya fueron directo del navegador a Supabase Storage. A la
+      // Server Action sólo viajan metadatos pequeños y la tarjeta de evaluación.
+      datos.delete("doble_ciego");
+      return enviar(datos);
+    },
     null,
   );
 
