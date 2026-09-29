@@ -5,6 +5,7 @@ import { sesion, personal } from "@/lib/supabase/sesion";
 import { servidor, BUCKET_PRIVADO } from "@/lib/supabase/servidor";
 import { cargaRubrica, cargaRespuestas } from "@/lib/dictamen/cargar";
 import { decidir } from "@/lib/dictamen/decidir";
+import { MIME, reconocer } from "@/lib/archivos/formato";
 import { enviarDictamen } from "@/lib/correo/dictamen";
 import type { Resultado } from "../acciones";
 
@@ -99,19 +100,12 @@ async function escribe(dictamen: string, datos: FormData): Promise<string | null
 }
 
 const MAX_ARCHIVO_DOBLE_CIEGO = 20 * 1024 * 1024;
-const MIME_PDF = "application/pdf";
-const MIME_DOCX = "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
 
 function tipoArchivoDobleCiego(nombre: string): { extension: "pdf" | "docx"; mime: string } | null {
   const limpio = nombre.toLowerCase();
-  if (limpio.endsWith(".pdf")) return { extension: "pdf", mime: MIME_PDF };
-  if (limpio.endsWith(".docx")) return { extension: "docx", mime: MIME_DOCX };
+  if (limpio.endsWith(".pdf")) return { extension: "pdf", mime: MIME.pdf };
+  if (limpio.endsWith(".docx")) return { extension: "docx", mime: MIME.docx };
   return null;
-}
-
-function firmaValida(contenido: Buffer, extension: "pdf" | "docx"): boolean {
-  if (extension === "pdf") return contenido.subarray(0, 5).toString("ascii") === "%PDF-";
-  return contenido.length >= 4 && contenido[0] === 0x50 && contenido[1] === 0x4b;
 }
 
 export async function guardarBorrador(datos: FormData): Promise<Resultado> {
@@ -239,7 +233,7 @@ export async function enviar(datos: FormData): Promise<Resultado> {
       return { ok: false, mensaje: "El tamaño de la plantilla subida no coincide con el archivo seleccionado." };
     }
 
-    if (!firmaValida(contenidoAdjunto, tipoPath.extension)) {
+    if (reconocer(contenidoAdjunto) !== tipoPath.extension) {
       await admin.storage.from(BUCKET_PRIVADO).remove([nuevoPath]);
       return {
         ok: false,
