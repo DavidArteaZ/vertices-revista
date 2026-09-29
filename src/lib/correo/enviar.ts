@@ -5,6 +5,12 @@ import { LOCALES, LOCALE_POR_DEFECTO, type Locale } from "@/i18n/rutas";
 
 export type Envio = { enviado: boolean; id?: string; motivo?: string };
 
+export type AdjuntoCorreo = {
+  filename: string;
+  /** Contenido Base64, tal como lo acepta la API de Resend para adjuntos. */
+  content: string;
+};
+
 const esLocale = (x: string): x is Locale => (LOCALES as readonly string[]).includes(x);
 
 export type Redactor = (t: (clave: string, valores?: Record<string, string>) => string) => {
@@ -39,6 +45,7 @@ export async function mandarPlantilla(
   a: string,
   plantilla: string,
   variables: Record<string, string | number>,
+  adjuntos: AdjuntoCorreo[] = [],
 ): Promise<Envio> {
   const clave = process.env.RESEND_API_KEY;
   if (!clave) return { enviado: false, motivo: "sin RESEND_API_KEY" };
@@ -50,6 +57,7 @@ export async function mandarPlantilla(
     const { data, error } = await new Resend(clave).emails.send({
       to: a,
       template: { id: plantilla, variables },
+      attachments: adjuntos.length ? adjuntos : undefined,
     });
     return error ? { enviado: false, motivo: error.message } : { enviado: true, id: data?.id };
   } catch (e) {
