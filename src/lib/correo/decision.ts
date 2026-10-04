@@ -9,6 +9,8 @@ export type AvisoDecision = {
   decision: DecisionFinal;
   comentarios: string;
   locale: string;
+  nombre_pieza: string;
+  folio: string;
   edicion: {
     numero: number;
     fecha_lanzamiento: string | null;
@@ -65,6 +67,7 @@ export function prepararCorreoDecision(a: AvisoDecision): CorreoPreparado {
   const fecha = fechaLarga(a.edicion.fecha_lanzamiento, ingles);
   const limite = fechaLarga(a.edicion.fecha_limite_revisiones, ingles);
   const lugar = ubicacion(a.edicion.ubicacion_evento_lanzamiento, ingles);
+  const comunes = { nombre_pieza: a.nombre_pieza, folio: a.folio };
 
   if (a.decision === "Aceptada" || a.decision === "Aceptada con revisiones menores") {
     const status = a.decision === "Aceptada"
@@ -73,6 +76,7 @@ export function prepararCorreoDecision(a: AvisoDecision): CorreoPreparado {
 
     const variables: Record<string, string | number> = ingles
       ? {
+          ...comunes,
           date: fecha,
           location: lugar,
           n_edition: nEdicion,
@@ -80,6 +84,7 @@ export function prepararCorreoDecision(a: AvisoDecision): CorreoPreparado {
           status,
         }
       : {
+          ...comunes,
           fecha,
           genero: a.genero,
           n_edition: nEdicion,
@@ -100,11 +105,13 @@ export function prepararCorreoDecision(a: AvisoDecision): CorreoPreparado {
       plantilla: plantilla("rechazo", ingles),
       variables: ingles
         ? {
+            ...comunes,
             comments: a.comentarios,
             n_edition: nEdicion,
             nombre: a.nombre,
           }
         : {
+            ...comunes,
             comentarios: a.comentarios,
             genero: a.genero,
             n_edition: nEdicion,
@@ -117,12 +124,14 @@ export function prepararCorreoDecision(a: AvisoDecision): CorreoPreparado {
     plantilla: plantilla("mayores", ingles),
     variables: ingles
       ? {
+          ...comunes,
           comentarios: a.comentarios,
           fecha_limite: limite,
           n_edition: nEdicion,
           nombre: a.nombre,
         }
       : {
+          ...comunes,
           comentarios: a.comentarios,
           fecha_limite: limite,
           genero: a.genero,

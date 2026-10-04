@@ -11,6 +11,8 @@ const BASE: AvisoDecision = {
   decision: "Aceptada",
   comentarios: "",
   locale: "es",
+  nombre_pieza: "Una pieza de prueba",
+  folio: "VTX-2026-123",
   edicion: {
     numero: 1,
     fecha_lanzamiento: "2026-11-13",
@@ -50,6 +52,8 @@ describe("prepararCorreoDecision", () => {
     expect(prepararCorreoDecision(BASE)).toEqual({
       plantilla: "aprobacion_es-1",
       variables: {
+        nombre_pieza: "Una pieza de prueba",
+        folio: "VTX-2026-123",
         fecha: "13 de noviembre de 2026",
         genero: "Femenino",
         n_edition: "1era",
@@ -65,6 +69,8 @@ describe("prepararCorreoDecision", () => {
     expect(preparCorreo({ ...BASE, locale: "fr", edicion: { ...BASE.edicion, numero: 2 } })).toEqual({
       plantilla: "aprobacion_ENG",
       variables: {
+        nombre_pieza: "Una pieza de prueba",
+        folio: "VTX-2026-123",
         date: "November 13, 2026",
         location: "Campus Ciudad de México",
         n_edition: "2nd",
@@ -82,6 +88,8 @@ describe("prepararCorreoDecision", () => {
     });
     expect(correoEs.variables.status).toBe("Aceptada con revisiones menores");
     expect(correoEs.variables.comentarios).toBe("Ajustar las referencias.");
+    expect(correoEs.variables.nombre_pieza).toBe("Una pieza de prueba");
+    expect(correoEs.variables.folio).toBe("VTX-2026-123");
 
     const correoEn = prepararCorreoDecision({
       ...BASE,
@@ -91,6 +99,8 @@ describe("prepararCorreoDecision", () => {
     });
     expect(correoEn.variables.status).toBe("Accepted with minor revisions");
     expect(correoEn.variables.comentarios).toBe("Please adjust the references.");
+    expect(correoEn.variables.nombre_pieza).toBe("Una pieza de prueba");
+    expect(correoEn.variables.folio).toBe("VTX-2026-123");
   });
 
   it("usa comments en el rechazo inglés", () => {
@@ -103,6 +113,8 @@ describe("prepararCorreoDecision", () => {
     })).toEqual({
       plantilla: "rechazado_eng",
       variables: {
+        nombre_pieza: "Una pieza de prueba",
+        folio: "VTX-2026-123",
         comments: "The scope does not fit the issue.",
         n_edition: "1st",
         nombre: "Ana Herrera",
@@ -121,6 +133,8 @@ describe("prepararCorreoDecision", () => {
     });
     expect(es.plantilla).toBe("revisionesmayores_es");
     expect(es.variables.fecha_limite).toBe("30 de octubre de 2026");
+    expect(es.variables.nombre_pieza).toBe("Una pieza de prueba");
+    expect(es.variables.folio).toBe("VTX-2026-123");
 
     const en = prepararCorreoDecision({
       ...BASE,
@@ -130,6 +144,8 @@ describe("prepararCorreoDecision", () => {
     });
     expect(en.plantilla).toBe("revisionesmayores_eng");
     expect(en.variables.fecha_limite).toBe("October 30, 2026");
+    expect(en.variables.nombre_pieza).toBe("Una pieza de prueba");
+    expect(en.variables.folio).toBe("VTX-2026-123");
   });
 
   it("convierte los parámetros no definidos a por decidir / to be decided", () => {
