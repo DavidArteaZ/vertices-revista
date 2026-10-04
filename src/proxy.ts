@@ -20,6 +20,9 @@ const idiomas = createMiddleware(routing);
 
 export default async function proxy(req: NextRequest) {
   if (req.nextUrl.pathname.startsWith("/panel")) return sesionDelPanel(req);
+  if (req.nextUrl.pathname === "/registro" || req.nextUrl.pathname.startsWith("/registro/")) {
+    return NextResponse.next();
+  }
   return idiomas(req);
 }
 
