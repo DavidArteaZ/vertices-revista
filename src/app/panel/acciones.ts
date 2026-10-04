@@ -256,7 +256,7 @@ export async function registrarDecision(datos: FormData): Promise<Resultado> {
   const sb = await sesion();
   const { data: pieza } = await sb
     .from("envios")
-    .select("seccion_dictamen_id, locale")
+    .select("seccion_dictamen_id, locale, titulo, folio")
     .eq("id", envio)
     .maybeSingle();
 
@@ -347,6 +347,8 @@ export async function registrarDecision(datos: FormData): Promise<Resultado> {
       decision: decisionFinal,
       comentarios,
       locale: pieza.locale,
+      nombre_pieza: pieza.titulo,
+      folio: pieza.folio,
       edicion: {
         numero: edicion.numero,
         fecha_lanzamiento: edicion.fecha_lanzamiento,
