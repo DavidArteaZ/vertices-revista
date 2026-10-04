@@ -19,6 +19,26 @@ import type { Resultado } from "../acciones";
 const NO_AUTORIZADO: Resultado = { ok: false, mensaje: "No tienes acceso al panel." };
 const FECHA = /^\d{4}-\d{2}-\d{2}$/;
 
+
+export async function activarEdicion(edicion: number, activa: boolean): Promise<Resultado> {
+  if (!(await personal())) return NO_AUTORIZADO;
+  if (!edicion) return { ok: false, mensaje: "Falta la edición." };
+
+  const sb = await sesion();
+
+  if (activa) {
+    const { error: eApagar } = await sb.from("ediciones").update({ activa: false }).neq("id", edicion);
+    if (eApagar) return { ok: false, mensaje: eApagar.message };
+  }
+
+  const { error } = await sb.from("ediciones").update({ activa }).eq("id", edicion);
+  if (error) return { ok: false, mensaje: error.message };
+
+  revalidatePath("/panel/ediciones");
+  revalidatePath("/registro");
+  return { ok: true, mensaje: activa ? "Edición activa actualizada." : "Edición desactivada." };
+}
+
 export async function crearEdicion(datos: FormData): Promise<Resultado> {
   if (!(await personal())) return NO_AUTORIZADO;
 
