@@ -73,20 +73,30 @@ export async function POST(req: Request) {
 
     try {
       const resend = new Resend(clave);
-      const { error } = await resend.contacts.create({
+      const { error: eContacto } = await resend.contacts.create({
         email: correo,
         firstName,
         lastName,
-        unsubscribed: false,
-        segments: [{ id: segmento }],
       });
 
-      if (error) {
+      if (eContacto) {
         console.error(JSON.stringify({
           evento: "registro_resend_no_guardado",
           correo,
-          motivo: error.message,
+          motivo: eContacto.message,
         }));
+      } else {
+        const { error: eSegmento } = await resend.contacts.segments.add({
+          email: correo,
+          segmentId: segmento,
+        });
+        if (eSegmento) {
+          console.error(JSON.stringify({
+            evento: "registro_resend_segmento_no_guardado",
+            correo,
+            motivo: eSegmento.message,
+          }));
+        }
       }
     } catch (e) {
       console.error(JSON.stringify({
