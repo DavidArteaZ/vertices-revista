@@ -1,0 +1,43 @@
+@font-face{font-family:"Neue Montreal";src:url("/fonts/NeueMontreal-Regular.woff2") format("woff2");font-weight:400;font-display:swap}
+@font-face{font-family:"Neue Montreal";src:url("/fonts/NeueMontreal-Medium.woff2") format("woff2");font-weight:500 600;font-display:swap}
+@font-face{font-family:"Neue Montreal";src:url("/fonts/NeueMontreal-Bold.woff2") format("woff2");font-weight:700 800;font-display:swap}
+@font-face{font-family:"Garet";src:url("/fonts/Garet-Book.woff2") format("woff2");font-weight:400 600;font-display:swap}
+
+:root{
+  --fondo:#E7DECB;--tinta:#2d232e;--texto:#4d4252;--gris:#776d80;--indigo:#4d4dfa;
+  --naranja:#fd6343;--linea:rgba(45,35,46,.18);--vidrio:rgba(252,248,240,.62);
+}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;background:var(--fondo);color:var(--texto)}
+body{font:400 15px/1.6 "Neue Montreal",Arial,sans-serif;-webkit-font-smoothing:antialiased}
+.registro-lienzo{min-height:100vh;position:relative;overflow:hidden;background:
+  radial-gradient(circle at 12% 16%,rgba(77,77,250,.12),transparent 28%),
+  radial-gradient(circle at 86% 80%,rgba(253,99,67,.11),transparent 30%),
+  var(--fondo)}
+.registro-grano{position:fixed;inset:0;pointer-events:none;opacity:.04;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitchTiles'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='.6'/%3E%3C/svg%3E")}
+.registro-contenido{width:min(1180px,92vw);margin:0 auto;padding:28px 0 72px}
+.registro-cabecera{display:flex;align-items:baseline;justify-content:space-between;border-bottom:1px solid var(--linea);padding-bottom:18px}
+.registro-marca{font:600 26px "Neue Montreal",sans-serif;letter-spacing:-.03em;color:var(--tinta);text-decoration:none}
+.registro-cabecera p{margin:0;font:500 10px "Garet",sans-serif;letter-spacing:.18em;text-transform:uppercase;color:var(--gris)}
+.registro-grid{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(340px,.85fr);gap:64px;align-items:center;padding:9vh 0 3vh}
+.registro-ceja{margin:0 0 14px;font:500 11px "Garet",sans-serif;letter-spacing:.24em;text-transform:uppercase;color:var(--indigo)}
+.registro-presentacion h1{margin:0 0 30px;max-width:760px;font:500 clamp(42px,6vw,76px)/.98 "Neue Montreal",sans-serif;letter-spacing:-.035em;color:var(--tinta)}
+.registro-mascota{width:320px;aspect-ratio:1;margin:34px 0;border:1px dashed rgba(45,35,46,.35);border-radius:24px;background:rgba(252,248,240,.35);display:grid;place-items:center;text-align:center;color:var(--gris);font:500 11px/1.6 "Garet",sans-serif;letter-spacing:.12em;text-transform:uppercase}
+.registro-subtitulo{margin:0;max-width:660px;font:400 clamp(18px,2vw,24px)/1.45 "Neue Montreal",sans-serif;color:var(--texto)}
+.registro-subtitulo strong{font-weight:600;color:var(--tinta)}
+.registro-tarjeta{border:1px solid var(--linea);border-radius:22px;background:var(--vidrio);backdrop-filter:blur(18px);padding:34px 34px 30px;box-shadow:0 24px 70px rgba(45,35,46,.08)}
+.registro-tarjeta h2{margin:0 0 28px;font:500 34px/1 "Neue Montreal",sans-serif;color:var(--tinta)}
+.registro-campo{margin-bottom:18px}
+.registro-campo label{display:block;margin-bottom:7px;font:500 10.5px "Garet",sans-serif;letter-spacing:.16em;text-transform:uppercase;color:var(--gris)}
+.registro-campo input,.registro-campo select{width:100%;padding:13px 14px;border:1px solid var(--linea);border-radius:10px;background:rgba(45,35,46,.04);color:var(--tinta);font:400 14px "Neue Montreal",sans-serif;outline:none}
+.registro-campo input:focus,.registro-campo select:focus{border-color:var(--indigo)}
+.registro-campo select{appearance:none;background-image:linear-gradient(45deg,transparent 49%,var(--gris) 50%),linear-gradient(-45deg,transparent 49%,var(--gris) 50%);background-position:calc(100% - 20px) 55%,calc(100% - 15px) 55%;background-size:5px 5px;background-repeat:no-repeat}
+.registro-campo option{background:#F3ECDC;color:var(--tinta)}
+.registro-boton{width:100%;margin-top:8px;padding:14px 20px;border:0;border-radius:999px;background:var(--tinta);color:#f8f2ec;font:600 12px "Neue Montreal",sans-serif;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;transition:transform .2s,opacity .2s}
+.registro-boton:hover:not(:disabled){transform:translateY(-1px)}
+.registro-boton:disabled{opacity:.55;cursor:default}
+.registro-resultado{min-height:22px;margin:14px 0 0;font-size:13px}
+.registro-resultado.ok{color:#315d3d}.registro-resultado.error{color:#a13f27}
+.registro-aviso{margin:0;color:var(--gris)}
+@media(max-width:900px){.registro-grid{grid-template-columns:1fr;gap:42px;padding-top:7vh}.registro-tarjeta{max-width:620px}.registro-mascota{width:min(320px,74vw)}}
+@media(max-width:560px){.registro-contenido{width:min(92vw,520px);padding-top:20px}.registro-cabecera p{display:none}.registro-presentacion h1{font-size:clamp(38px,12vw,58px)}.registro-grid{gap:34px}.registro-tarjeta{padding:28px 22px}.registro-mascota{margin:26px 0}}
