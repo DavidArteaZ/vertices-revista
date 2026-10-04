@@ -3,6 +3,7 @@ import { sesion } from "@/lib/supabase/sesion";
 import { exigePersonal, Cabecera } from "../guardia";
 import Accion from "../Accion";
 import { crearEdicion } from "./acciones";
+import SelectorActiva from "./SelectorActiva";
 
 /**
  * Los números de la revista (spec §9.1).
@@ -47,6 +48,7 @@ export default async function Ediciones() {
                 <th>Título</th>
                 <th>Piezas</th>
                 <th>Estado</th>
+                <th>Edición activa</th>
               </tr>
             </thead>
             <tbody>
@@ -66,6 +68,7 @@ export default async function Ediciones() {
                       {e.estado === "publicada" ? "Publicada" : "Borrador"}
                     </span>
                   </td>
+                  <td><SelectorActiva edicion={e.id} activa={e.activa} /></td>
                 </tr>
               ))}
             </tbody>
