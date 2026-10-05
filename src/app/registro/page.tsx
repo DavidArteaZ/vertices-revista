@@ -41,6 +41,7 @@ export default async function Registro() {
             <h1>Registro para el evento de lanzamiento</h1>
           </div>
 
+
           <div className="registro-fila">
             <div className="registro-tarjeta">
               <p className="registro-ceja">Confirma tu asistencia</p>
