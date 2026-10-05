@@ -115,6 +115,7 @@ tr.fila-enlace{ position:relative; cursor:pointer; }
 tr.fila-enlace:hover{ background:var(--papel-sombra, rgba(0,0,0,.025)); }
 tr.fila-enlace .folio a{ position:static; }
 tr.fila-enlace .folio a::after{ content:""; position:absolute; inset:0; }
+/* Controles interactivos dentro de una fila clicable deben quedar por encima\n   del enlace invisible que cubre la fila. */\ntr.fila-enlace .celda-edicion-activa{ position:relative; z-index:1; }
 
 /* Los datos que la ceguera oculta se marcan, en vez de dejar un hueco: un
    campo vacío se lee como "no hay autor" y lo que pasa es que no se puede ver
