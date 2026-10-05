@@ -19,11 +19,11 @@ body{font:400 15px/1.6 "Neue Montreal",Arial,sans-serif;-webkit-font-smoothing:a
 .registro-cabecera{display:flex;align-items:baseline;justify-content:space-between;border-bottom:1px solid var(--linea);padding-bottom:18px}
 .registro-marca{font:600 26px "Neue Montreal",sans-serif;letter-spacing:-.03em;color:var(--tinta);text-decoration:none}
 .registro-cabecera p{margin:0;font:500 10px "Garet",sans-serif;letter-spacing:.18em;text-transform:uppercase;color:var(--gris)}
-.registro-grid{display:grid;grid-template-columns:1fr;gap:64px;padding:9vh 0 3vh}
+.registro-grid{display:grid;grid-template-columns:1fr;gap:46px;padding:9vh 0 3vh}
 .registro-ceja{margin:0 0 14px;font:500 11px "Garet",sans-serif;letter-spacing:.24em;text-transform:uppercase;color:var(--indigo)}
 .registro-presentacion h1{margin:0;font:500 clamp(42px,6vw,76px)/.98 "Neue Montreal",sans-serif;letter-spacing:-.035em;color:var(--tinta)}
 .registro-fila{display:grid;grid-template-columns:minmax(340px,1fr) 320px;gap:64px;align-items:start}.registro-mascota{width:320px;aspect-ratio:1;margin:0;border:1px dashed rgba(45,35,46,.35);border-radius:24px;background:rgba(252,248,240,.35);display:grid;place-items:center;text-align:center;color:var(--gris);font:500 11px/1.6 "Garet",sans-serif;letter-spacing:.12em;text-transform:uppercase}
-.registro-subtitulo{margin:0;width:100%;font:400 clamp(18px,2vw,24px)/1.45 "Neue Montreal",sans-serif;color:var(--texto)}
+.registro-subtitulo{margin:0;width:100%;font:400 clamp(18px,2vw,24px)/1.45 "Neue Montreal",sans-serif;color:var(--texto)}.registro-presentacion .registro-subtitulo{margin-top:28px}
 .registro-subtitulo strong{font-weight:600;color:var(--tinta)}
 .registro-tarjeta{border:1px solid var(--linea);border-radius:22px;background:var(--vidrio);backdrop-filter:blur(18px);padding:34px 34px 30px;box-shadow:0 24px 70px rgba(45,35,46,.08)}
 .registro-tarjeta h2{margin:0 0 28px;font:500 34px/1 "Neue Montreal",sans-serif;color:var(--tinta)}
@@ -39,5 +39,5 @@ body{font:400 15px/1.6 "Neue Montreal",Arial,sans-serif;-webkit-font-smoothing:a
 .registro-resultado{min-height:22px;margin:14px 0 0;font-size:13px}
 .registro-resultado.ok{color:#315d3d}.registro-resultado.error{color:#a13f27}
 .registro-aviso{margin:0;color:var(--gris)}
-@media(max-width:900px){.registro-grid{gap:42px;padding-top:7vh}.registro-fila{grid-template-columns:1fr;gap:42px}.registro-tarjeta{max-width:620px}.registro-mascota{width:min(320px,74vw)}}
-@media(max-width:560px){.registro-contenido{width:min(92vw,520px);padding-top:20px}.registro-cabecera p{display:none}.registro-presentacion h1{font-size:clamp(38px,12vw,58px)}.registro-grid,.registro-fila{gap:34px}.registro-tarjeta{padding:28px 22px}}
+@media(max-width:900px){.registro-grid{gap:36px;padding-top:7vh}.registro-fila{grid-template-columns:1fr;gap:42px}.registro-tarjeta{max-width:620px}.registro-mascota{width:min(320px,74vw)}}
+@media(max-width:560px){.registro-contenido{width:min(92vw,520px);padding-top:20px}.registro-cabecera p{display:none}.registro-presentacion h1{font-size:clamp(38px,12vw,58px)}.registro-presentacion .registro-subtitulo{margin-top:22px}.registro-grid{gap:30px}.registro-fila{gap:34px}.registro-tarjeta{padding:28px 22px}}
