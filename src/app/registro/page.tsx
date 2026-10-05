@@ -39,8 +39,19 @@ export default async function Registro() {
           <div className="registro-presentacion">
             <p className="registro-ceja">Vértices · Evento</p>
             <h1>Registro para el evento de lanzamiento</h1>
-          </div>
 
+            {edicion ? (
+              <p className="registro-subtitulo">
+                El próximo <strong>{fechaLarga(edicion.fecha_lanzamiento)}</strong> en{" "}
+                <strong>{edicion.ubicacion_evento_lanzamiento?.trim() || "ubicación por definir"}</strong>{" "}
+                se celebrará el lanzamiento de la <strong>{ordinalEdicionEs(edicion.numero)} edición</strong> de Vértices!
+              </p>
+            ) : (
+              <p className="registro-subtitulo">
+                Próximamente publicaremos los detalles del siguiente evento de lanzamiento.
+              </p>
+            )}
+          </div>
 
           <div className="registro-fila">
             <div className="registro-tarjeta">
@@ -59,18 +70,6 @@ export default async function Registro() {
               <span>Imagen de mascota<br />320 × 320 px</span>
             </div>
           </div>
-
-          {edicion ? (
-            <p className="registro-subtitulo">
-              El próximo <strong>{fechaLarga(edicion.fecha_lanzamiento)}</strong> en{" "}
-              <strong>{edicion.ubicacion_evento_lanzamiento?.trim() || "ubicación por definir"}</strong>{" "}
-              se celebrará el lanzamiento de la <strong>{ordinalEdicionEs(edicion.numero)} edición</strong> de Vértices!
-            </p>
-          ) : (
-            <p className="registro-subtitulo">
-              Próximamente publicaremos los detalles del siguiente evento de lanzamiento.
-            </p>
-          )}
         </div>
       </section>
     </main>
