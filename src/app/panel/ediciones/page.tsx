@@ -41,10 +41,10 @@ export default async function Ediciones() {
         {(ediciones ?? []).length === 0 ? (
           <p className="nota" style={{ marginTop: 0 }}>Todavía no hay ningún número.</p>
         ) : (
-          <table>
+          <table className="tabla-ediciones">
             <thead>
               <tr>
-                <th>Número</th>
+                <th className="col-numero-edicion">Número</th>
                 <th>Título</th>
                 <th>Piezas</th>
                 <th>Estado</th>
@@ -54,7 +54,7 @@ export default async function Ediciones() {
             <tbody>
               {(ediciones ?? []).map((e) => (
                 <tr key={e.id} className="fila-enlace">
-                  <td className="folio">
+                  <td className="folio col-numero-edicion">
                     <Link href={`/panel/ediciones/${e.id}`}>{e.numero}</Link>
                   </td>
                   <td>{e.titulo}</td>
