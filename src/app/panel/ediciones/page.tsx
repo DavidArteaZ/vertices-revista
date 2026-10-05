@@ -68,7 +68,7 @@ export default async function Ediciones() {
                       {e.estado === "publicada" ? "Publicada" : "Borrador"}
                     </span>
                   </td>
-                  <td><SelectorActiva edicion={e.id} activa={e.activa} /></td>
+                  <td className="celda-edicion-activa"><SelectorActiva edicion={e.id} activa={e.activa} /></td>
                 </tr>
               ))}
             </tbody>
