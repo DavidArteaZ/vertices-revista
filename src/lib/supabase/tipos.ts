@@ -266,6 +266,7 @@ export type Database = {
           fecha_lanzamiento: string | null;
           ubicacion_evento_lanzamiento: string | null;
           fecha_limite_revisiones: string | null;
+          activa: boolean;
         },
         {
           id?: number;
@@ -277,6 +278,27 @@ export type Database = {
           fecha_lanzamiento?: string | null;
           ubicacion_evento_lanzamiento?: string | null;
           fecha_limite_revisiones?: string | null;
+          activa?: boolean;
+        }
+      >;
+      registros_evento: Fila<
+        {
+          id: number;
+          edicion_id: number;
+          nombre: string;
+          correo: string;
+          perfil: string;
+          created_at: string;
+          updated_at: string;
+        },
+        {
+          id?: number;
+          edicion_id: number;
+          nombre: string;
+          correo: string;
+          perfil: string;
+          created_at?: string;
+          updated_at?: string;
         }
       >;
       articulos: Fila<

@@ -115,6 +115,7 @@ tr.fila-enlace{ position:relative; cursor:pointer; }
 tr.fila-enlace:hover{ background:var(--papel-sombra, rgba(0,0,0,.025)); }
 tr.fila-enlace .folio a{ position:static; }
 tr.fila-enlace .folio a::after{ content:""; position:absolute; inset:0; }
+/* Controles interactivos dentro de una fila clicable deben quedar por encima\n   del enlace invisible que cubre la fila. */\ntr.fila-enlace .celda-edicion-activa{ position:relative; z-index:1; }
 
 /* Los datos que la ceguera oculta se marcan, en vez de dejar un hueco: un
    campo vacío se lee como "no hay autor" y lo que pasa es que no se puede ver
@@ -186,3 +187,13 @@ textarea{ resize:vertical; min-height:96px; }
 .veredicto span{ font:400 13px var(--f-sub); color:var(--gris); display:block; margin-top:4px; }
 
 .entrar{ max-width:360px; margin:14vh auto; }
+
+
+/* En la tabla de ediciones hay controles interactivos. Aquí no se extiende el
+   enlace del número sobre toda la fila: sólo el número navega al detalle. */
+.tabla-ediciones tr.fila-enlace{ cursor:default; }
+.tabla-ediciones tr.fila-enlace .folio a::after{ content:none; }
+.tabla-ediciones .col-numero-edicion{ width:86px; min-width:86px; max-width:86px; }
+.tabla-ediciones .celda-edicion-activa{ width:150px; min-width:150px; }
+.tabla-ediciones .celda-edicion-activa,
+.tabla-ediciones .celda-edicion-activa *{ pointer-events:auto; }
