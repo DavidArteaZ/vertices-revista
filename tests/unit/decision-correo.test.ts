@@ -55,13 +55,38 @@ describe("prepararCorreoDecision", () => {
         nombre_pieza: "Una pieza de prueba",
         folio: "VTX-2026-123",
         fecha: "13 de noviembre de 2026",
-        genero: "Femenino",
+        genero: "a",
         n_edition: "1era",
         nombre: "Ana Herrera",
         status: "Aceptada",
         ubi: "Campus Ciudad de México",
       },
     });
+  });
+
+  it("convierte el género del autor en la terminación para Estimad_", () => {
+    expect(prepararCorreoDecision({ ...BASE, genero: "Masculino" }).variables.genero).toBe("o");
+    expect(prepararCorreoDecision({ ...BASE, genero: "Femenino" }).variables.genero).toBe("a");
+    expect(prepararCorreoDecision({ ...BASE, genero: "Otro" }).variables.genero).toBe("e");
+    expect(prepararCorreoDecision({ ...BASE, genero: "No binario" }).variables.genero).toBe("e");
+  });
+
+  it("usa la terminación también en rechazo y revisiones mayores en español", () => {
+    const rechazo = prepararCorreoDecision({
+      ...BASE,
+      genero: "Masculino",
+      decision: "Rechazado",
+      comentarios: "No corresponde a la edición.",
+    });
+    expect(rechazo.variables.genero).toBe("o");
+
+    const mayores = prepararCorreoDecision({
+      ...BASE,
+      genero: "Otro",
+      decision: "Revisiones mayores",
+      comentarios: "Replantear el método.",
+    });
+    expect(mayores.variables.genero).toBe("e");
   });
 
   it("usa inglés para cualquier locale distinto de español", () => {
