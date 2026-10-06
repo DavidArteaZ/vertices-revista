@@ -41,6 +41,13 @@ function ubicacion(valor: string | null, ingles: boolean): string {
   return limpia || (ingles ? "to be decided" : "por decidir");
 }
 
+function terminacionGenero(valor: string): "o" | "a" | "e" {
+  const genero = valor.trim().toLocaleLowerCase("es-MX");
+  if (genero === "masculino") return "o";
+  if (genero === "femenino") return "a";
+  return "e";
+}
+
 function plantilla(nombre: "aprobacion" | "rechazo" | "mayores", ingles: boolean): string {
   if (nombre === "aprobacion") {
     return ingles
@@ -86,7 +93,7 @@ export function prepararCorreoDecision(a: AvisoDecision): CorreoPreparado {
       : {
           ...comunes,
           fecha,
-          genero: a.genero,
+          genero: terminacionGenero(a.genero),
           n_edition: nEdicion,
           nombre: a.nombre,
           status,
@@ -113,7 +120,7 @@ export function prepararCorreoDecision(a: AvisoDecision): CorreoPreparado {
         : {
             ...comunes,
             comentarios: a.comentarios,
-            genero: a.genero,
+            genero: terminacionGenero(a.genero),
             n_edition: nEdicion,
             nombre: a.nombre,
           },
@@ -134,7 +141,7 @@ export function prepararCorreoDecision(a: AvisoDecision): CorreoPreparado {
           ...comunes,
           comentarios: a.comentarios,
           fecha_limite: limite,
-          genero: a.genero,
+          genero: terminacionGenero(a.genero),
           n_edition: nEdicion,
           nombre: a.nombre,
         },
