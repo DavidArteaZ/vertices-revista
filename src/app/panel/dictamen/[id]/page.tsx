@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { sesion } from "@/lib/supabase/sesion";
 import { cargaRubrica, cargaRespuestas } from "@/lib/dictamen/cargar";
 import { decidir } from "@/lib/dictamen/decidir";
+import { pideDobleCiego } from "@/lib/dictamen/doble-ciego";
 import { exigePersonal, Cabecera } from "../../guardia";
 import Tarjeta from "./Tarjeta";
 
@@ -37,7 +38,7 @@ export default async function PaginaDictamen({ params }: { params: Promise<{ id:
 
   const { data: envio } = await sb
     .from("envios")
-    .select("id, folio, titulo, resumen, nivel")
+    .select("id, folio, titulo, resumen, nivel, seccion_id")
     .eq("id", dictamen.envio_id)
     .maybeSingle();
 
@@ -45,6 +46,12 @@ export default async function PaginaDictamen({ params }: { params: Promise<{ id:
   if (!envio || !rubrica) notFound();
 
   const respuestas = await cargaRespuestas(sb, id);
+
+  const { data: seccion } = await sb
+    .from("secciones")
+    .select("slug")
+    .eq("id", envio.seccion_id)
+    .maybeSingle();
 
   const { data: archivoDobleCiego } = await sb
     .from("dictamen_archivos")
@@ -106,6 +113,7 @@ export default async function PaginaDictamen({ params }: { params: Promise<{ id:
         sinConflicto={dictamen.sin_conflicto}
         soloLectura={!propio || enviado}
         enviado={enviado}
+        conDobleCiego={pideDobleCiego(seccion?.slug)}
         archivoDobleCiego={archivoDobleCiego}
         previa={
           previa && {
