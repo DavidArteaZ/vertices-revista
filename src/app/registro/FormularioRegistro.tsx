@@ -14,7 +14,10 @@ export default function FormularioRegistro() {
     setEnviando(true);
     setMensaje("");
 
-    const form = new FormData(e.currentTarget);
+    // Se guarda antes del primer await: React vacía `e.currentTarget` en cuanto
+    // termina de despachar el evento, y el reset de abajo fallaría.
+    const formulario = e.currentTarget;
+    const form = new FormData(formulario);
     const cuerpo = {
       nombre: String(form.get("nombre") ?? ""),
       correo: String(form.get("correo") ?? ""),
@@ -38,7 +41,7 @@ export default function FormularioRegistro() {
 
       setOk(true);
       setMensaje("Tu registro quedó confirmado.");
-      e.currentTarget.reset();
+      formulario.reset();
     } catch {
       setOk(false);
       setMensaje("No se pudo completar el registro. Inténtalo de nuevo.");
