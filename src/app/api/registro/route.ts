@@ -1,6 +1,7 @@
 import { Resend } from "resend";
 import { servidor } from "@/lib/supabase/servidor";
 import { cuerpoJson, huellaIp, json } from "@/lib/api/peticion";
+import { enviarConfirmacionRegistro } from "@/lib/correo/registro";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -15,11 +16,13 @@ export async function POST(req: Request) {
     nombre?: unknown;
     correo?: unknown;
     perfil?: unknown;
+    invitado?: unknown;
   } | null;
 
   const nombre = typeof cuerpo?.nombre === "string" ? cuerpo.nombre.trim() : "";
   const correo = typeof cuerpo?.correo === "string" ? cuerpo.correo.trim().toLowerCase() : "";
   const perfil = typeof cuerpo?.perfil === "string" ? cuerpo.perfil.trim() : "";
+  const invitado = cuerpo?.invitado === true;
 
   if (!nombre || nombre.length > 160 || !CORREO.test(correo) || correo.length > 254 || !PERFILES.has(perfil)) {
     return json({ mensaje: "Revisa los campos e inténtalo de nuevo." }, 400);
@@ -53,6 +56,7 @@ export async function POST(req: Request) {
         nombre,
         correo,
         perfil,
+        invitado,
         updated_at: new Date().toISOString(),
       },
       { onConflict: "edicion_id,correo" },
@@ -61,6 +65,17 @@ export async function POST(req: Request) {
   if (eRegistro) {
     console.error(JSON.stringify({ evento: "registro_evento_fallo", error: eRegistro.message }));
     return json({ mensaje: "No se pudo completar el registro." }, 500);
+  }
+
+  // El registro ya quedó guardado: si el correo falla, se anota y la persona
+  // sigue viendo su registro confirmado.
+  const confirmacion = await enviarConfirmacionRegistro(correo, nombre);
+  if (!confirmacion.enviado) {
+    console.error(JSON.stringify({
+      evento: "registro_confirmacion_no_enviada",
+      correo,
+      motivo: confirmacion.motivo,
+    }));
   }
 
   const clave = process.env.RESEND_API_KEY;

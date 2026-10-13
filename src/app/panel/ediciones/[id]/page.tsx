@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { sesion } from "@/lib/supabase/sesion";
 import { exigePersonal, Cabecera } from "../../guardia";
 import Accion from "../../Accion";
+import Invitados from "./Invitados";
 import {
   adjuntar,
   ajustarArticulo,
@@ -37,7 +38,7 @@ export default async function DetalleEdicion({ params }: { params: Promise<{ id:
 
   const publicada = edicion.estado === "publicada";
 
-  const [{ data: articulos }, { data: secciones }, { data: candidatos }] = await Promise.all([
+  const [{ data: articulos }, { data: secciones }, { data: candidatos }, registros] = await Promise.all([
     sb
       .from("articulos")
       .select("id, titulo, autor, slug, minutos_lectura, destacado, pdf_publico_path, seccion_id")
@@ -49,7 +50,16 @@ export default async function DetalleEdicion({ params }: { params: Promise<{ id:
       .select("id, folio, titulo, decision_id, edicion_id")
       .not("decision_id", "is", null)
       .is("archivado_at", null),
+    sb
+      .from("registros_evento")
+      .select("id, nombre, correo, perfil, invitado")
+      .eq("edicion_id", edicionId)
+      .order("created_at"),
   ]);
+
+  if (registros.error) {
+    console.error(JSON.stringify({ evento: "panel_invitados_fallo", edicion: edicionId, error: registros.error.message }));
+  }
 
   const nombreSeccion = new Map((secciones ?? []).map((s) => [s.id, s.nombre_display]));
 
@@ -130,6 +140,8 @@ export default async function DetalleEdicion({ params }: { params: Promise<{ id:
           </p>
         </Accion>
       </div>
+
+      <Invitados registros={registros.data ?? []} error={Boolean(registros.error)} />
 
       <h3>Piezas del número</h3>
       <div className="tarjeta">
