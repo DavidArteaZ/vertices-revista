@@ -6,10 +6,11 @@ export type AvisoDictamen = {
   nombreDictaminador: string;
   nombrePieza: string;
   puntaje: string;
+  /** Sólo las secciones a doble ciego llevan plantilla que adjuntar. */
   adjunto: {
     nombre: string;
     contenidoBase64: string;
-  };
+  } | null;
 };
 
 export function enviarDictamen(a: AvisoDictamen): Promise<Envio> {
@@ -21,11 +22,13 @@ export function enviarDictamen(a: AvisoDictamen): Promise<Envio> {
       nombre_pieza: a.nombrePieza,
       puntaje: a.puntaje,
     },
-    [
-      {
-        filename: a.adjunto.nombre,
-        content: a.adjunto.contenidoBase64,
-      },
-    ],
+    a.adjunto
+      ? [
+          {
+            filename: a.adjunto.nombre,
+            content: a.adjunto.contenidoBase64,
+          },
+        ]
+      : [],
   );
 }

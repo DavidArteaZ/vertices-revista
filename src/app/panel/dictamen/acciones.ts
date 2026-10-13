@@ -7,6 +7,7 @@ import { cargaRubrica, cargaRespuestas } from "@/lib/dictamen/cargar";
 import { decidir } from "@/lib/dictamen/decidir";
 import { MIME, reconocer } from "@/lib/archivos/formato";
 import { enviarDictamen } from "@/lib/correo/dictamen";
+import { pideDobleCiego } from "@/lib/dictamen/doble-ciego";
 import type { Resultado } from "../acciones";
 
 /**
@@ -155,7 +156,7 @@ export async function enviar(datos: FormData): Promise<Resultado> {
   }
 
   const [{ data: pieza }, { data: archivoExistente }] = await Promise.all([
-    sb.from("envios").select("titulo").eq("id", cabecera.envio_id).maybeSingle(),
+    sb.from("envios").select("titulo, seccion_id").eq("id", cabecera.envio_id).maybeSingle(),
     sb
       .from("dictamen_archivos")
       .select("dictamen_id, storage_path, nombre_original, mime, bytes, guardado_at")
@@ -164,6 +165,13 @@ export async function enviar(datos: FormData): Promise<Resultado> {
   ]);
 
   if (!pieza) return { ok: false, mensaje: "No encuentro la pieza de este dictamen." };
+
+  const { data: seccion } = await sb
+    .from("secciones")
+    .select("slug")
+    .eq("id", pieza.seccion_id)
+    .maybeSingle();
+  const conDobleCiego = pideDobleCiego(seccion?.slug);
 
   const rubrica = await cargaRubrica(sb, cabecera.rubrica_version_id);
   if (!rubrica) return { ok: false, mensaje: "No encuentro la rúbrica del dictamen." };
@@ -191,7 +199,7 @@ export async function enviar(datos: FormData): Promise<Resultado> {
   const nuevoNombre = String(datos.get("doble_ciego_nombre") ?? "").trim();
   const bytesDeclarados = Number(datos.get("doble_ciego_bytes") ?? NaN);
 
-  if (nuevoPath) {
+  if (conDobleCiego && nuevoPath) {
     const prefijo = `dictamenes/${dictamen}/`;
     const tipoPath = tipoArchivoDobleCiego(nuevoPath);
     const tipoNombre = tipoArchivoDobleCiego(nuevoNombre);
@@ -272,11 +280,11 @@ export async function enviar(datos: FormData): Promise<Resultado> {
     revalidatePath(`/panel/dictamen/${dictamen}`);
   }
 
-  if (!archivoGuardado) {
+  if (conDobleCiego && !archivoGuardado) {
     return { ok: false, mensaje: "Adjunta la plantilla de doble ciego antes de enviar el dictamen." };
   }
 
-  if (!contenidoAdjunto) {
+  if (conDobleCiego && archivoGuardado && !contenidoAdjunto) {
     const { data: blob, error: eDescarga } = await servidor()
       .storage
       .from(BUCKET_PRIVADO)
@@ -289,8 +297,8 @@ export async function enviar(datos: FormData): Promise<Resultado> {
   }
 
   // La instantánea la calcula el servidor y se guarda tal cual. La base exige
-  // tanto la tarjeta completa como el archivo de doble ciego antes de permitir
-  // la transición irreversible a enviado.
+  // la tarjeta completa y, en las secciones a doble ciego, también el archivo
+  // antes de permitir la transición irreversible a enviado.
   const { error } = await sb.rpc("enviar_dictamen", {
     p_dictamen: dictamen,
     p_puntaje: veredicto.puntaje,
@@ -308,10 +316,12 @@ export async function enviar(datos: FormData): Promise<Resultado> {
     nombreDictaminador: quien.nombre,
     nombrePieza: pieza.titulo,
     puntaje: `${veredicto.puntaje}/${veredicto.maximo}`,
-    adjunto: {
-      nombre: archivoGuardado.nombre_original,
-      contenidoBase64: contenidoAdjunto.toString("base64"),
-    },
+    adjunto: archivoGuardado && contenidoAdjunto
+      ? {
+          nombre: archivoGuardado.nombre_original,
+          contenidoBase64: contenidoAdjunto.toString("base64"),
+        }
+      : null,
   });
 
   if (!aviso.enviado) {

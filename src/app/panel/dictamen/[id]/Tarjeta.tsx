@@ -92,6 +92,7 @@ export default function Tarjeta({
   sinConflicto,
   soloLectura,
   enviado,
+  conDobleCiego,
   archivoDobleCiego,
   previa,
 }: {
@@ -103,6 +104,8 @@ export default function Tarjeta({
   sinConflicto: boolean;
   soloLectura: boolean;
   enviado: boolean;
+  /** Sólo Miradas Económicas y Horizonte Global piden la plantilla. */
+  conDobleCiego: boolean;
   archivoDobleCiego: {
     nombre_original: string;
     bytes: number;
@@ -148,6 +151,27 @@ export default function Tarjeta({
     if (!(id in puntajes)) return "";
     return puntajes[id] === null ? "na" : String(puntajes[id]);
   };
+
+  const botonEnviar = (
+    <button
+      type="submit"
+      className="boton boton--lleno"
+      disabled={pendiente}
+      name="__accion"
+      value="enviar"
+      onClick={(e) => {
+        if (
+          !window.confirm(
+            "Enviar el dictamen es definitivo: no se puede volver a borrador ni corregir después, y a partir de ese momento verás la autoría de esta pieza. ¿Continuar?",
+          )
+        ) {
+          e.preventDefault();
+        }
+      }}
+    >
+      {pendiente ? "Enviando…" : "Enviar dictamen"}
+    </button>
+  );
 
   return (
     <form action={ejecutar}>
@@ -281,66 +305,55 @@ export default function Tarjeta({
         </div>
       )}
 
-      <h3>Doble ciego</h3>
-      <div className="tarjeta">
-        <p className="nota" style={{ marginTop: 0 }}>
-          Descarga la plantilla, llénala y adjúntala antes de enviar tu dictamen.
-          El archivo completado es obligatorio y puede ser PDF o DOCX.
-        </p>
+      {conDobleCiego ? (
+        <>
+          <h3>Doble ciego</h3>
+          <div className="tarjeta">
+            <p className="nota" style={{ marginTop: 0 }}>
+              Descarga la plantilla, llénala y adjúntala antes de enviar tu dictamen.
+              El archivo completado es obligatorio y puede ser PDF o DOCX.
+            </p>
 
-        <a className="boton" href="/Plantilla_Doble_ciego.docx" download>
-          Descargar plantilla
-        </a>
+            <a className="boton" href="/Plantilla_Doble_ciego.docx" download>
+              Descargar plantilla
+            </a>
 
-        {archivoDobleCiego && (
-          <p className="nota" style={{ marginBottom: 0 }}>
-            Archivo guardado: <b>{archivoDobleCiego.nombre_original}</b>{" "}
-            ({Math.max(1, Math.round(archivoDobleCiego.bytes / 1024))} KB) ·{" "}
-            <a href={`/panel/dictamen/${dictamenId}/archivo`}>descargar archivo guardado</a>
-          </p>
-        )}
+            {archivoDobleCiego && (
+              <p className="nota" style={{ marginBottom: 0 }}>
+                Archivo guardado: <b>{archivoDobleCiego.nombre_original}</b>{" "}
+                ({Math.max(1, Math.round(archivoDobleCiego.bytes / 1024))} KB) ·{" "}
+                <a href={`/panel/dictamen/${dictamenId}/archivo`}>descargar archivo guardado</a>
+              </p>
+            )}
 
-        {!soloLectura && (
-          <>
-            <label
-              className="nota"
-              htmlFor="doble_ciego"
-              style={{ display: "block", marginTop: 18, textTransform: "none", letterSpacing: 0, fontSize: 14 }}
-            >
-              Plantilla llenada
-            </label>
-            <input
-              id="doble_ciego"
-              name="doble_ciego"
-              type="file"
-              accept=".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-              required={!archivoDobleCiego}
-              disabled={pendiente}
-              style={{ marginTop: 8 }}
-            />
-            <p className="nota">Máximo 20 MB. Si ya hay un archivo guardado, seleccionar otro lo reemplaza.</p>
+            {!soloLectura && (
+              <>
+                <label
+                  className="nota"
+                  htmlFor="doble_ciego"
+                  style={{ display: "block", marginTop: 18, textTransform: "none", letterSpacing: 0, fontSize: 14 }}
+                >
+                  Plantilla llenada
+                </label>
+                <input
+                  id="doble_ciego"
+                  name="doble_ciego"
+                  type="file"
+                  accept=".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                  required={!archivoDobleCiego}
+                  disabled={pendiente}
+                  style={{ marginTop: 8 }}
+                />
+                <p className="nota">Máximo 20 MB. Si ya hay un archivo guardado, seleccionar otro lo reemplaza.</p>
 
-            <button
-              type="submit"
-              className="boton boton--lleno"
-              disabled={pendiente}
-              name="__accion"
-              value="enviar"
-              onClick={(e) => {
-                if (
-                  !window.confirm(
-                    "Enviar el dictamen es definitivo: no se puede volver a borrador ni corregir después, y a partir de ese momento verás la autoría de esta pieza. ¿Continuar?",
-                  )
-                ) {
-                  e.preventDefault();
-                }
-              }}
-            >
-              {pendiente ? "Enviando…" : "Enviar dictamen"}
-            </button>
-          </>
-        )}
-      </div>
+                {botonEnviar}
+              </>
+            )}
+          </div>
+        </>
+      ) : (
+        !soloLectura && <div style={{ marginTop: 20 }}>{botonEnviar}</div>
+      )}
 
       {enviado && (
         <p className="nota">
