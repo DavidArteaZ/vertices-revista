@@ -288,6 +288,7 @@ export type Database = {
           nombre: string;
           correo: string;
           perfil: string;
+          invitado: boolean;
           created_at: string;
           updated_at: string;
         },
@@ -297,6 +298,7 @@ export type Database = {
           nombre: string;
           correo: string;
           perfil: string;
+          invitado?: boolean;
           created_at?: string;
           updated_at?: string;
         }

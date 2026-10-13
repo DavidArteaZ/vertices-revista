@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { servidor } from "@/lib/supabase/servidor";
 import { ordinalEdicionEs } from "@/lib/decisiones-finales";
 import FormularioRegistro from "./FormularioRegistro";
@@ -66,8 +67,15 @@ export default async function Registro() {
               )}
             </div>
 
-            <div className="registro-mascota" aria-label="Espacio reservado para la mascota de Vértices">
-              <span>Imagen de mascota<br />320 × 320 px</span>
+            <div className="registro-mascota">
+              <Image
+                src="/registro/piberto.webp"
+                alt="Piberto, la mascota de Vértices, leyendo un libro"
+                width={640}
+                height={640}
+                sizes="(max-width: 900px) 74vw, 320px"
+                priority
+              />
             </div>
           </div>
         </div>

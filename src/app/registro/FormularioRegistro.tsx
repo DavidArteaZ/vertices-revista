@@ -19,6 +19,7 @@ export default function FormularioRegistro() {
       nombre: String(form.get("nombre") ?? ""),
       correo: String(form.get("correo") ?? ""),
       perfil: String(form.get("perfil") ?? ""),
+      invitado: form.get("invitado") === "si",
     };
 
     try {
@@ -64,6 +65,11 @@ export default function FormularioRegistro() {
           <option value="" disabled>Selecciona una opción</option>
           {PERFILES.map((perfil) => <option key={perfil} value={perfil}>{perfil}</option>)}
         </select>
+      </div>
+
+      <div className="registro-casilla">
+        <input id="invitado" name="invitado" type="checkbox" value="si" />
+        <label htmlFor="invitado">¿Llevará a un invitado (+1)?</label>
       </div>
 
       <button className="registro-boton" type="submit" disabled={enviando}>
