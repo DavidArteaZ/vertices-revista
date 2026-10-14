@@ -2,6 +2,7 @@ import { Resend } from "resend";
 import { servidor } from "@/lib/supabase/servidor";
 import { cuerpoJson, huellaIp, json } from "@/lib/api/peticion";
 import { enviarConfirmacionRegistro } from "@/lib/correo/registro";
+import { fechaEvento, horaEvento, ubicacionEvento } from "@/lib/evento";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -40,7 +41,7 @@ export async function POST(req: Request) {
 
   const { data: edicion, error: eEdicion } = await sb
     .from("ediciones")
-    .select("id")
+    .select("id, fecha_lanzamiento, hora_evento, ubicacion_evento_lanzamiento")
     .eq("activa", true)
     .maybeSingle();
 
@@ -69,7 +70,11 @@ export async function POST(req: Request) {
 
   // El registro ya quedó guardado: si el correo falla, se anota y la persona
   // sigue viendo su registro confirmado.
-  const confirmacion = await enviarConfirmacionRegistro(correo, nombre);
+  const confirmacion = await enviarConfirmacionRegistro(correo, nombre, {
+    fecha_evento: fechaEvento(edicion.fecha_lanzamiento),
+    hora_evento: horaEvento(edicion.hora_evento) ?? "hora por definir",
+    ubicacion_evento: ubicacionEvento(edicion.ubicacion_evento_lanzamiento),
+  });
   if (!confirmacion.enviado) {
     console.error(JSON.stringify({
       evento: "registro_confirmacion_no_enviada",
