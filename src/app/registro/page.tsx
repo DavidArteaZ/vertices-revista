@@ -21,7 +21,7 @@ export default async function Registro() {
   const sb = servidor();
   const { data: edicion } = await sb
     .from("ediciones")
-    .select("id, numero, fecha_lanzamiento, ubicacion_evento_lanzamiento")
+    .select("id, numero, fecha_lanzamiento, hora_evento, ubicacion_evento_lanzamiento")
     .eq("activa", true)
     .maybeSingle();
 
@@ -43,7 +43,8 @@ export default async function Registro() {
 
             {edicion ? (
               <p className="registro-subtitulo">
-                El próximo <strong>{fechaLarga(edicion.fecha_lanzamiento)}</strong> en{" "}
+                El próximo <strong>{fechaLarga(edicion.fecha_lanzamiento)}</strong>
+                {edicion.hora_evento && <> a las <strong>{edicion.hora_evento.slice(0, 5)} h</strong></>} en{" "}
                 <strong>{edicion.ubicacion_evento_lanzamiento?.trim() || "ubicación por definir"}</strong>{" "}
                 se celebrará el lanzamiento de la <strong>{ordinalEdicionEs(edicion.numero)} edición</strong> de Vértices!
               </p>
