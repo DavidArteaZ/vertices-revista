@@ -1,29 +1,21 @@
 import Image from "next/image";
 import { servidor } from "@/lib/supabase/servidor";
 import { ordinalEdicionEs } from "@/lib/decisiones-finales";
+import { fechaEvento, horaEvento, ubicacionEvento } from "@/lib/evento";
 import FormularioRegistro from "./FormularioRegistro";
 import "./registro.css";
 
 export const dynamic = "force-dynamic";
 
-function fechaLarga(fecha: string | null) {
-  if (!fecha) return "fecha por definir";
-  const [anio, mes, dia] = fecha.split("-").map(Number);
-  return new Intl.DateTimeFormat("es-MX", {
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-    timeZone: "UTC",
-  }).format(new Date(Date.UTC(anio, mes - 1, dia, 12)));
-}
-
 export default async function Registro() {
   const sb = servidor();
   const { data: edicion } = await sb
     .from("ediciones")
-    .select("id, numero, fecha_lanzamiento, ubicacion_evento_lanzamiento")
+    .select("id, numero, fecha_lanzamiento, hora_evento, ubicacion_evento_lanzamiento")
     .eq("activa", true)
     .maybeSingle();
+
+  const hora = horaEvento(edicion?.hora_evento ?? null);
 
   return (
     <main className="registro-lienzo">
@@ -43,8 +35,9 @@ export default async function Registro() {
 
             {edicion ? (
               <p className="registro-subtitulo">
-                El próximo <strong>{fechaLarga(edicion.fecha_lanzamiento)}</strong> en{" "}
-                <strong>{edicion.ubicacion_evento_lanzamiento?.trim() || "ubicación por definir"}</strong>{" "}
+                El próximo <strong>{fechaEvento(edicion.fecha_lanzamiento)}</strong>
+                {hora && <> {hora.startsWith("1:") ? "a la" : "a las"} <strong>{hora}</strong></>} en{" "}
+                <strong>{ubicacionEvento(edicion.ubicacion_evento_lanzamiento)}</strong>{" "}
                 se celebrará el lanzamiento de la <strong>{ordinalEdicionEs(edicion.numero)} edición</strong> de Vértices!
               </p>
             ) : (

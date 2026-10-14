@@ -18,6 +18,7 @@ import type { Resultado } from "../acciones";
 
 const NO_AUTORIZADO: Resultado = { ok: false, mensaje: "No tienes acceso al panel." };
 const FECHA = /^\d{4}-\d{2}-\d{2}$/;
+const HORA = /^([01]\d|2[0-3]):[0-5]\d(:[0-5]\d)?$/;
 
 
 export async function activarEdicion(edicion: number, activa: boolean): Promise<Resultado> {
@@ -66,6 +67,7 @@ export async function guardarParametros(datos: FormData): Promise<Resultado> {
   const fechaLanzamiento = String(datos.get("fecha_lanzamiento") ?? "").trim();
   const ubicacion = String(datos.get("ubicacion_evento_lanzamiento") ?? "").trim();
   const fechaLimite = String(datos.get("fecha_limite_revisiones") ?? "").trim();
+  const horaEvento = String(datos.get("hora_evento") ?? "").trim();
 
   if (!edicion) return { ok: false, mensaje: "Falta la edición." };
   if (fechaLanzamiento && !FECHA.test(fechaLanzamiento)) {
@@ -73,6 +75,9 @@ export async function guardarParametros(datos: FormData): Promise<Resultado> {
   }
   if (fechaLimite && !FECHA.test(fechaLimite)) {
     return { ok: false, mensaje: "La fecha límite de revisiones no es válida." };
+  }
+  if (horaEvento && !HORA.test(horaEvento)) {
+    return { ok: false, mensaje: "La hora del evento no es válida." };
   }
 
   const sb = await sesion();
@@ -82,10 +87,17 @@ export async function guardarParametros(datos: FormData): Promise<Resultado> {
       fecha_lanzamiento: fechaLanzamiento || null,
       ubicacion_evento_lanzamiento: ubicacion || null,
       fecha_limite_revisiones: fechaLimite || null,
+      hora_evento: horaEvento || null,
     })
     .eq("id", edicion);
 
   if (error) {
+    if (error.message.includes("hora_evento")) {
+      return {
+        ok: false,
+        mensaje: "La base de Supabase todavía no tiene la columna de la hora del evento (migración hora_evento).",
+      };
+    }
     const esquemaDesactualizado =
       error.message.includes("schema cache") ||
       error.message.includes("fecha_lanzamiento") ||

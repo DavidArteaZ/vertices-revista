@@ -115,6 +115,16 @@ export default async function DetalleEdicion({ params }: { params: Promise<{ id:
               {!edicion.fecha_lanzamiento && <p className="nota">por decidir</p>}
             </div>
             <div className="campo">
+              <label htmlFor="hora_evento">Hora de evento</label>
+              <input
+                id="hora_evento"
+                type="time"
+                name="hora_evento"
+                defaultValue={edicion.hora_evento?.slice(0, 5) ?? ""}
+              />
+              {!edicion.hora_evento && <p className="nota">por decidir</p>}
+            </div>
+            <div className="campo">
               <label htmlFor="ubicacion_evento_lanzamiento">Ubicación evento lanzamiento</label>
               <input
                 id="ubicacion_evento_lanzamiento"

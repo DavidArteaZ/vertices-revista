@@ -266,6 +266,7 @@ export type Database = {
           fecha_lanzamiento: string | null;
           ubicacion_evento_lanzamiento: string | null;
           fecha_limite_revisiones: string | null;
+          hora_evento: string | null;
           activa: boolean;
         },
         {
@@ -278,6 +279,7 @@ export type Database = {
           fecha_lanzamiento?: string | null;
           ubicacion_evento_lanzamiento?: string | null;
           fecha_limite_revisiones?: string | null;
+          hora_evento?: string | null;
           activa?: boolean;
         }
       >;
