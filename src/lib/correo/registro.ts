@@ -11,7 +11,7 @@ export type DatosEvento = {
 export function enviarConfirmacionRegistro(a: string, nombre: string, evento: DatosEvento): Promise<Envio> {
   return mandarPlantilla(
     a,
-    process.env.RESEND_REGISTRO_EVENTO_TEMPLATE || "confirmacion_registroEvento",
+    process.env.RESEND_REGISTRO_EVENTO_TEMPLATE || "confirmacion_registroevento",
     { nombre, ...evento },
   );
 }
