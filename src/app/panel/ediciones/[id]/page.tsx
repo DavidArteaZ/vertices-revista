@@ -3,6 +3,8 @@ import { sesion } from "@/lib/supabase/sesion";
 import { exigePersonal, Cabecera } from "../../guardia";
 import Accion from "../../Accion";
 import Invitados from "./Invitados";
+import PdfPieza from "./PdfPieza";
+import { copiarManuscrito, motivoSinPdf, urlPublica } from "../pdf";
 import {
   adjuntar,
   ajustarArticulo,
@@ -13,11 +15,13 @@ import {
 
 /**
  * Armar un número: definir sus parámetros, convertir piezas aceptadas en
- * artículos, ajustarlas y publicar el número (spec §9.2, §9.3).
+ * artículos (lo que ya copia su PDF y le da enlace), ajustarlas y publicar el
+ * número (spec §9.2, §9.3).
  *
  * Aceptar una pieza NO crea un artículo. El selector de abajo es el paso
  * editorial explícito que hace esa conversión y `adjuntar_articulo` vuelve a
- * comprobar en base que la decisión técnica sea aceptante.
+ * comprobar en base que la decisión técnica sea aceptante, o que el comité
+ * haya autorizado la pieza por excepción.
  */
 
 export const dynamic = "force-dynamic";
@@ -41,13 +45,13 @@ export default async function DetalleEdicion({ params }: { params: Promise<{ id:
   const [{ data: articulos }, { data: secciones }, { data: candidatos }, registros] = await Promise.all([
     sb
       .from("articulos")
-      .select("id, titulo, autor, slug, minutos_lectura, destacado, pdf_publico_path, seccion_id")
+      .select("id, titulo, autor, slug, minutos_lectura, destacado, pdf_publico_path, seccion_id, envio_id")
       .eq("edicion_id", edicionId)
       .order("id"),
     sb.from("secciones").select("id, nombre_display"),
     sb
       .from("envios")
-      .select("id, folio, titulo, decision_id, edicion_id")
+      .select("id, folio, titulo, decision_id, edicion_id, excepcion_publicacion")
       .not("decision_id", "is", null)
       .is("archivado_at", null),
     sb
@@ -59,6 +63,24 @@ export default async function DetalleEdicion({ params }: { params: Promise<{ id:
 
   if (registros.error) {
     console.error(JSON.stringify({ evento: "panel_invitados_fallo", edicion: edicionId, error: registros.error.message }));
+  }
+
+  // El formato del manuscrito principal explica por qué una pieza sigue sin PDF.
+  const envioIds = (articulos ?? []).flatMap((a) => (a.envio_id ? [a.envio_id] : []));
+  const { data: principales } = envioIds.length
+    ? await sb.from("envio_archivos").select("envio_id, mime").in("envio_id", envioIds).eq("es_principal", true)
+    : { data: [] };
+  const mimePrincipal = new Map((principales ?? []).map((p) => [p.envio_id, p.mime]));
+
+  // Las piezas convertidas antes de que la copia ocurriera al convertir llegan
+  // aquí sin PDF aunque su manuscrito sí lo sea. Se copian al abrir el número
+  // para que el comité no tenga que volver a subir lo que el autor ya mandó.
+  const fallosCopia = new Map<number, string>();
+  for (const a of articulos ?? []) {
+    if (a.pdf_publico_path || !a.envio_id || motivoSinPdf(mimePrincipal.get(a.envio_id))) continue;
+    const copia = await copiarManuscrito(sb, a, edicionId);
+    if ("ruta" in copia) a.pdf_publico_path = copia.ruta;
+    else fallosCopia.set(a.id, copia.motivo);
   }
 
   const nombreSeccion = new Map((secciones ?? []).map((s) => [s.id, s.nombre_display]));
@@ -78,7 +100,7 @@ export default async function DetalleEdicion({ params }: { params: Promise<{ id:
   const disponibles = (candidatos ?? []).filter(
     (e) =>
       e.decision_id &&
-      idsAceptantes.has(e.decision_id) &&
+      (idsAceptantes.has(e.decision_id) || e.excepcion_publicacion !== null) &&
       !yaTienen.has(e.id) &&
       (e.edicion_id === edicionId || e.edicion_id === null),
   );
@@ -208,11 +230,11 @@ export default async function DetalleEdicion({ params }: { params: Promise<{ id:
                     )}
                   </td>
                   <td>
-                    {a.pdf_publico_path ? (
-                      <span className="etiqueta etiqueta--lista">Copiado</span>
-                    ) : (
-                      <span className="ciego">al publicar</span>
-                    )}
+                    <PdfPieza
+                      articulo={a.id}
+                      url={a.pdf_publico_path ? urlPublica(a.pdf_publico_path) : null}
+                      motivo={(a.envio_id ? motivoSinPdf(mimePrincipal.get(a.envio_id)) : null) ?? fallosCopia.get(a.id) ?? null}
+                    />
                   </td>
                   <td style={{ textAlign: "right" }}>
                     {!publicada && (
@@ -248,6 +270,7 @@ export default async function DetalleEdicion({ params }: { params: Promise<{ id:
                       {disponibles.map((e) => (
                         <option key={e.id} value={e.id}>
                           {e.folio} · {e.titulo}
+                          {e.excepcion_publicacion !== null && " · por excepción"}
                         </option>
                       ))}
                     </select>
@@ -264,9 +287,9 @@ export default async function DetalleEdicion({ params }: { params: Promise<{ id:
           <h3>Publicar</h3>
           <div className="tarjeta">
             <p className="nota" style={{ marginTop: 0 }}>
-              Copia el PDF de cada artículo del bucket privado al público y enciende el
-              número entero de una vez. Sólo se copian PDF: una pieza enviada en Word
-              necesita su versión maquetada antes.
+              Enciende el número entero de una vez: sus artículos aparecen en el sitio
+              con el enlace a su PDF. Cada pieza necesita su PDF antes; las que se
+              enviaron en Word, su versión maquetada subida en su fila.
             </p>
             <Accion
               accion={publicar}

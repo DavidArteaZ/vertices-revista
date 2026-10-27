@@ -2,18 +2,18 @@
 
 import { revalidatePath } from "next/cache";
 import { sesion, personal } from "@/lib/supabase/sesion";
-import { servidor, BUCKET_PRIVADO, BUCKET_PUBLICO } from "@/lib/supabase/servidor";
+import { servidor, BUCKET_PUBLICO } from "@/lib/supabase/servidor";
 import type { Resultado } from "../acciones";
+import { copiarManuscrito } from "./pdf";
 
 /**
  * Armar y publicar un número (spec §9).
  *
  * El paso que no puede vivir en SQL es la copia del PDF del bucket privado al
- * público: Storage no se toca desde Postgres. Por eso publicar es una acción y
- * no una sola función, y por eso el ORDEN importa —copiar primero, marcar la
- * edición como publicada después—. Si la copia falla a medias, la edición
- * sigue en borrador y no hay nada visible: la política de `articulos` mira el
- * estado de su edición, así que media copia no es medio número publicado.
+ * público: Storage no se toca desde Postgres. Esa copia ocurre al convertir la
+ * pieza en artículo (o al subir su PDF maquetado), no al publicar —ver
+ * `./pdf.ts`—. Publicar sólo enciende el número, y publicar_edicion se niega
+ * mientras quede una pieza sin PDF, así que no hay número a medias.
  */
 
 const NO_AUTORIZADO: Resultado = { ok: false, mensaje: "No tienes acceso al panel." };
@@ -130,7 +130,7 @@ export async function adjuntar(datos: FormData): Promise<Resultado> {
   const { data: pieza } = await sb.from("envios").select("tema_id").eq("id", envio).maybeSingle();
   const temas = pieza?.tema_id ? [pieza.tema_id] : [];
 
-  const { error } = await sb.rpc("adjuntar_articulo", {
+  const { data: articulo, error } = await sb.rpc("adjuntar_articulo", {
     p_envio: envio,
     p_edicion: edicion,
     p_minutos: minutos || null,
@@ -140,7 +140,63 @@ export async function adjuntar(datos: FormData): Promise<Resultado> {
   if (error) return { ok: false, mensaje: error.message };
 
   revalidatePath(`/panel/ediciones/${edicion}`);
-  return { ok: true, mensaje: "Pieza convertida en artículo y añadida al número." };
+
+  // El artículo ya existe aunque la copia falle: su fila lo dice y ofrece subir
+  // el PDF a mano, así que no hay nada que deshacer.
+  const { data: fila } = await sb.from("articulos").select("id, slug, envio_id").eq("id", articulo).maybeSingle();
+  const copia = fila
+    ? await copiarManuscrito(sb, fila, edicion)
+    : { motivo: "No se encontró el artículo recién creado." };
+
+  if ("motivo" in copia) {
+    return {
+      ok: true,
+      mensaje: `Pieza convertida en artículo, pero aún sin PDF: ${copia.motivo} Sube el PDF maquetado en su fila.`,
+    };
+  }
+  return { ok: true, mensaje: "Pieza convertida en artículo. Su PDF ya tiene enlace." };
+}
+
+/**
+ * Fijar el PDF maquetado que se acaba de subir desde la fila del artículo.
+ *
+ * La subida va directa del navegador a Storage con una URL firmada
+ * (`/api/panel/articulos/[id]/pdf`), porque una Function de Vercel no acepta
+ * cuerpos de más de 4.5 MB. Aquí sólo llega la ruta, y sólo se acepta si es la
+ * que esa misma firma pudo haber dado a este artículo.
+ */
+export async function fijarPdf(datos: FormData): Promise<Resultado> {
+  if (!(await personal())) return NO_AUTORIZADO;
+
+  const articulo = Number(datos.get("articulo") ?? 0);
+  const ruta = String(datos.get("ruta") ?? "");
+
+  const sb = await sesion();
+  const { data: fila } = await sb
+    .from("articulos")
+    .select("id, slug, edicion_id, pdf_publico_path")
+    .eq("id", articulo)
+    .maybeSingle();
+
+  if (!fila?.edicion_id) return { ok: false, mensaje: "No se encontró el artículo." };
+  if (!ruta.startsWith(`${fila.edicion_id}/${fila.slug}-`) || !ruta.endsWith(".pdf")) {
+    return { ok: false, mensaje: "La ruta del PDF no corresponde a este artículo." };
+  }
+
+  const { error } = await sb.from("articulos").update({ pdf_publico_path: ruta }).eq("id", articulo);
+  if (error) return { ok: false, mensaje: error.message };
+
+  // El anterior deja de estar enlazado desde el sitio; borrarlo evita que siga
+  // circulando una versión que el comité ya reemplazó.
+  if (fila.pdf_publico_path && fila.pdf_publico_path !== ruta) {
+    const { error: eBorrado } = await servidor().storage.from(BUCKET_PUBLICO).remove([fila.pdf_publico_path]);
+    if (eBorrado) {
+      console.error(JSON.stringify({ evento: "panel_pdf_viejo_fallo", articulo, error: eBorrado.message }));
+    }
+  }
+
+  revalidatePath(`/panel/ediciones/${fila.edicion_id}`);
+  return { ok: true, mensaje: "PDF actualizado." };
 }
 
 export async function ajustarArticulo(datos: FormData): Promise<Resultado> {
@@ -170,94 +226,50 @@ export async function quitarArticulo(datos: FormData): Promise<Resultado> {
   const edicion = Number(datos.get("edicion") ?? 0);
 
   const sb = await sesion();
+  const { data: fila } = await sb.from("articulos").select("pdf_publico_path").eq("id", articulo).maybeSingle();
   const { error } = await sb.from("articulos").delete().eq("id", articulo);
   if (error) return { ok: false, mensaje: error.message };
+
+  // Su PDF ya estaba en el bucket público; sin artículo no debe quedarse ahí.
+  if (fila?.pdf_publico_path) {
+    const { error: eBorrado } = await servidor().storage.from(BUCKET_PUBLICO).remove([fila.pdf_publico_path]);
+    if (eBorrado) {
+      console.error(JSON.stringify({ evento: "panel_pdf_quitar_fallo", articulo, error: eBorrado.message }));
+    }
+  }
 
   revalidatePath(`/panel/ediciones/${edicion}`);
   return { ok: true, mensaje: "Pieza retirada del número." };
 }
 
 /**
- * Publicar: copiar los PDF y encender el número.
+ * Publicar: encender el número entero de una vez.
  *
- * La copia usa la clave de servicio porque el bucket privado no tiene una sola
- * política y nadie más puede leerlo. Lo que sustituye a la política es la
- * comprobación de personal de arriba — y que sólo se copia lo que cuelga de una
- * edición, que a su vez sólo admite piezas con decisión aceptante.
+ * Los PDF ya se copiaron al armar el número. Aquí sólo se comprueba que no
+ * falte ninguno, para decir cuál con su título en vez del recuento genérico
+ * con el que se negaría publicar_edicion.
  */
 export async function publicar(datos: FormData): Promise<Resultado> {
-  const quien = await personal();
-  if (!quien) return NO_AUTORIZADO;
+  if (!(await personal())) return NO_AUTORIZADO;
 
   const edicion = Number(datos.get("edicion") ?? 0);
   if (!edicion) return { ok: false, mensaje: "Falta el número." };
 
   const sb = await sesion();
-  const admin = servidor();
 
   const { data: articulos, error: eLista } = await sb
     .from("articulos")
-    .select("id, titulo, slug, envio_id, pdf_publico_path")
+    .select("titulo, pdf_publico_path")
     .eq("edicion_id", edicion);
 
   if (eLista) return { ok: false, mensaje: eLista.message };
   if (!articulos?.length) return { ok: false, mensaje: "Este número no tiene piezas." };
 
-  for (const articulo of articulos) {
-    if (articulo.pdf_publico_path || !articulo.envio_id) continue;
-
-    const { data: archivo } = await sb
-      .from("envio_archivos")
-      .select("storage_path, mime")
-      .eq("envio_id", articulo.envio_id)
-      .eq("es_principal", true)
-      .maybeSingle();
-
-    if (!archivo) {
-      return { ok: false, mensaje: `«${articulo.titulo}» no tiene manuscrito principal.` };
-    }
-
-    // Sólo se publica PDF. Un .docx en el bucket público sería un documento
-    // editable con la maquetación del autor, no la pieza de la revista.
-    if (archivo.mime !== "application/pdf") {
-      return {
-        ok: false,
-        mensaje: `«${articulo.titulo}» se envió como Word. Sube el PDF maquetado antes de publicar.`,
-      };
-    }
-
-    const { data: blob, error: eDescarga } = await admin.storage
-      .from(BUCKET_PRIVADO)
-      .download(archivo.storage_path);
-
-    if (eDescarga || !blob) {
-      return { ok: false, mensaje: `No se pudo leer el PDF de «${articulo.titulo}».` };
-    }
-
-    // La ruta pública es legible a propósito: es una URL que la gente comparte.
-    // Nada de lo que hay aquí es privado — la pieza ya está publicada.
-    const destino = `${edicion}/${articulo.slug}.pdf`;
-    const { error: eSubida } = await admin.storage
-      .from(BUCKET_PUBLICO)
-      .upload(destino, await blob.arrayBuffer(), {
-        contentType: "application/pdf",
-        upsert: true,
-      });
-
-    if (eSubida) {
-      return { ok: false, mensaje: `No se pudo publicar el PDF de «${articulo.titulo}».` };
-    }
-
-    const { error: eRuta } = await sb
-      .from("articulos")
-      .update({ pdf_publico_path: destino })
-      .eq("id", articulo.id);
-
-    if (eRuta) return { ok: false, mensaje: eRuta.message };
+  const sinPdf = articulos.filter((a) => !a.pdf_publico_path).map((a) => `«${a.titulo}»`);
+  if (sinPdf.length) {
+    return { ok: false, mensaje: `Falta el PDF de ${sinPdf.join(", ")}. Súbelo en su fila antes de publicar.` };
   }
 
-  // Y ahora, con todos los PDF ya copiados, el número entero se enciende de
-  // golpe. publicar_edicion se niega si queda alguno sin copiar.
   const { data: piezas, error } = await sb.rpc("publicar_edicion", { p_edicion: edicion });
   if (error) return { ok: false, mensaje: error.message };
 
