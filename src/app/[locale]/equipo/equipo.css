@@ -199,7 +199,9 @@
 
   /* ---------------- constelación del equipo ---------------- */
   main.equipo{ max-width:1180px; }
-  main.equipo .entrada{ margin:0 0 26px; }
+  main.equipo .entrada{ margin:0 0 6px; }
+  /* la instrucción va por debajo del lema, más chica, para que no compita con él */
+  .indicacion{ margin:0 0 26px; max-width:62ch; font-size:14px; color:var(--gris); }
   .leyenda{
     list-style:none; margin:0 0 18px; padding:0;
     display:flex; flex-wrap:wrap; gap:8px 20px;
