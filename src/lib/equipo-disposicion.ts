@@ -36,18 +36,18 @@ const HOLGURA = 14;
 
 export const ESCRITORIO: Lienzo = {
   ancho: 1140,
-  alto: 680,
+  alto: 720,
   campo: 990,
-  centro: { x: 500, y: 340 },
+  centro: { x: 500, y: 380 },
   areas: {
-    dir: { x: 500, y: 118 },
-    con: { x: 160, y: 215 },
-    ced: { x: 200, y: 495 },
-    dis: { x: 810, y: 170 },
-    cyd: { x: 800, y: 480 },
-    fot: { x: 515, y: 575 },
+    dir: { x: 500, y: 158 },
+    con: { x: 160, y: 255 },
+    ced: { x: 200, y: 535 },
+    dis: { x: 810, y: 210 },
+    cyd: { x: 800, y: 520 },
+    fot: { x: 515, y: 615 },
   },
-  asesor: { x: 1062, y: 330 },
+  asesor: { x: 1062, y: 370 },
 };
 
 /** En teléfono la misma red se acomoda a lo alto y el asesor baja al pie. */
@@ -110,7 +110,9 @@ export function disponer(lienzo: Lienzo, personas: Integrante[]): Burbuja[] {
       const rep = (vistos[par] = (vistos[par] ?? -1) + 1);
       const m = { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
       if (pares[par] > 1) {
-        destino = { x: m.x, y: m.y + (rep - (pares[par] - 1) / 2) * 92 };
+        // Se sube 40 px: centrada en el punto medio, la de abajo quedaba
+        // sobre las líneas que bajan hacia Vértices.
+        destino = { x: m.x, y: m.y - 40 + (rep - (pares[par] - 1) / 2) * 96 };
       } else {
         const vx = m.x - centro.x, vy = m.y - centro.y, vl = Math.hypot(vx, vy) || 1;
         destino = { x: m.x + (vx / vl) * 40, y: m.y + (vy / vl) * 40 };
