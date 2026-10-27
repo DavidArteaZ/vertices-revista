@@ -629,8 +629,20 @@
   "equipo": {
     "vertices_revista_academica_de_economia": "Vértices · Академический журнал по экономике",
     "conoce_al_equipo": "Познакомьтесь с командой",
-    "pagina_en_construccion_aqui_viviran_los_siete_eq_5d60": "Страница в разработке. Здесь будут жить семь команд, делающих журнал: Генеральная дирекция, Редакционный комитет, Контент и альянсы, Производство, Дизайн, Коммуникации, и Фотография и архив.",
-    "regresar": "← Назад",
+    "somos_estudiantes_de_la_licenciatura_en_economia_9fac": "Мы — студенты-экономисты, которые делают журнал. Наведите курсор (или коснитесь) на человека, чтобы познакомиться, или на направление, чтобы увидеть его участников.",
+    "direccion_general": "Общее руководство",
+    "contenido_y_alianzas": "Контент и партнёрства",
+    "comite_editorial": "Редакционный комитет",
+    "diseno": "Дизайн",
+    "comunicacion_y_difusion": "Коммуникации и продвижение",
+    "fotografia_y_archivo": "Фотография и архив",
+    "asesor": "Консультант",
+    "el_anillo_marca_una_segunda_area": "Кольцо обозначает второе направление",
+    "mapa_del_equipo_de_vertices_por_areas": "Карта команды Vértices по направлениям",
+    "integrantes_de_area": "Участники: {area}",
+    "linkedin": "LinkedIn",
+    "portafolio_en_instagram": "Портфолио в Instagram",
+    "vertices": "Vértices.",
     "titulo_documento": "Познакомьтесь с командой · Vértices"
   },
   "correo": {

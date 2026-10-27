@@ -1,36 +1,40 @@
-"use client";
-
-import { useRouter } from "next/navigation";
-import { Link } from "@/i18n/navegacion";
-import { useTranslations } from "next-intl";
+import type { Metadata } from "next";
+import { getTranslations, setRequestLocale } from "next-intl/server";
+import Marco from "@/components/layout/Marco";
+import Pie from "@/components/layout/Pie";
+import Constelacion from "./Constelacion";
 import "./equipo.css";
 import "../movil.css";
 
+type Props = { params: Promise<{ locale: string }> };
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "equipo" });
+  return { title: t("titulo_documento") };
+}
+
 /**
- * Página en construcción del equipo. Portada de equipo-ds.html:31-39.
- *
- * El enlace de regreso usa history.back() cuando hay historial y cae a la
- * raíz cuando no, igual que el original (equipo-ds.html:38).
+ * Conoce al equipo. Lleva la barra y el pie de la portada, como las demás
+ * satélites, y en medio la constelación del equipo. Sin el campo de flujo de
+ * fondo que usa ¿Quiénes somos?: aquí las líneas son el contenido, y las
+ * estelas del fondo competirían con ellas.
  */
-export default function Pagina() {
-  const t = useTranslations("equipo");
-  const router = useRouter();
+export default async function Pagina({ params }: Props) {
+  const { locale } = await params;
+  setRequestLocale(locale);
+  const t = await getTranslations("equipo");
 
   return (
-    <main>
-      <p className="ceja">{t("vertices_revista_academica_de_economia")}</p>
-      <h1>{t("conoce_al_equipo")}</h1>
-      <p>{t("pagina_en_construccion_aqui_viviran_los_siete_eq_5d60")}</p>
-      <Link
-        className="regreso"
-        href="/"
-        onClick={(e) => {
-          if (window.history.length > 1) {
-            e.preventDefault();
-            router.back();
-          }
-        }}
-      >{t("regresar")}</Link>
-    </main>
+    <>
+      <Marco satelite />
+      <main className="equipo">
+        <p className="ceja">{t("vertices_revista_academica_de_economia")}</p>
+        <h1>{t("conoce_al_equipo")}</h1>
+        <p className="entrada">{t("somos_estudiantes_de_la_licenciatura_en_economia_9fac")}</p>
+        <Constelacion />
+      </main>
+      <Pie satelite />
+    </>
   );
 }

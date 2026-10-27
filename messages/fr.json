@@ -629,8 +629,20 @@
   "equipo": {
     "vertices_revista_academica_de_economia": "Vértices · Revue académique d'économie",
     "conoce_al_equipo": "Rencontrez l'équipe",
-    "pagina_en_construccion_aqui_viviran_los_siete_eq_5d60": "Page en construction. Ici vivront les sept équipes qui font la revue : Direction Générale, Comité Éditorial, Contenu et Alliances, Production, Design, Communication et Diffusion, et Photographie et Archives.",
-    "regresar": "← Retour",
+    "somos_estudiantes_de_la_licenciatura_en_economia_9fac": "Nous sommes les étudiants en économie qui font la revue. Survolez (ou touchez) une personne pour la découvrir, ou un pôle pour voir qui en fait partie.",
+    "direccion_general": "Direction générale",
+    "contenido_y_alianzas": "Contenu et partenariats",
+    "comite_editorial": "Comité éditorial",
+    "diseno": "Design",
+    "comunicacion_y_difusion": "Communication et diffusion",
+    "fotografia_y_archivo": "Photographie et archives",
+    "asesor": "Conseiller",
+    "el_anillo_marca_una_segunda_area": "L’anneau indique un second pôle",
+    "mapa_del_equipo_de_vertices_por_areas": "Carte de l’équipe de Vértices par pôle",
+    "integrantes_de_area": "Membres de {area}",
+    "linkedin": "LinkedIn",
+    "portafolio_en_instagram": "Portfolio Instagram",
+    "vertices": "Vértices.",
     "titulo_documento": "Rencontrez l'équipe · Vértices"
   },
   "correo": {

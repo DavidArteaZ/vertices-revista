@@ -1,21 +1,281 @@
+  /* Tipografías del Manual de Identidad: Neue Montreal (logo y títulos) y Garet (subtítulos) */
   @font-face{ font-family:"Neue Montreal"; src:url("/fonts/NeueMontreal-Regular.woff2") format("woff2"); font-weight:400; font-style:normal; font-display:swap; }
   @font-face{ font-family:"Neue Montreal"; src:url("/fonts/NeueMontreal-Medium.woff2") format("woff2"); font-weight:500 600; font-style:normal; font-display:swap; }
+  @font-face{ font-family:"Neue Montreal"; src:url("/fonts/NeueMontreal-Bold.woff2") format("woff2"); font-weight:700 800; font-style:normal; font-display:swap; }
+  @font-face{ font-family:"Neue Montreal"; src:url("/fonts/NeueMontreal-Italic.woff2") format("woff2"); font-weight:400 600; font-style:italic; font-display:swap; }
   @font-face{ font-family:"Garet"; src:url("/fonts/Garet-Book.woff2") format("woff2"); font-weight:400 600; font-style:normal; font-display:swap; }
+  @font-face{ font-family:"Garet"; src:url("/fonts/Garet-Heavy.woff2") format("woff2"); font-weight:700 900; font-style:normal; font-display:swap; }
+  :root{
+    /* paleta del Manual de Identidad (tema claro: fondo crema, tinta ciruela) */
+    --fondo:#E7DECB;
+    --beige:#f8f2ec;
+    --tinta:#2d232e;
+    --hueso:#433947;
+    --texto:#4d4252;
+    --gris:#776d80;
+    --indigo:#4d4dfa;
+    --indigo-claro:#5e5dc7;
+    --perla:#7776cf;
+    --pizarra:#3f3d5a;
+    --coral:#fd6343;
+    --ambar:#ed9126;
+    --ambar-texto:#a86300;
+    --linea:rgba(45,35,46,.18);
+    --linea-fuerte:rgba(45,35,46,.45);
+    /* el beige del área Contenido y alianzas necesita contorno sobre el crema */
+    --contorno-beige:#8a6c45;
+    --f-titulo:"Neue Montreal",Arial,"Helvetica Neue",sans-serif;
+    --f-ui:"Neue Montreal",Arial,"Helvetica Neue",sans-serif;
+    --f-sub:"Garet",Arial,"Helvetica Neue",sans-serif;
+  }
+  *{ box-sizing:border-box; }
+  html{ scroll-behavior:smooth; }
+  html,body{ margin:0; background:var(--fondo); overflow-x:hidden; }
   body{
-    margin:0; min-height:100vh; display:grid; place-items:center;
-    background:#E7DECB; color:#4d4252;
-    font:400 15px/1.7 "Neue Montreal", Arial, sans-serif; text-align:center;
+    font:400 15px/1.7 var(--f-ui); color:var(--texto);
+    -webkit-font-smoothing:antialiased;
   }
-  main{ max-width:600px; padding:48px 24px; }
+  ::selection{ background:var(--indigo); color:var(--beige); }
+
+  .marco{
+    /* Flotante, al modo iOS 26: despegada de los tres bordes y en cápsula.
+       El contenido pasa por los lados y por encima en vez de morir contra
+       ella, que es justo cuando el vidrio se lee como material: pegada al
+       borde superior casi nunca tenía nada detrás que enseñar. */
+    position:fixed; z-index:50;
+    top:14px; left:max(16px, 3vw); right:max(16px, 3vw);
+    border-radius:999px;
+    display:flex; justify-content:space-between; align-items:center;
+    padding:12px 18px 12px 26px;
+    /* Vidrio. Tres capas hacen el material y ninguna sobra:
+       el tinte translúcido deja pasar la imagen; el desenfoque CON saturación
+       es lo que hace que el vidrio recoja el color de lo que cruza por debajo
+       en vez de agrisarlo (un blur sin saturate queda lechoso); y el filo
+       iluminado de arriba más la sombra suave de abajo son los que le dan
+       grosor —sin ellos se lee como un rectángulo plano, no como una lámina
+       apoyada sobre el contenido.
+
+       Sobre el tinte: se probó más translúcido (46-62%) y no funciona en las
+       páginas de texto. El desenfoque de fondo no deshace un párrafo que
+       cruza por debajo —ni subiéndolo a 44px— y entonces el texto de la
+       página se lee A TRAVÉS del vidrio y compite con el de la barra. A
+       76-86% lo que hay detrás queda como un fantasma: se nota que algo pasa,
+       que es lo que hace el material, pero ya no se puede leer. */
+    background:linear-gradient(rgba(238,231,215,.86), rgba(231,222,203,.76));
+    backdrop-filter:blur(30px) saturate(180%);
+    /* Flotando, la sombra deja de ser una insinuación bajo un borde y pasa
+       a ser lo que la despega del fondo; y el filo iluminado da la vuelta
+       completa, porque ahora se ven los cuatro lados. */
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,.7),
+      inset 0 0 0 1px rgba(255,255,255,.26),
+      0 12px 32px -14px rgba(45,35,46,.34),
+      0 3px 10px -6px rgba(45,35,46,.22);
+    /* se esconde al bajar y vuelve al subir; lo gobierna useBarraQueSeAparta */
+    transition:transform .34s cubic-bezier(.32,.72,.28,1);
+  }
+  /* Sin desenfoque de fondo (Firefox sin la bandera, navegadores viejos) el
+     tinte translúcido dejaría cruzar el texto de la página por detrás de la
+     barra. Ahí vuelve a ser casi opaca, que es lo que había antes. */
+  @supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){
+    .marco{
+      background:linear-gradient(rgba(231,222,203,.97), rgba(231,222,203,.9));
+    }
+  }
+  .marco--fuera{ transform:translateY(calc(-100% - 26px)); }
+  @media (prefers-reduced-motion: reduce){
+    .marco{ transition:none; }
+  }
+  .marca{ display:flex; align-items:center; gap:12px; text-decoration:none; color:var(--tinta); }
+  .emblema{ width:26px; height:26px; color:var(--tinta); }
+  .marca span{ font:600 14px var(--f-ui); letter-spacing:.34em; text-transform:uppercase; transform:translateY(1px); }
+  .marco nav{ display:flex; align-items:center; gap:20px; }
+  .marco nav a.enlace{
+    font:500 11.5px var(--f-ui); letter-spacing:.18em; text-transform:uppercase; white-space:nowrap;
+    color:var(--hueso); text-decoration:none; opacity:.85; transition:opacity .2s, color .2s;
+  }
+  .marco nav a.enlace:hover{ opacity:1; color:var(--tinta); }
+  .boton{
+    display:inline-block; font:500 11.5px var(--f-ui); letter-spacing:.14em;
+    text-transform:uppercase; color:var(--tinta); text-decoration:none; white-space:nowrap;
+    background:transparent; border:1px solid var(--linea); border-radius:999px;
+    padding:12px 22px; cursor:pointer;
+    transition:border-color .25s, background .25s, color .25s, transform .15s;
+  }
+  .boton:hover{ border-color:var(--linea-fuerte); }
+  .boton--lleno{ background:var(--coral); color:#2d232e; border-color:var(--coral); }
+  .boton--lleno:hover{ background:#ee5333; border-color:#ee5333; }
+
+  main{ max-width:860px; margin:0 auto; padding:calc(2vh + 92px) 24px 90px; }
   .ceja{
-    font:500 11px "Garet", Arial, sans-serif; letter-spacing:.3em;
-    text-transform:uppercase; color:#5e5dc7; margin:0 0 16px;
+    margin:0 0 14px; font:400 14px var(--f-sub); letter-spacing:.3em;
+    text-transform:uppercase; color:var(--indigo);
   }
-  h1{ font:500 clamp(30px,6vw,46px)/1.1 "Neue Montreal", Arial, sans-serif; color:#2d232e; margin:0 0 18px; }
-  .regreso{
-    display:inline-block; margin-top:28px; color:#2d232e; text-decoration:none;
-    font:500 11.5px "Neue Montreal", Arial, sans-serif; letter-spacing:.14em;
-    text-transform:uppercase; border:1px solid rgba(45,35,46,.35);
-    border-radius:999px; padding:12px 22px;
+  .ceja .nodo{
+    display:inline-block; width:9px; height:9px; border-radius:50%;
+    margin-right:10px; vertical-align:1px;
   }
-  .regreso:hover{ border-color:#fd6343; color:#fd6343; }
+  h1{
+    margin:0 0 16px; font:500 clamp(36px,6vw,64px)/1.05 var(--f-titulo);
+    color:var(--tinta); letter-spacing:-.01em;
+  }
+  .entrada{ max-width:62ch; font-size:17px; color:var(--hueso); }
+  .entrada em{ font-style:italic; }
+
+  /* pie de página idéntico al de la landing */
+  footer.pie{
+    margin-top:10vh; border-top:1px solid var(--linea);
+    background:rgba(224,213,191,.8); backdrop-filter:blur(18px);
+  }
+  .pie-int{ width:min(1180px,92vw); margin:0 auto; padding:64px 0 34px; }
+  .pie-rejilla{ display:grid; grid-template-columns:1.5fr 1fr 1fr 1.3fr; gap:36px; margin-bottom:56px; }
+  .pie h4{ margin:0 0 16px; font:500 11px var(--f-ui); letter-spacing:.26em; text-transform:uppercase; color:var(--gris); }
+  .pie-marca p{ margin:14px 0 0; font-size:13.5px; line-height:1.65; max-width:34ch; }
+  .pie ul{ list-style:none; margin:0; padding:0; }
+  .pie ul li{ margin-bottom:10px; }
+  .pie ul a{ font-size:13.5px; color:var(--hueso); text-decoration:none; transition:color .2s; }
+  .pie ul a:hover{ color:var(--tinta); }
+  .boletin p{ margin:0 0 14px; font-size:13.5px; }
+  .boletin form{ display:flex; gap:8px; }
+  .boletin input{
+    flex:1; min-width:0; padding:11px 14px; border:1px solid var(--linea); border-radius:10px;
+    background:rgba(252,248,240,.65); color:var(--tinta); font:400 14px var(--f-ui);
+  }
+  .boletin input:focus{ outline:none; border-color:var(--indigo-claro); }
+  .pie-legal{
+    display:flex; justify-content:space-between; gap:18px; flex-wrap:wrap;
+    padding-top:22px; border-top:1px solid var(--linea);
+    font-size:11.5px; letter-spacing:.05em; color:var(--gris);
+  }
+  .pie-legal a{ color:var(--gris); }
+  .pie-legal a:hover{ color:var(--tinta); }
+  @media (max-width:980px){ .pie-rejilla{ grid-template-columns:1fr 1fr; } }
+  @media (max-width:640px){ .pie-rejilla{ grid-template-columns:1fr; } }
+
+  /* menú de tres rayas: panel de vidrio con los enlaces (evita empalmes en cualquier idioma) */
+  .marco nav{ position:relative; }
+  .menu-boton{
+    width:42px; height:42px; flex:none; cursor:pointer; background:transparent;
+    border:1px solid var(--linea); border-radius:999px;
+    display:flex; flex-direction:column; justify-content:center; align-items:center; gap:4.5px;
+    transition:border-color .25s;
+  }
+  .menu-boton:hover{ border-color:var(--linea-fuerte); }
+  .menu-boton i{ display:block; width:16px; height:1.5px; background:var(--tinta); border-radius:2px; transition:transform .3s, opacity .25s; }
+  nav.abierto .menu-boton i:nth-child(1){ transform:translateY(6px) rotate(45deg); }
+  nav.abierto .menu-boton i:nth-child(2){ opacity:0; }
+  nav.abierto .menu-boton i:nth-child(3){ transform:translateY(-6px) rotate(-45deg); }
+  .menu-panel{
+    position:absolute; top:calc(100% + 12px); right:0; min-width:250px;
+    display:flex; flex-direction:column; padding:10px 8px;
+    border:1px solid var(--linea); border-radius:16px;
+    background:rgba(252,248,240,.94); backdrop-filter:blur(18px);
+    box-shadow:0 18px 44px rgba(45,35,46,.14);
+    opacity:0; transform:translateY(-8px); pointer-events:none;
+    transition:opacity .3s, transform .3s;
+  }
+  nav.abierto .menu-panel{ opacity:1; transform:none; pointer-events:auto; }
+  .menu-panel a.enlace{ padding:12px 18px; border-radius:10px; }
+  .menu-panel a.enlace:hover{ background:rgba(45,35,46,.06); }
+  @media (max-width:560px){ .marca span{ display:none; } }
+
+  /* Acerca de y Conoce al equipo viven en la barra; en pantallas angostas
+     regresan al panel del menú para no encimarse */
+  .menu-panel .solo-angosto,
+  .menu-panel .solo-estrecho{ display:none; }
+  @media (max-width:940px){
+    .marco nav > .enlace-bar, .marco nav > .boton-bar{ display:none; }
+    .menu-panel .solo-angosto{ display:block; }
+  }
+  /* Por debajo de esto el llamado ya no cabe en la cápsula y se salía por el
+     costado. Con la barra pegada al borde no se notaba —llegaba al filo de la
+     pantalla de todas formas—; flotando, sí. Medido: 22px de más a 380px, 2px
+     a 400px, nada de 420px en adelante; el corte va en 560 para tener margen.
+     Baja al panel del menú, donde sigue a un toque. */
+  @media (max-width:560px){
+    .marco nav > .boton--lleno{ display:none; }
+    .menu-panel .solo-estrecho{ display:block; }
+  }
+
+  /* ---------------- constelación del equipo ---------------- */
+  main.equipo{ max-width:1180px; }
+  main.equipo .entrada{ margin:0 0 26px; }
+  .leyenda{
+    list-style:none; margin:0 0 18px; padding:0;
+    display:flex; flex-wrap:wrap; gap:8px 20px;
+    font:400 12.5px var(--f-sub); letter-spacing:.06em; color:var(--hueso);
+  }
+  .leyenda li{ display:flex; align-items:center; gap:7px; }
+  .leyenda i{ width:11px; height:11px; border-radius:50%; flex:none; }
+  .leyenda svg{ width:20px; height:20px; flex:none; }
+
+  .constelacion{ position:relative; }
+  .constelacion svg{ display:block; width:100%; height:auto; overflow:visible; }
+  /* el lienzo alto sólo existe para el teléfono; ver Constelacion.tsx */
+  .lienzo-alto{ display:none; }
+  html[data-disp="movil"] .lienzo-ancho{ display:none; }
+  html[data-disp="movil"] .lienzo-alto{ display:block; }
+
+  .constelacion .linea{ fill:none; stroke:var(--linea-fuerte); stroke-width:1.1; transition:opacity .2s, stroke .2s, stroke-width .2s; }
+  .constelacion .linea.viva{ stroke:var(--tinta); stroke-width:2; }
+  .constelacion svg.atenuado .linea:not(.viva){ opacity:.25; }
+
+  .nodo-centro circle{ fill:var(--tinta); }
+  .nodo-centro text{ fill:var(--beige); font:600 20px var(--f-titulo); text-anchor:middle; }
+  .nodo-area{ cursor:pointer; outline:none; }
+  .nodo-area circle{ transition:transform .25s; transform-box:fill-box; transform-origin:center; }
+  .nodo-area.area-con circle{ stroke:var(--contorno-beige); stroke-width:1.5; }
+  .nodo-area text{ font:600 12.5px var(--f-sub); text-anchor:middle; pointer-events:none; }
+  .nodo-area:hover circle{ transform:scale(1.06); }
+  .nodo-area:focus-visible circle{ stroke:var(--tinta); stroke-width:2; }
+  .lienzo-alto .nodo-area text{ font-size:14.5px; }
+
+  .persona{ cursor:pointer; outline:none; transition:opacity .2s; }
+  .persona.apagada{ opacity:.35; }
+  .persona .escala{ transition:transform .25s cubic-bezier(.3,1.4,.5,1); transform-box:fill-box; transform-origin:center; }
+  .persona.encendida .escala{ transform:scale(1.16); }
+  .persona .anillo{ fill:none; stroke-width:3.5; }
+  .persona .anillo-asesor{ fill:none; stroke:var(--tinta); stroke-width:1.2; stroke-dasharray:3 5; }
+  .persona .foco{ fill:none; stroke:none; }
+  .persona:focus-visible .foco{ stroke:var(--tinta); stroke-width:2; }
+  /* En reposo, la foto teñida del color de su área; al encenderse, a color.
+     La mezcla se aísla dentro de la burbuja para no teñir lo de atrás. */
+  .persona .tinte{ isolation:isolate; }
+  .persona .foto{ mix-blend-mode:luminosity; filter:contrast(1.08); transition:opacity .25s; }
+  .persona .foto.real{ mix-blend-mode:normal; filter:none; opacity:0; }
+  .persona.encendida .foto.real{ opacity:1; }
+  .asesor-nombre{ fill:var(--tinta); font:600 15px var(--f-titulo); text-anchor:middle; }
+  .asesor-etiqueta{ fill:var(--gris); font:400 12px var(--f-sub); letter-spacing:.2em; text-transform:uppercase; text-anchor:middle; }
+  .lienzo-alto .asesor-nombre{ font-size:20px; }
+  .lienzo-alto .asesor-etiqueta{ font-size:15px; }
+
+  .ficha{
+    position:absolute; z-index:5; transform:translate(-50%, 8px);
+    min-width:200px; max-width:min(300px, 86vw); padding:12px 16px 13px; text-align:center;
+    background:var(--beige); border:1px solid var(--linea); border-radius:14px;
+    box-shadow:0 14px 34px rgba(45,35,46,.16);
+  }
+  .ficha p{ margin:0; }
+  .ficha-nombre{ font:600 16px var(--f-titulo); color:var(--tinta); }
+  .ficha-areas{
+    display:flex; flex-wrap:wrap; justify-content:center; gap:4px 12px; margin-top:4px !important;
+    font:400 11px var(--f-sub); letter-spacing:.14em; text-transform:uppercase; color:var(--hueso);
+  }
+  .ficha-areas i{ display:inline-block; width:8px; height:8px; border-radius:50%; margin-right:6px; }
+  .ficha-redes{ display:flex; justify-content:center; gap:8px; margin-top:9px !important; }
+  .ficha-redes a{
+    width:28px; height:28px; border-radius:50%; color:#fff; text-decoration:none;
+    font:700 11px/28px var(--f-ui); transition:transform .15s;
+  }
+  .ficha-redes a:hover{ transform:translateY(-2px); }
+  .red-li{ background:var(--indigo); }
+  .red-ig{ background:var(--coral); }
+  .ficha-correo{
+    display:inline-block; margin-top:8px; font:500 13px var(--f-ui);
+    color:var(--hueso); text-decoration:underline; text-underline-offset:3px;
+  }
+  .ficha-correo:hover{ color:var(--tinta); }
+
+  @media (prefers-reduced-motion: reduce){
+    .persona, .persona .escala, .persona .foto, .nodo-area circle, .constelacion .linea{ transition:none; }
+  }
