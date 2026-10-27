@@ -28,6 +28,9 @@ export type Burbuja = Punto & { r: number; persona: Integrante };
 
 export const R_CENTRO = 54;
 export const R_AREA = 48;
+/** Dirección general va un poco mayor que las demás áreas, sin llegar al centro. */
+export const R_DIRECCION = 52;
+export const radioArea = (id: AreaId) => (id === "dir" ? R_DIRECCION : R_AREA);
 export const R_ASESOR = 52;
 const HOLGURA = 14;
 
@@ -38,7 +41,7 @@ export const ESCRITORIO: Lienzo = {
   centro: { x: 500, y: 340 },
   areas: {
     dir: { x: 500, y: 118 },
-    con: { x: 185, y: 175 },
+    con: { x: 160, y: 215 },
     ced: { x: 200, y: 495 },
     dis: { x: 810, y: 170 },
     cyd: { x: 800, y: 480 },
@@ -82,6 +85,10 @@ export function disponer(lienzo: Lienzo, personas: Integrante[]): Burbuja[] {
   const solos: Record<string, number> = {};
   for (const p of personas) if (p.areas.length === 1) solos[p.areas[0]] = (solos[p.areas[0]] ?? 0) + 1;
 
+  // cuántas personas comparten cada par de áreas
+  const pares: Record<string, number> = {};
+  for (const p of personas) if (p.areas.length === 2) { const k = [...p.areas].sort().join(); pares[k] = (pares[k] ?? 0) + 1; }
+
   const vistos: Record<string, number> = {};
   const libres = personas.map((p) => {
     const r = 34 + azar() * 8;
@@ -94,23 +101,27 @@ export function disponer(lienzo: Lienzo, personas: Integrante[]): Burbuja[] {
       const d = 120 + azar() * 20;
       destino = { x: a.x + Math.cos(ang) * d * 1.15, y: a.y + Math.sin(ang) * d };
     } else {
-      // Entre sus dos áreas, empujada hacia fuera para no tapar las líneas
-      // que salen del centro. Quien repite par se recorre por el mismo eje.
+      // Entre sus dos áreas. Sola, se empuja hacia fuera para no tapar las
+      // líneas que salen del centro; si varias comparten el par, se apilan
+      // en columna vertical sobre el punto medio, para que no se
+      // amontonen contra uno de los dos nodos.
       const [a, b] = p.areas.map((id) => areas[id]);
       const par = [...p.areas].sort().join();
       const rep = (vistos[par] = (vistos[par] ?? -1) + 1);
-      const t = 0.5 + (rep ? 0.16 : 0);
-      const m = { x: a.x + (b.x - a.x) * t, y: a.y + (b.y - a.y) * t };
-      const vx = m.x - centro.x, vy = m.y - centro.y, vl = Math.hypot(vx, vy) || 1;
-      const empuje = 40 + rep * 60;
-      destino = { x: m.x + (vx / vl) * empuje, y: m.y + (vy / vl) * empuje };
+      const m = { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
+      if (pares[par] > 1) {
+        destino = { x: m.x, y: m.y + (rep - (pares[par] - 1) / 2) * 92 };
+      } else {
+        const vx = m.x - centro.x, vy = m.y - centro.y, vl = Math.hypot(vx, vy) || 1;
+        destino = { x: m.x + (vx / vl) * 40, y: m.y + (vy / vl) * 40 };
+      }
     }
     return { ...destino, r, destino, fijo: false, persona: p };
   });
 
   const fijos = [
     { ...centro, r: R_CENTRO, fijo: true },
-    ...Object.values(areas).map((a) => ({ ...a, r: R_AREA, fijo: true })),
+    ...(Object.entries(areas) as [AreaId, Punto][]).map(([id, a]) => ({ ...a, r: radioArea(id), fijo: true })),
     // el asesor y su nombre, que va debajo, son terreno vedado
     { ...lienzo.asesor, r: R_ASESOR + 40, fijo: true },
   ];

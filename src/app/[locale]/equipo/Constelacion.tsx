@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { ASESOR, INTEGRANTES, type AreaId, type Integrante } from "@/lib/datos/equipo";
 import {
-  curva, disponer, ESCRITORIO, MOVIL, R_AREA, R_ASESOR, R_CENTRO,
+  curva, disponer, ESCRITORIO, MOVIL, R_ASESOR, R_CENTRO, radioArea,
   type Burbuja, type Lienzo,
 } from "@/lib/equipo-disposicion";
 
@@ -138,7 +138,7 @@ function Mapa({ lienzo, clase }: { lienzo: Lienzo; clase: string }) {
               onBlur={cerrarPronto}
               onClick={() => { abrir({ tipo: "area", id }); setFijado(true); }}
             >
-              <circle cx={a.x} cy={a.y} r={R_AREA} style={{ fill: COLOR[id] }} />
+              <circle cx={a.x} cy={a.y} r={radioArea(id)} style={{ fill: COLOR[id] }} />
               {lineas.map((l, i) => (
                 <text key={i} x={a.x} y={a.y + (i - (lineas.length - 1) / 2) * 15 + 4.5} style={{ fill: TEXTO[id] }}>{l}</text>
               ))}

@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { disponer, ESCRITORIO, MOVIL, R_AREA, R_ASESOR, R_CENTRO } from "@/lib/equipo-disposicion";
+import { disponer, ESCRITORIO, MOVIL, R_ASESOR, R_CENTRO, radioArea } from "@/lib/equipo-disposicion";
 import { INTEGRANTES } from "@/lib/datos/equipo";
 
 for (const [nombre, lienzo] of [["escritorio", ESCRITORIO], ["móvil", MOVIL]] as const) {
@@ -19,7 +19,7 @@ for (const [nombre, lienzo] of [["escritorio", ESCRITORIO], ["móvil", MOVIL]] a
     it("no encima burbujas entre sí ni sobre los nodos fijos", () => {
       const fijos = [
         { ...lienzo.centro, r: R_CENTRO },
-        ...Object.values(lienzo.areas).map((a) => ({ ...a, r: R_AREA })),
+        ...Object.entries(lienzo.areas).map(([id, a]) => ({ ...a, r: radioArea(id as keyof typeof lienzo.areas) })),
         { ...lienzo.asesor, r: R_ASESOR },
       ];
       const todos = [...fijos, ...burbujas];
