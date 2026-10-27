@@ -144,12 +144,14 @@ export async function adjuntar(datos: FormData): Promise<Resultado> {
   // El artículo ya existe aunque la copia falle: su fila lo dice y ofrece subir
   // el PDF a mano, así que no hay nada que deshacer.
   const { data: fila } = await sb.from("articulos").select("id, slug, envio_id").eq("id", articulo).maybeSingle();
-  const motivo = fila ? await copiarManuscrito(sb, fila, edicion) : "No se encontró el artículo recién creado.";
+  const copia = fila
+    ? await copiarManuscrito(sb, fila, edicion)
+    : { motivo: "No se encontró el artículo recién creado." };
 
-  if (motivo) {
+  if ("motivo" in copia) {
     return {
       ok: true,
-      mensaje: `Pieza convertida en artículo, pero aún sin PDF: ${motivo} Sube el PDF maquetado en su fila.`,
+      mensaje: `Pieza convertida en artículo, pero aún sin PDF: ${copia.motivo} Sube el PDF maquetado en su fila.`,
     };
   }
   return { ok: true, mensaje: "Pieza convertida en artículo. Su PDF ya tiene enlace." };

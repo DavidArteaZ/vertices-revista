@@ -4,7 +4,7 @@ import { exigePersonal, Cabecera } from "../../guardia";
 import Accion from "../../Accion";
 import Invitados from "./Invitados";
 import PdfPieza from "./PdfPieza";
-import { motivoSinPdf, urlPublica } from "../pdf";
+import { copiarManuscrito, motivoSinPdf, urlPublica } from "../pdf";
 import {
   adjuntar,
   ajustarArticulo,
@@ -70,6 +70,17 @@ export default async function DetalleEdicion({ params }: { params: Promise<{ id:
     ? await sb.from("envio_archivos").select("envio_id, mime").in("envio_id", envioIds).eq("es_principal", true)
     : { data: [] };
   const mimePrincipal = new Map((principales ?? []).map((p) => [p.envio_id, p.mime]));
+
+  // Las piezas convertidas antes de que la copia ocurriera al convertir llegan
+  // aquí sin PDF aunque su manuscrito sí lo sea. Se copian al abrir el número
+  // para que el comité no tenga que volver a subir lo que el autor ya mandó.
+  const fallosCopia = new Map<number, string>();
+  for (const a of articulos ?? []) {
+    if (a.pdf_publico_path || !a.envio_id || motivoSinPdf(mimePrincipal.get(a.envio_id))) continue;
+    const copia = await copiarManuscrito(sb, a, edicionId);
+    if ("ruta" in copia) a.pdf_publico_path = copia.ruta;
+    else fallosCopia.set(a.id, copia.motivo);
+  }
 
   const nombreSeccion = new Map((secciones ?? []).map((s) => [s.id, s.nombre_display]));
 
@@ -221,7 +232,7 @@ export default async function DetalleEdicion({ params }: { params: Promise<{ id:
                     <PdfPieza
                       articulo={a.id}
                       url={a.pdf_publico_path ? urlPublica(a.pdf_publico_path) : null}
-                      motivo={a.envio_id ? motivoSinPdf(mimePrincipal.get(a.envio_id)) : null}
+                      motivo={(a.envio_id ? motivoSinPdf(mimePrincipal.get(a.envio_id)) : null) ?? fallosCopia.get(a.id) ?? null}
                     />
                   </td>
                   <td style={{ textAlign: "right" }}>

@@ -37,8 +37,8 @@ export function motivoSinPdf(mime: string | undefined): string | null {
 type Articulo = { id: number; slug: string; envio_id: string | null };
 
 /**
- * Copia el manuscrito principal al bucket público. Devuelve null si lo copió,
- * o el motivo por el que no, para enseñarlo tal cual.
+ * Copia el manuscrito principal al bucket público. Devuelve la ruta nueva, o
+ * el motivo por el que no lo copió, para enseñarlo tal cual.
  *
  * Sólo se copia PDF. Un .docx en el bucket público sería un documento editable
  * con la maquetación del autor, no la pieza de la revista: para ésos está la
@@ -48,8 +48,8 @@ export async function copiarManuscrito(
   sb: SupabaseClient<Database>,
   articulo: Articulo,
   edicion: number,
-): Promise<string | null> {
-  if (!articulo.envio_id) return "No viene de un envío.";
+): Promise<{ ruta: string } | { motivo: string }> {
+  if (!articulo.envio_id) return { motivo: "No viene de un envío." };
 
   const { data: archivo } = await sb
     .from("envio_archivos")
@@ -59,7 +59,7 @@ export async function copiarManuscrito(
     .maybeSingle();
 
   const motivo = motivoSinPdf(archivo?.mime);
-  if (motivo || !archivo) return motivo;
+  if (motivo || !archivo) return { motivo: motivo ?? "No tiene manuscrito principal." };
 
   const admin = servidor();
   const { data: blob, error: eDescarga } = await admin.storage
@@ -68,7 +68,7 @@ export async function copiarManuscrito(
 
   if (eDescarga || !blob) {
     console.error(JSON.stringify({ evento: "panel_pdf_descarga_fallo", articulo: articulo.id, error: eDescarga?.message }));
-    return "No se pudo leer el PDF del manuscrito.";
+    return { motivo: "No se pudo leer el PDF del manuscrito." };
   }
 
   const destino = rutaPublica(edicion, articulo.slug);
@@ -78,7 +78,7 @@ export async function copiarManuscrito(
 
   if (eSubida) {
     console.error(JSON.stringify({ evento: "panel_pdf_copia_fallo", articulo: articulo.id, error: eSubida.message }));
-    return "No se pudo copiar el PDF.";
+    return { motivo: "No se pudo copiar el PDF." };
   }
 
   const { error: eRuta } = await sb
@@ -88,8 +88,8 @@ export async function copiarManuscrito(
 
   if (eRuta) {
     await admin.storage.from(BUCKET_PUBLICO).remove([destino]);
-    return eRuta.message;
+    return { motivo: eRuta.message };
   }
 
-  return null;
+  return { ruta: destino };
 }
