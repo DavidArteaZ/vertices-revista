@@ -38,6 +38,7 @@ export const PARAMETRIZADOS = {
   "correo.asunto_decision": ["folio"],
   "correo.el_comite_registro_decision": ["titulo", "decision"],
   "articulo.numero_n": ["n"],
+  "equipo.integrantes_de_area": ["area"],
 };
 
 /**

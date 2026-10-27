@@ -603,11 +603,6 @@ html[data-disp="movil"] div.cierre{
 html[data-disp="movil"] div.cierre p{ max-width:none; }
 html[data-disp="movil"] div.cierre .boton{ width:100%; text-align:center; padding:16px 20px; }
 
-/* la página de equipo no tiene barra fija: centra su tarjeta y no necesita hueco */
-html[data-disp="movil"] body:not(:has(.marco)) main:not([id]){
-  padding-top:var(--m-lado); padding-bottom:var(--m-lado);
-}
-
 /* ------------------------------------------------------------------ *
    9 · la salida de emergencia (vale para las dos versiones)
  * ------------------------------------------------------------------ */

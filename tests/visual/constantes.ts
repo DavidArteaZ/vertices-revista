@@ -8,8 +8,9 @@ export const PUNTOS_U = [0, 0.2, 0.3, 0.48, 0.6, 0.75, 0.9, 1] as const;
 export const SATELITES = [
   { ruta: "/lineamientos", legado: "lineamientos.html", nombre: "lineamientos" },
   { ruta: "/quienes-somos", legado: "quienes-somos.html", nombre: "quienes-somos" },
-  { ruta: "/equipo", legado: "equipo-ds.html", nombre: "equipo-ds" },
 ] as const;
+// /equipo salió de la lista a propósito: dejó de ser el aviso «en
+// construcción» de equipo-ds.html y ya no tiene contra qué compararse.
 
 /**
  * Las páginas satélite se capturan con prefers-reduced-motion: reduce.

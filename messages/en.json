@@ -629,8 +629,20 @@
   "equipo": {
     "vertices_revista_academica_de_economia": "Vértices · Academic economics journal",
     "conoce_al_equipo": "Meet the team",
-    "pagina_en_construccion_aqui_viviran_los_siete_eq_5d60": "Page under construction. Here will live the seven teams that make the journal: General Direction, Editorial Committee, Content and Alliances, Production, Design, Communication and Outreach, and Photography and Archive.",
-    "regresar": "← Go back",
+    "somos_estudiantes_de_la_licenciatura_en_economia_9fac": "We are the Economics students who make the journal. Hover over (or tap) a person to meet them, or an area to see who is part of it.",
+    "direccion_general": "General Management",
+    "contenido_y_alianzas": "Content and Partnerships",
+    "comite_editorial": "Editorial Committee",
+    "diseno": "Design",
+    "comunicacion_y_difusion": "Communication and Outreach",
+    "fotografia_y_archivo": "Photography and Archive",
+    "asesor": "Advisor",
+    "el_anillo_marca_una_segunda_area": "The ring marks a second area",
+    "mapa_del_equipo_de_vertices_por_areas": "Map of the Vértices team by area",
+    "integrantes_de_area": "Members of {area}",
+    "linkedin": "LinkedIn",
+    "portafolio_en_instagram": "Instagram portfolio",
+    "vertices": "Vértices.",
     "titulo_documento": "Meet the team · Vértices"
   },
   "correo": {

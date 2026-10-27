@@ -9,5 +9,18 @@
   "meta.og_descripcion": "Le point où les idées se rencontrent. Découvrez la revue et publiez votre travail.",
   "convocatoria.vertices_es_la_revista_academica_de_economia_cre_388b": "Vértices est la revue académique d'économie créée par la communauté étudiante de la licence en économie du Tec de Monterrey, campus de Mexico. Une revue d'économistes pour les économistes et pour quiconque veut comprendre : rigoureuse dans les preuves et agréable à lire. Nous publions des résumés de recherche et des papers, des articles et visualisations de données, des entretiens et du contenu de vie académique. L'appel est ouvert : toute personne peut publier, à condition que sa recherche, son article, son document ou son entretien réponde à une question économique.",
   "portada.fecha_limite_primera_edicion": "Date limite pour le premier numéro",
-  "portada.veinte_de_septiembre_de_2026_los_archivos_recib": ": 26 septembre 2026. Les fichiers reçus après cette date seront pris en compte pour le deuxième numéro."
+  "portada.veinte_de_septiembre_de_2026_los_archivos_recib": ": 26 septembre 2026. Les fichiers reçus après cette date seront pris en compte pour le deuxième numéro.",
+  "equipo.somos_estudiantes_de_la_licenciatura_en_economia_9fac": "Nous sommes les étudiants en économie qui font la revue. Survolez (ou touchez) une personne pour la découvrir, ou un pôle pour voir qui en fait partie.",
+  "equipo.direccion_general": "Direction générale",
+  "equipo.contenido_y_alianzas": "Contenu et partenariats",
+  "equipo.comite_editorial": "Comité éditorial",
+  "equipo.diseno": "Design",
+  "equipo.comunicacion_y_difusion": "Communication et diffusion",
+  "equipo.fotografia_y_archivo": "Photographie et archives",
+  "equipo.asesor": "Conseiller",
+  "equipo.el_anillo_marca_una_segunda_area": "L’anneau indique un second pôle",
+  "equipo.mapa_del_equipo_de_vertices_por_areas": "Carte de l’équipe de Vértices par pôle",
+  "equipo.integrantes_de_area": "Membres de {area}",
+  "equipo.linkedin": "LinkedIn",
+  "equipo.portafolio_en_instagram": "Portfolio Instagram"
 }
