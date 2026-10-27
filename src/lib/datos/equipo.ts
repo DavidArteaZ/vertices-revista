@@ -25,7 +25,7 @@ export type Integrante = {
 
 export const INTEGRANTES: Integrante[] = [
   { nombre: "Paola Gil", foto: "paola", areas: ["dir", "dis"], linkedin: "https://www.linkedin.com/in/paola-gil-s%C3%A1nchez-a67b672b5/", correo: "A01663011@tec.mx" },
-  { nombre: "Yun Muñoz", foto: "yunuen", areas: ["dir"], linkedin: "https://www.linkedin.com/in/yunu%C3%A9n-mu%C3%B1oz-matias-a7211b38b/", correo: "A01663978@tec.mx" },
+  { nombre: "Yun Muñoz", foto: "yunuen", areas: ["dir", "con"], linkedin: "https://www.linkedin.com/in/yunu%C3%A9n-mu%C3%B1oz-matias-a7211b38b/", correo: "A01663978@tec.mx" },
   { nombre: "Elías Mota", foto: "elias", areas: ["dir", "con"], linkedin: "https://www.linkedin.com/in/eliasmota/", correo: "A01660245@tec.mx" },
   { nombre: "David Arteaga", foto: "david", areas: ["dir", "ced"], linkedin: "https://www.linkedin.com/in/davidarteaz/", correo: "A01067617@tec.mx" },
   { nombre: "Andrés Felipe Gutiérrez", foto: "andres_felipe", areas: ["dir", "con"], linkedin: "https://www.linkedin.com/in/afgutierrezj/", correo: "A01710308@tec.mx" },
