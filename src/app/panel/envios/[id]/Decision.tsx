@@ -1,6 +1,8 @@
 import { sesion } from "@/lib/supabase/sesion";
 import type { Tabla } from "@/lib/supabase/tipos";
 import FormularioDecision from "./FormularioDecision";
+import Accion from "../../Accion";
+import { autorizarExcepcion } from "./excepcion";
 
 /**
  * La decisión final del comité usa un vocabulario común de cuatro opciones.
@@ -12,7 +14,7 @@ export default async function Decision({ envio }: { envio: Tabla<"envios"> }) {
 
   if (envio.decision_id) {
     const [{ data: decision }, { data: quienGrabo }, { data: evento }] = await Promise.all([
-      sb.from("decisiones").select("etiqueta").eq("id", envio.decision_id).maybeSingle(),
+      sb.from("decisiones").select("etiqueta, es_aceptante").eq("id", envio.decision_id).maybeSingle(),
       envio.decision_final_por
         ? sb.from("usuarios").select("nombre").eq("id", envio.decision_final_por).maybeSingle()
         : Promise.resolve({ data: null }),
@@ -53,6 +55,37 @@ export default async function Decision({ envio }: { envio: Tabla<"envios"> }) {
             {nombreConfirmacion && <> Nombre escrito en la confirmación: {nombreConfirmacion}.</>}
           </p>
         </div>
+
+        {/* Una pieza no aceptada sólo llega a un número si el comité lo
+            autoriza aquí, con motivo; el veredicto de arriba no cambia. */}
+        {decision && !decision.es_aceptante && (
+          <>
+            <h3>Publicación por excepción</h3>
+            <div className="tarjeta">
+              {envio.excepcion_publicacion ? (
+                <p className="nota" style={{ margin: 0 }}>
+                  Autorizada. Motivo: {envio.excepcion_publicacion}
+                </p>
+              ) : (
+                <Accion
+                  accion={autorizarExcepcion}
+                  etiqueta="Publicar por excepción"
+                  confirmar="La pieza podrá convertirse en artículo aunque su decisión no sea aceptante. El dictamen no cambia y la excepción no se puede retirar desde el panel. ¿Continuar?"
+                >
+                  <input type="hidden" name="envio" value={envio.id} />
+                  <p className="nota" style={{ marginTop: 0 }}>
+                    Permite convertir esta pieza en artículo pese a su decisión. El motivo queda en el
+                    historial del envío; si se publica con una nota para el lector, va dentro del PDF maquetado.
+                  </p>
+                  <div className="campo">
+                    <label htmlFor="motivo">Motivo</label>
+                    <textarea id="motivo" name="motivo" rows={3} required />
+                  </div>
+                </Accion>
+              )}
+            </div>
+          </>
+        )}
       </>
     );
   }

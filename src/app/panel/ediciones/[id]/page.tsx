@@ -20,7 +20,8 @@ import {
  *
  * Aceptar una pieza NO crea un artículo. El selector de abajo es el paso
  * editorial explícito que hace esa conversión y `adjuntar_articulo` vuelve a
- * comprobar en base que la decisión técnica sea aceptante.
+ * comprobar en base que la decisión técnica sea aceptante, o que el comité
+ * haya autorizado la pieza por excepción.
  */
 
 export const dynamic = "force-dynamic";
@@ -50,7 +51,7 @@ export default async function DetalleEdicion({ params }: { params: Promise<{ id:
     sb.from("secciones").select("id, nombre_display"),
     sb
       .from("envios")
-      .select("id, folio, titulo, decision_id, edicion_id")
+      .select("id, folio, titulo, decision_id, edicion_id, excepcion_publicacion")
       .not("decision_id", "is", null)
       .is("archivado_at", null),
     sb
@@ -99,7 +100,7 @@ export default async function DetalleEdicion({ params }: { params: Promise<{ id:
   const disponibles = (candidatos ?? []).filter(
     (e) =>
       e.decision_id &&
-      idsAceptantes.has(e.decision_id) &&
+      (idsAceptantes.has(e.decision_id) || e.excepcion_publicacion !== null) &&
       !yaTienen.has(e.id) &&
       (e.edicion_id === edicionId || e.edicion_id === null),
   );
@@ -269,6 +270,7 @@ export default async function DetalleEdicion({ params }: { params: Promise<{ id:
                       {disponibles.map((e) => (
                         <option key={e.id} value={e.id}>
                           {e.folio} · {e.titulo}
+                          {e.excepcion_publicacion !== null && " · por excepción"}
                         </option>
                       ))}
                     </select>

@@ -159,6 +159,7 @@ export type Database = {
         created_at: string;
         updated_at: string;
         datos_seccion: Json;
+        excepcion_publicacion: string | null;
       }>;
       envios_autoria: Fila<{
         envio_id: string;
@@ -417,6 +418,7 @@ export type Database = {
         Returns: number;
       };
       publicar_edicion: { Args: { p_edicion: number }; Returns: number };
+      autorizar_excepcion: { Args: { p_envio: string; p_motivo: string }; Returns: undefined };
       unaccent_simple: { Args: { t: string }; Returns: string };
     };
     Enums: Record<never, never>;

@@ -41,7 +41,8 @@ begin
              --                                 es_staff() por dentro y sólo
              --                                 devuelve id y nombre
              --   enviar_dictamen, registrar_decision, marcar_anonimizacion,
-             --   vincular_revision, adjuntar_articulo, publicar_edicion
+             --   vincular_revision, adjuntar_articulo, publicar_edicion,
+             --   autorizar_excepcion
              --                                 SECURITY INVOKER: RLS sigue
              --                                 aplicándose dentro. Existen para
              --                                 que el UPDATE y su fila en
@@ -53,7 +54,8 @@ begin
                    'es_staff', 'puede_ver_autoria', 'candidatos_asignacion',
                    'enviar_dictamen', 'registrar_decision',
                    'marcar_anonimizacion', 'vincular_revision',
-                   'adjuntar_articulo', 'publicar_edicion', 'unaccent_simple'))
+                   'adjuntar_articulo', 'publicar_edicion', 'autorizar_excepcion',
+                   'unaccent_simple'))
        ));
 
   if abiertas > 0 then
