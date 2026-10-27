@@ -3,6 +3,8 @@ import { sesion } from "@/lib/supabase/sesion";
 import { exigePersonal, Cabecera } from "../../guardia";
 import Accion from "../../Accion";
 import Invitados from "./Invitados";
+import PdfPieza from "./PdfPieza";
+import { motivoSinPdf, urlPublica } from "../pdf";
 import {
   adjuntar,
   ajustarArticulo,
@@ -13,7 +15,8 @@ import {
 
 /**
  * Armar un número: definir sus parámetros, convertir piezas aceptadas en
- * artículos, ajustarlas y publicar el número (spec §9.2, §9.3).
+ * artículos (lo que ya copia su PDF y le da enlace), ajustarlas y publicar el
+ * número (spec §9.2, §9.3).
  *
  * Aceptar una pieza NO crea un artículo. El selector de abajo es el paso
  * editorial explícito que hace esa conversión y `adjuntar_articulo` vuelve a
@@ -41,7 +44,7 @@ export default async function DetalleEdicion({ params }: { params: Promise<{ id:
   const [{ data: articulos }, { data: secciones }, { data: candidatos }, registros] = await Promise.all([
     sb
       .from("articulos")
-      .select("id, titulo, autor, slug, minutos_lectura, destacado, pdf_publico_path, seccion_id")
+      .select("id, titulo, autor, slug, minutos_lectura, destacado, pdf_publico_path, seccion_id, envio_id")
       .eq("edicion_id", edicionId)
       .order("id"),
     sb.from("secciones").select("id, nombre_display"),
@@ -60,6 +63,13 @@ export default async function DetalleEdicion({ params }: { params: Promise<{ id:
   if (registros.error) {
     console.error(JSON.stringify({ evento: "panel_invitados_fallo", edicion: edicionId, error: registros.error.message }));
   }
+
+  // El formato del manuscrito principal explica por qué una pieza sigue sin PDF.
+  const envioIds = (articulos ?? []).flatMap((a) => (a.envio_id ? [a.envio_id] : []));
+  const { data: principales } = envioIds.length
+    ? await sb.from("envio_archivos").select("envio_id, mime").in("envio_id", envioIds).eq("es_principal", true)
+    : { data: [] };
+  const mimePrincipal = new Map((principales ?? []).map((p) => [p.envio_id, p.mime]));
 
   const nombreSeccion = new Map((secciones ?? []).map((s) => [s.id, s.nombre_display]));
 
@@ -208,11 +218,11 @@ export default async function DetalleEdicion({ params }: { params: Promise<{ id:
                     )}
                   </td>
                   <td>
-                    {a.pdf_publico_path ? (
-                      <span className="etiqueta etiqueta--lista">Copiado</span>
-                    ) : (
-                      <span className="ciego">al publicar</span>
-                    )}
+                    <PdfPieza
+                      articulo={a.id}
+                      url={a.pdf_publico_path ? urlPublica(a.pdf_publico_path) : null}
+                      motivo={a.envio_id ? motivoSinPdf(mimePrincipal.get(a.envio_id)) : null}
+                    />
                   </td>
                   <td style={{ textAlign: "right" }}>
                     {!publicada && (
@@ -264,9 +274,9 @@ export default async function DetalleEdicion({ params }: { params: Promise<{ id:
           <h3>Publicar</h3>
           <div className="tarjeta">
             <p className="nota" style={{ marginTop: 0 }}>
-              Copia el PDF de cada artículo del bucket privado al público y enciende el
-              número entero de una vez. Sólo se copian PDF: una pieza enviada en Word
-              necesita su versión maquetada antes.
+              Enciende el número entero de una vez: sus artículos aparecen en el sitio
+              con el enlace a su PDF. Cada pieza necesita su PDF antes; las que se
+              enviaron en Word, su versión maquetada subida en su fila.
             </p>
             <Accion
               accion={publicar}

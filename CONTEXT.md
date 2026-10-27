@@ -134,8 +134,9 @@ llegar nunca a artículo, y un artículo puede sobrevivir al borrado de su enví
 _Evitar_: pieza publicada, post.
 
 **Número** (o **edición**):
-Un conjunto de artículos que se publica de golpe. Nace en borrador; publicarlo
-copia los PDF al bucket público y enciende todas sus piezas a la vez.
+Un conjunto de artículos que se publica de golpe. Nace en borrador; cada pieza
+copia su PDF al bucket público al entrar al número (o al subirle su PDF
+maquetado), y publicarlo enciende todas sus piezas a la vez.
 _Evitar_: issue, volumen.
 
 **Pieza de muestra** (**placeholder**):
@@ -146,9 +147,10 @@ _Evitar_: artículo falso, dummy, ejemplo.
 
 **Bucket privado / bucket público**:
 `manuscritos` y `publicaciones`. El primero no tiene ni una política y sólo lo
-alcanza el `service_role`; el segundo es público a propósito y sólo recibe
-copias de PDF ya publicados. Lo que se publica es una **copia**, nunca el
-original.
+alcanza el `service_role`; el segundo es público a propósito y recibe los PDF
+de los artículos desde que entran a un número, en rutas con sufijo al azar para
+que no se adivinen antes de publicar. Lo que se publica es una **copia**, nunca
+el original.
 
 ## Cosas del sitio
 
