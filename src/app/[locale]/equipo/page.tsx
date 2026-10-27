@@ -31,7 +31,8 @@ export default async function Pagina({ params }: Props) {
       <main className="equipo">
         <p className="ceja">{t("vertices_revista_academica_de_economia")}</p>
         <h1>{t("conoce_al_equipo")}</h1>
-        <p className="entrada">{t("somos_estudiantes_de_la_licenciatura_en_economia_9fac")}</p>
+        <p className="entrada">{t("14_estudiantes_1_asesor_5_areas_hacemos_vertices_dd38")}</p>
+        <p className="indicacion">{t("pasa_el_cursor_o_toca_sobre_una_persona_para_con_cd54")}</p>
         <Constelacion />
       </main>
       <Pie satelite />
