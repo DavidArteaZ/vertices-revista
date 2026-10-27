@@ -52,7 +52,7 @@ export default async function DetalleEdicion({ params }: { params: Promise<{ id:
       .is("archivado_at", null),
     sb
       .from("registros_evento")
-      .select("id, nombre, correo, perfil, invitado")
+      .select("id, nombre, correo, perfil, invitado, created_at")
       .eq("edicion_id", edicionId)
       .order("created_at"),
   ]);
@@ -151,7 +151,7 @@ export default async function DetalleEdicion({ params }: { params: Promise<{ id:
         </Accion>
       </div>
 
-      <Invitados registros={registros.data ?? []} error={Boolean(registros.error)} />
+      <Invitados edicion={edicionId} numero={edicion.numero} registros={registros.data ?? []} error={Boolean(registros.error)} />
 
       <h3>Piezas del número</h3>
       <div className="tarjeta">

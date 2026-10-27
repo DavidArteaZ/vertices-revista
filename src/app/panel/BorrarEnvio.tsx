@@ -3,7 +3,7 @@
 import { useActionState, useState, type CSSProperties } from "react";
 import { borrarEnvio, type Resultado } from "./acciones";
 
-const fondoModal: CSSProperties = {
+export const fondoModal: CSSProperties = {
   position: "fixed",
   inset: 0,
   zIndex: 1000,
@@ -13,7 +13,7 @@ const fondoModal: CSSProperties = {
   background: "rgba(45,35,46,.45)",
 };
 
-const panelModal: CSSProperties = {
+export const panelModal: CSSProperties = {
   width: "min(520px, 100%)",
   background: "var(--fondo)",
   border: "1px solid var(--linea-fuerte)",
