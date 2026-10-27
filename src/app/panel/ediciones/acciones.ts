@@ -265,3 +265,27 @@ export async function publicar(datos: FormData): Promise<Resultado> {
   revalidatePath("/panel/ediciones");
   return { ok: true, mensaje: `Número publicado con ${piezas} piezas.` };
 }
+
+/**
+ * Borrar un registro de /registro desde el desglose de Invitados.
+ *
+ * Con la clave de servicio, como `publicar`: la tabla sólo tiene política de
+ * lectura para el comité, y abrirle borrado con una migración costaría más
+ * que la comprobación de personal de arriba, que es el mismo candado.
+ */
+export async function borrarRegistro(datos: FormData): Promise<Resultado> {
+  if (!(await personal())) return NO_AUTORIZADO;
+
+  const registro = Number(datos.get("registro") ?? 0);
+  const edicion = Number(datos.get("edicion") ?? 0);
+  if (!registro) return { ok: false, mensaje: "Falta el registro." };
+
+  const { error } = await servidor().from("registros_evento").delete().eq("id", registro);
+  if (error) {
+    console.error(JSON.stringify({ evento: "panel_borrar_registro_fallo", registro, error: error.message }));
+    return { ok: false, mensaje: "No se pudo eliminar el registro. Inténtalo de nuevo." };
+  }
+
+  revalidatePath(`/panel/ediciones/${edicion}`);
+  return { ok: true, mensaje: "Registro eliminado." };
+}
