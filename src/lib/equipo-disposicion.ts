@@ -103,16 +103,18 @@ export function disponer(lienzo: Lienzo, personas: Integrante[]): Burbuja[] {
     } else {
       // Entre sus dos áreas. Sola, se empuja hacia fuera para no tapar las
       // líneas que salen del centro; si varias comparten el par, se apilan
-      // en columna vertical sobre el punto medio, para que no se
+      // en diagonal sobre el punto medio, para que no se
       // amontonen contra uno de los dos nodos.
       const [a, b] = p.areas.map((id) => areas[id]);
       const par = [...p.areas].sort().join();
       const rep = (vistos[par] = (vistos[par] ?? -1) + 1);
       const m = { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
       if (pares[par] > 1) {
-        // Se sube 40 px: centrada en el punto medio, la de abajo quedaba
-        // sobre las líneas que bajan hacia Vértices.
-        destino = { x: m.x, y: m.y - 40 + (rep - (pares[par] - 1) / 2) * 96 };
+        // En diagonal a 45°, subiendo hacia la derecha: en vertical la de
+        // abajo caía sobre las líneas que bajan hacia Vértices, y en
+        // horizontal se encimaban con los nodos. Se sube 40 px por lo mismo.
+        const paso = (rep - (pares[par] - 1) / 2) * 96 * Math.SQRT1_2;
+        destino = { x: m.x + paso, y: m.y - 40 - paso };
       } else {
         const vx = m.x - centro.x, vy = m.y - centro.y, vl = Math.hypot(vx, vy) || 1;
         destino = { x: m.x + (vx / vl) * 40, y: m.y + (vy / vl) * 40 };
