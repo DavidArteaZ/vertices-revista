@@ -68,6 +68,8 @@ export async function guardarParametros(datos: FormData): Promise<Resultado> {
   const ubicacion = String(datos.get("ubicacion_evento_lanzamiento") ?? "").trim();
   const fechaLimite = String(datos.get("fecha_limite_revisiones") ?? "").trim();
   const horaEvento = String(datos.get("hora_evento") ?? "").trim();
+  const cupoTexto = String(datos.get("cupo_invitados") ?? "").trim();
+  const cupo = cupoTexto ? Number(cupoTexto) : null;
 
   if (!edicion) return { ok: false, mensaje: "Falta la edición." };
   if (fechaLanzamiento && !FECHA.test(fechaLanzamiento)) {
@@ -79,6 +81,9 @@ export async function guardarParametros(datos: FormData): Promise<Resultado> {
   if (horaEvento && !HORA.test(horaEvento)) {
     return { ok: false, mensaje: "La hora del evento no es válida." };
   }
+  if (cupo !== null && (!Number.isInteger(cupo) || cupo < 1 || cupo > 100000)) {
+    return { ok: false, mensaje: "La cantidad de invitados debe ser un número entero mayor que cero, o quedar vacía." };
+  }
 
   const sb = await sesion();
   const { error } = await sb
@@ -88,10 +93,17 @@ export async function guardarParametros(datos: FormData): Promise<Resultado> {
       ubicacion_evento_lanzamiento: ubicacion || null,
       fecha_limite_revisiones: fechaLimite || null,
       hora_evento: horaEvento || null,
+      cupo_invitados: cupo,
     })
     .eq("id", edicion);
 
   if (error) {
+    if (error.message.includes("cupo_invitados")) {
+      return {
+        ok: false,
+        mensaje: "La base de Supabase todavía no tiene la columna de la cantidad de invitados (migración cupo_invitados).",
+      };
+    }
     if (error.message.includes("hora_evento")) {
       return {
         ok: false,
@@ -112,6 +124,7 @@ export async function guardarParametros(datos: FormData): Promise<Resultado> {
 
   revalidatePath(`/panel/ediciones/${edicion}`);
   revalidatePath("/panel/ediciones");
+  revalidatePath("/registro");
   return { ok: true, mensaje: "Parámetros guardados." };
 }
 
