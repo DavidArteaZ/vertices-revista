@@ -2,7 +2,7 @@ import { Resend } from "resend";
 import { servidor } from "@/lib/supabase/servidor";
 import { cuerpoJson, huellaIp, json } from "@/lib/api/peticion";
 import { enviarConfirmacionRegistro } from "@/lib/correo/registro";
-import { fechaEvento, horaEvento, ubicacionEvento } from "@/lib/evento";
+import { fechaEvento, horaEvento, personasRegistradas, ubicacionEvento } from "@/lib/evento";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -41,12 +41,37 @@ export async function POST(req: Request) {
 
   const { data: edicion, error: eEdicion } = await sb
     .from("ediciones")
-    .select("id, fecha_lanzamiento, hora_evento, ubicacion_evento_lanzamiento")
+    .select("id, fecha_lanzamiento, hora_evento, ubicacion_evento_lanzamiento, cupo_invitados")
     .eq("activa", true)
     .maybeSingle();
 
   if (eEdicion || !edicion) {
     return json({ mensaje: "El registro no está disponible en este momento." }, 409);
+  }
+
+  // El cupo se vuelve a contar aquí porque la página pudo abrirse cuando aún
+  // había lugar. El registro previo de este mismo correo no cuenta: volver a
+  // registrarse lo reemplaza, y así quien ya tenía lugar puede reenviarse el
+  // correo de confirmación aunque el evento esté lleno.
+  if (edicion.cupo_invitados) {
+    const { data: otros, error: eCupo } = await sb
+      .from("registros_evento")
+      .select("invitado")
+      .eq("edicion_id", edicion.id)
+      .neq("correo", correo);
+
+    if (eCupo) {
+      console.error(JSON.stringify({ evento: "registro_cupo_fallo", error: eCupo.message }));
+      return json({ mensaje: "No se pudo completar el registro." }, 500);
+    }
+
+    const libres = edicion.cupo_invitados - personasRegistradas(otros);
+    if (libres < 1) {
+      return json({ mensaje: "Lo sentimos, los lugares para este lanzamiento se agotaron." }, 409);
+    }
+    if (invitado && libres < 2) {
+      return json({ mensaje: "Solo queda un lugar: regístrate sin invitado (+1)." }, 409);
+    }
   }
 
   const { error: eRegistro } = await sb

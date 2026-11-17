@@ -166,6 +166,21 @@ export default async function DetalleEdicion({ params }: { params: Promise<{ id:
               />
               {!edicion.fecha_limite_revisiones && <p className="nota">por decidir</p>}
             </div>
+            <div className="campo">
+              <label htmlFor="cupo_invitados">Cantidad de invitados</label>
+              <input
+                id="cupo_invitados"
+                type="number"
+                name="cupo_invitados"
+                min={1}
+                step={1}
+                placeholder="sin límite"
+                defaultValue={edicion.cupo_invitados ?? ""}
+              />
+              <p className="nota">
+                {edicion.cupo_invitados ? "al llenarse, /registro se cierra" : "sin límite"}
+              </p>
+            </div>
           </div>
           <p className="nota" style={{ marginBottom: 14 }}>
             Los campos sin definir se comunican como «por decidir»; las fechas se guardan como fecha y los correos las escriben en palabras.
@@ -173,7 +188,7 @@ export default async function DetalleEdicion({ params }: { params: Promise<{ id:
         </Accion>
       </div>
 
-      <Invitados edicion={edicionId} numero={edicion.numero} registros={registros.data ?? []} error={Boolean(registros.error)} />
+      <Invitados edicion={edicionId} numero={edicion.numero} cupo={edicion.cupo_invitados} registros={registros.data ?? []} error={Boolean(registros.error)} />
 
       <h3>Piezas del número</h3>
       <div className="tarjeta">

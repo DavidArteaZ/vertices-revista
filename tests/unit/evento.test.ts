@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { fechaEvento, horaEvento } from "@/lib/evento";
+import { fechaEvento, horaEvento, personasRegistradas } from "@/lib/evento";
 
 describe("datos del evento", () => {
   it("escribe la hora en formato de 12 horas", () => {
@@ -13,5 +13,10 @@ describe("datos del evento", () => {
   it("escribe la fecha en palabras", () => {
     expect(fechaEvento("2026-11-23")).toBe("23 de noviembre de 2026");
     expect(fechaEvento(null)).toBe("fecha por definir");
+  });
+
+  it("cuenta por dos a quien lleva invitado (+1)", () => {
+    expect(personasRegistradas([])).toBe(0);
+    expect(personasRegistradas([{ invitado: false }, { invitado: true }, { invitado: true }])).toBe(5);
   });
 });

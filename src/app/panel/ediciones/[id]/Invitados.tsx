@@ -1,3 +1,4 @@
+import { personasRegistradas } from "@/lib/evento";
 import BorrarRegistro from "./BorrarRegistro";
 import DescargarCsv from "./DescargarCsv";
 
@@ -26,11 +27,13 @@ const formatoRegistro = new Intl.DateTimeFormat("es-MX", {
 export default function Invitados({
   edicion,
   numero,
+  cupo,
   registros: filas,
   error,
 }: {
   edicion: number;
   numero: number;
+  cupo: number | null;
   registros: Registro[];
   error: boolean;
 }) {
@@ -38,14 +41,18 @@ export default function Invitados({
     ...r,
     registrado: formatoRegistro.format(new Date(created_at)),
   }));
-  const personas = registros.reduce((total, r) => total + (r.invitado ? 2 : 1), 0);
+  const personas = personasRegistradas(registros);
 
   return (
     <>
       <h3 style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
         <span>Invitados</span>
-        <span aria-label={`${personas} personas`} style={{ font: "600 20px var(--f-ui)", letterSpacing: 0, color: "var(--tinta)" }}>
+        <span
+          aria-label={cupo ? `${personas} de ${cupo} lugares` : `${personas} personas`}
+          style={{ font: "600 20px var(--f-ui)", letterSpacing: 0, color: "var(--tinta)" }}
+        >
           {personas}
+          {cupo ? <span style={{ fontWeight: 400, color: "var(--gris)" }}> / {cupo}</span> : null}
         </span>
       </h3>
       <div className="tarjeta">

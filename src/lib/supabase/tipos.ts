@@ -268,6 +268,7 @@ export type Database = {
           ubicacion_evento_lanzamiento: string | null;
           fecha_limite_revisiones: string | null;
           hora_evento: string | null;
+          cupo_invitados: number | null;
           activa: boolean;
         },
         {
@@ -281,6 +282,7 @@ export type Database = {
           ubicacion_evento_lanzamiento?: string | null;
           fecha_limite_revisiones?: string | null;
           hora_evento?: string | null;
+          cupo_invitados?: number | null;
           activa?: boolean;
         }
       >;

@@ -26,3 +26,12 @@ export function horaEvento(hora: string | null): string | null {
 export function ubicacionEvento(ubicacion: string | null): string {
   return ubicacion?.trim() || "ubicación por definir";
 }
+
+/**
+ * Personas que ocupan lugar en el evento: quien lleva +1 cuenta por dos. Lo
+ * usan el contador del panel y el cupo de /registro, para que «se llenó»
+ * signifique lo mismo en los dos lados.
+ */
+export function personasRegistradas(registros: { invitado: boolean }[]): number {
+  return registros.reduce((total, r) => total + (r.invitado ? 2 : 1), 0);
+}
