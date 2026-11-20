@@ -10,9 +10,9 @@ import { useCambioDeVista } from "@/lib/dispositivo-cliente";
 /**
  * Pie de página. Marcado de index.html:914-959, boletín de :2269-2274.
  *
- * El boletín no envía nada: sustituye el formulario por un agradecimiento.
- * Es exactamente lo que hace el sitio hoy y esta etapa lo preserva; la
- * etapa 4 decidirá si se conecta de verdad.
+ * El boletín manda el correo a /api/boletin, que lo añade a la lista
+ * «Newsletter» de Resend. El agradecimiento sólo aparece cuando la lista
+ * confirmó: decir «listo» sin haberlo guardado es justo el fallo que había.
  */
 export default function Pie({
   satelite = false,
@@ -22,6 +22,8 @@ export default function Pie({
   const { destino, cambiar } = useCambioDeVista();
   const [suscrito, setSuscrito] = useState(false);
   const [correo, setCorreo] = useState("");
+  const [enviando, setEnviando] = useState(false);
+  const [error, setError] = useState(false);
 
   // igual que en Marco: en satélite las anclas apuntan a la raíz con hash y
   // no llevan data-u / data-ir (lineamientos.html:674-681)
@@ -32,10 +34,25 @@ export default function Pie({
   const a = (hash: string) => (satelite ? `${raiz || "/"}${hash}` : hash);
   const datos = (d: Record<string, string>) => (satelite ? {} : d);
 
-  const enviar = (e: React.FormEvent) => {
+  const enviar = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correo.trim())) return;
-    setSuscrito(true);
+    if (enviando || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correo.trim())) return;
+    setEnviando(true);
+    setError(false);
+    try {
+      const r = await fetch("/api/boletin", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ correo: correo.trim() }),
+      });
+      if (!r.ok) throw new Error(`boletin ${r.status}`);
+      setSuscrito(true);
+    } catch (err) {
+      console.error(err);
+      setError(true);
+    } finally {
+      setEnviando(false);
+    }
   };
 
   return (
@@ -91,8 +108,13 @@ export default function Pie({
                   value={correo}
                   onChange={(e) => setCorreo(e.target.value)}
                 />
-                <button className="boton" type="submit">{t("suscribirme")}</button>
+                <button className="boton" type="submit" disabled={enviando}>
+                  {enviando ? t("enviando") : t("suscribirme")}
+                </button>
               </form>
+            )}
+            {error && !suscrito && (
+              <p role="alert" style={{ marginTop: 10 }}>{t("no_se_pudo_suscribir")}</p>
             )}
           </div>
         </div>

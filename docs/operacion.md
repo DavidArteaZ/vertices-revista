@@ -53,6 +53,7 @@ prefijo `NEXT_PUBLIC_`: **ninguna** debe llegar al navegador.
 | `RESEND_CONFIRMACION_TEMPLATE_ES` | acuse en español | el acuse sale en texto plano, sin la plantilla de la revista |
 | `RESEND_CONFIRMACION_TEMPLATE_ENG` | acuse en los otros cinco idiomas | igual: texto plano |
 | `RESEND_LISTA_AUTORES` | lista «Autores» de Resend | el envío se guarda, el autor **no** entra en la lista; queda `contacto_resend_no_guardado` |
+| `RESEND_LISTA_NEWSLETTER` | lista «Newsletter» de Resend (boletín del pie) | el formulario del boletín muestra un error y no guarda el correo; queda `boletin_no_guardado` en la bitácora |
 | `RESEND_WEBHOOK_SECRET` | entregas y rebotes | `/api/webhooks/resend` responde 503 y no registra nada |
 | `CRON_SECRET` | barrido y resumen semanal | los crons responden 401 |
 | `CORREO_REMITENTE` | remitente de dictamen, invitación y resumen (el acuse usa el de su plantilla) | cae a `onboarding@resend.dev` |
