@@ -143,8 +143,15 @@ _Evitar_: cambiar la decisión, aceptación forzada.
 **Número** (o **edición**):
 Un conjunto de artículos que se publica de golpe. Nace en borrador; cada pieza
 copia su PDF al bucket público al entrar al número (o al subirle su PDF
-maquetado), y publicarlo enciende todas sus piezas a la vez.
+maquetado), y publicarlo enciende todas sus piezas a la vez. Publicarlo exige
+también su **PDF de edición final**, y entonces el número entero se ve en
+`/ediciones/<número>`.
 _Evitar_: issue, volumen.
+
+**PDF de edición final**:
+El número completo maquetado en un solo documento. Se sube en el panel de la
+edición, aparte de los PDF de las piezas, y no cambia ni el PDF ni el enlace de
+ningún artículo.
 
 **Pieza de muestra** (**placeholder**):
 Uno de los 26 artículos de demostración que se siembran con

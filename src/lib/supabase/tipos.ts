@@ -269,6 +269,7 @@ export type Database = {
           fecha_limite_revisiones: string | null;
           hora_evento: string | null;
           cupo_invitados: number | null;
+          pdf_final_path: string | null;
           activa: boolean;
         },
         {
@@ -283,6 +284,7 @@ export type Database = {
           fecha_limite_revisiones?: string | null;
           hora_evento?: string | null;
           cupo_invitados?: number | null;
+          pdf_final_path?: string | null;
           activa?: boolean;
         }
       >;

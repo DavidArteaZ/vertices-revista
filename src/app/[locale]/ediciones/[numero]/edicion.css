@@ -1,0 +1,24 @@
+/* Página de un número. Se apoya en articulo.css (cuerpo, botones, cromo) y
+ * sólo añade lo suyo: el visor del PDF y la lista de piezas. El visor es más
+ * ancho que la columna de lectura porque una página de revista no cabe
+ * legible en 660px. */
+
+.ed-cuerpo{ max-width:980px; }
+
+.ed-visor{
+  display:block; width:100%; height:min(88vh, 1100px); margin:28px 0 0;
+  border:1px solid var(--linea); border-radius:14px; background:rgba(252,248,240,.55);
+}
+.ed-sin-visor{ margin:0; padding:22px 24px; color:var(--gris); font-family:var(--f-sub); }
+
+.ed-piezas{ margin:44px 0 0; padding-top:26px; border-top:1px solid var(--linea); }
+.ed-piezas ul{ list-style:none; margin:0; padding:0; }
+.ed-piezas li + li{ border-top:1px solid var(--linea); }
+.ed-piezas a{ display:block; padding:14px 0; text-decoration:none; }
+.ed-titulo{ display:block; font:500 17px/1.35 var(--f-ui); color:var(--crema); }
+.ed-autor{ display:block; margin-top:4px; font:400 14px var(--f-sub); color:var(--gris); }
+.ed-piezas a:hover .ed-titulo{ color:var(--indigo); }
+
+/* En teléfono el visor incrustado casi nunca funciona (iOS enseña una sola
+ * página, Android ninguna): los botones de arriba hacen el trabajo. */
+@media (max-width:640px){ .ed-visor{ display:none; } }

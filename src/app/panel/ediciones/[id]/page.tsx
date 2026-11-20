@@ -4,6 +4,7 @@ import { exigePersonal, Cabecera } from "../../guardia";
 import Accion from "../../Accion";
 import Invitados from "./Invitados";
 import PdfPieza from "./PdfPieza";
+import PdfEdicion from "./PdfEdicion";
 import { copiarManuscrito, motivoSinPdf, urlPublica } from "../pdf";
 import {
   adjuntar,
@@ -266,6 +267,15 @@ export default async function DetalleEdicion({ params }: { params: Promise<{ id:
         )}
       </div>
 
+      <h3>PDF Edición Final</h3>
+      <div className="tarjeta">
+        <PdfEdicion
+          edicion={edicionId}
+          url={edicion.pdf_final_path ? urlPublica(edicion.pdf_final_path) : null}
+          enlacePublico={publicada ? `/ediciones/${edicion.numero}` : null}
+        />
+      </div>
+
       {!publicada && (
         <>
           <h3>Convertir una pieza aceptada en artículo</h3>
@@ -303,8 +313,9 @@ export default async function DetalleEdicion({ params }: { params: Promise<{ id:
           <div className="tarjeta">
             <p className="nota" style={{ marginTop: 0 }}>
               Enciende el número entero de una vez: sus artículos aparecen en el sitio
-              con el enlace a su PDF. Cada pieza necesita su PDF antes; las que se
-              enviaron en Word, su versión maquetada subida en su fila.
+              con el enlace a su PDF y el número completo queda en /ediciones/{edicion.numero}.
+              Cada pieza necesita su PDF antes (las que se enviaron en Word, su versión
+              maquetada subida en su fila) y el número necesita su PDF de edición final.
             </p>
             <Accion
               accion={publicar}

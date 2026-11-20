@@ -283,11 +283,17 @@ export async function publicar(datos: FormData): Promise<Resultado> {
     return { ok: false, mensaje: `Falta el PDF de ${sinPdf.join(", ")}. Súbelo en su fila antes de publicar.` };
   }
 
+  const { data: ed } = await sb.from("ediciones").select("numero, pdf_final_path").eq("id", edicion).maybeSingle();
+  if (!ed?.pdf_final_path) {
+    return { ok: false, mensaje: "Falta el PDF de la edición final. Súbelo en su sección antes de publicar." };
+  }
+
   const { data: piezas, error } = await sb.rpc("publicar_edicion", { p_edicion: edicion });
   if (error) return { ok: false, mensaje: error.message };
 
   revalidatePath(`/panel/ediciones/${edicion}`);
   revalidatePath("/panel/ediciones");
+  revalidatePath(`/ediciones/${ed.numero}`);
   return { ok: true, mensaje: `Número publicado con ${piezas} piezas.` };
 }
 

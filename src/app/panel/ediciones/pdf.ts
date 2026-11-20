@@ -23,6 +23,17 @@ export function rutaPublica(edicion: number, slug: string): string {
   return `${edicion}/${slug}-${randomUUID().slice(0, 8)}.pdf`;
 }
 
+/**
+ * El PDF de la edición final: el número entero en un documento. Mismo bucket y
+ * misma razón para el sufijo al azar que el de las piezas, pero con su propio
+ * prefijo para que nunca se confunda con el PDF de un artículo.
+ */
+export const PREFIJO_EDICION_FINAL = "edicion-final";
+
+export function rutaEdicionFinal(edicion: number): string {
+  return `${edicion}/${PREFIJO_EDICION_FINAL}-${randomUUID().slice(0, 8)}.pdf`;
+}
+
 export function urlPublica(ruta: string): string {
   return `${process.env.SUPABASE_URL}/storage/v1/object/public/${BUCKET_PUBLICO}/${ruta}`;
 }
