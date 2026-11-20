@@ -23,5 +23,7 @@
   "equipo.mapa_del_equipo_de_vertices_por_areas": "Mappa del team di Vértices per area",
   "equipo.integrantes_de_area": "Membri di {area}",
   "equipo.linkedin": "LinkedIn",
-  "equipo.portafolio_en_instagram": "Portfolio Instagram"
+  "equipo.portafolio_en_instagram": "Portfolio Instagram",
+  "pie.enviando": "Invio…",
+  "pie.no_se_pudo_suscribir": "Non siamo riusciti a iscriverti. Riprova tra qualche minuto."
 }

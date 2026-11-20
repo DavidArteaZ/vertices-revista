@@ -23,5 +23,7 @@
   "equipo.mapa_del_equipo_de_vertices_por_areas": "Mapa da equipe da Vértices por área",
   "equipo.integrantes_de_area": "Integrantes de {area}",
   "equipo.linkedin": "LinkedIn",
-  "equipo.portafolio_en_instagram": "Portfólio no Instagram"
+  "equipo.portafolio_en_instagram": "Portfólio no Instagram",
+  "pie.enviando": "Enviando…",
+  "pie.no_se_pudo_suscribir": "Não foi possível concluir sua inscrição. Tente novamente em alguns minutos."
 }

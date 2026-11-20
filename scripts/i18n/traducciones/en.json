@@ -84,5 +84,7 @@
   "equipo.mapa_del_equipo_de_vertices_por_areas": "Map of the Vértices team by area",
   "equipo.integrantes_de_area": "Members of {area}",
   "equipo.linkedin": "LinkedIn",
-  "equipo.portafolio_en_instagram": "Instagram portfolio"
+  "equipo.portafolio_en_instagram": "Instagram portfolio",
+  "pie.enviando": "Sending…",
+  "pie.no_se_pudo_suscribir": "We couldn't subscribe you. Please try again in a few minutes."
 }
