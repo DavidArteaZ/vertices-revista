@@ -145,7 +145,7 @@ Un conjunto de artículos que se publica de golpe. Nace en borrador; cada pieza
 copia su PDF al bucket público al entrar al número (o al subirle su PDF
 maquetado), y publicarlo enciende todas sus piezas a la vez. Publicarlo exige
 también su **PDF de edición final**, y entonces el número entero se ve en
-`/ediciones/<número>`.
+`/ediciones/<número>`. La lista de números publicados está en `/ediciones`.
 _Evitar_: issue, volumen.
 
 **PDF de edición final**:

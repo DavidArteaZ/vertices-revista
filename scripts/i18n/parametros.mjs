@@ -39,6 +39,7 @@ export const PARAMETRIZADOS = {
   "correo.el_comite_registro_decision": ["titulo", "decision"],
   "articulo.numero_n": ["n"],
   "edicion.numero_n": ["n"],
+  "ediciones.numero_n": ["n"],
   "equipo.integrantes_de_area": ["area"],
 };
 

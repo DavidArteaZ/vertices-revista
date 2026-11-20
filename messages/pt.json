@@ -12,6 +12,7 @@
     "conoce_al_equipo": "Conheça a equipe",
     "publica_tu_articulo": "Publique seu artigo",
     "menu": "Menu",
+    "ediciones": "Edições",
     "temas": "Temas",
     "secciones": "Seções",
     "convocatoria": "Chamada de trabalhos",
@@ -681,6 +682,13 @@
     "abrir_el_pdf": "Abrir el PDF",
     "tu_navegador_no_muestra_el_pdf_aqui_abrelo_o_des_75ed": "Tu navegador no muestra el PDF aquí. Ábrelo o descárgalo con los botones de arriba.",
     "en_este_numero": "En este número",
+    "volver_a_la_portada": "← Volver a la portada"
+  },
+  "ediciones": {
+    "ediciones": "Ediciones",
+    "la_revista": "La revista",
+    "numero_n": "Número {n}",
+    "todavia_no_hay_ediciones_publicadas": "Todavía no hay ediciones publicadas.",
     "volver_a_la_portada": "← Volver a la portada"
   }
 }
