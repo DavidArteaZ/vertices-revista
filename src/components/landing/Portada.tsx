@@ -13,8 +13,9 @@ import Marco from "@/components/layout/Marco";
 import Pie from "@/components/layout/Pie";
 import type { TipoNodo } from "@/lib/motor/motor";
 import type { Articulo } from "@/lib/datos/articulos";
+import type { EdicionPortada } from "@/lib/datos/cargar-edicion-portada";
 
-export default function Portada({ articulos }: { articulos: Articulo[] }) {
+export default function Portada({ articulos, edicion }: { articulos: Articulo[]; edicion: EdicionPortada | null }) {
   const t = useTranslations("portada");
   const locale = useLocale();
   const [panel, setPanel] = useState<EstadoPanel | null>(null);
@@ -34,7 +35,7 @@ export default function Portada({ articulos }: { articulos: Articulo[] }) {
     <>
       <h1 className="sr-solo">{t("vertices_revista_academica_de_economia_del_tecno_4187")}</h1>
       <Marco />
-      <Lienzo onAbrirPanel={abrirPanel} onCerrarPanel={cerrarPanel} onVerIndice={verIndice} carrusel={<Carrusel articulos={articulos} />} />
+      <Lienzo onAbrirPanel={abrirPanel} onCerrarPanel={cerrarPanel} onVerIndice={verIndice} carrusel={<Carrusel articulos={articulos} />} edicion={edicion} />
 
       <main id="portal">
         <Convocatoria />

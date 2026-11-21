@@ -71,6 +71,7 @@ export default function Marco({ satelite = false }: { satelite?: boolean } = {})
           <i></i><i></i><i></i>
         </button>
         <div className="menu-panel" id="menuPanel" onClick={() => setAbierto(false)}>
+          <Link className="enlace" href="/ediciones">{t("ediciones")}</Link>
           <a className="enlace" href={a("#temas")} {...datos({ "data-u": "0.48" })}>{t("temas")}</a>
           <a className="enlace" href={a("#secciones")} {...datos({ "data-u": "0.75" })}>{t("secciones")}</a>
           <a className="enlace" href={a("#convocatoria")} {...datos({ "data-ir": "convocatoria" })}>{t("convocatoria")}</a>

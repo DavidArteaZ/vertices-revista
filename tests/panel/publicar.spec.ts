@@ -24,10 +24,12 @@ import {
  */
 
 const NUMERO = 901;
+const PIEZA_TITULO = "Una gráfica de prueba sólo con título";
 
 let e: Escenario;
 let manuscrito: string;
 let slugEsperado: string;
+let pdfBytes: Uint8Array;
 
 test.beforeAll(async () => {
   e = await monta();
@@ -35,6 +37,7 @@ test.beforeAll(async () => {
   const pdf = await PDFDocument.create();
   pdf.addPage();
   const bytes = await pdf.save({ useObjectStreams: false });
+  pdfBytes = bytes;
 
   const preparado = await preparaParaPublicar(e, bytes);
   manuscrito = preparado.storagePath;
@@ -76,7 +79,18 @@ test("un número se arma, se publica y sólo entonces es visible", async ({ page
   await page.selectOption("#envio", { index: 1 });
   await page.fill("#minutos", "7");
   await page.click('form:has(#envio) button[type=submit]');
-  await expect(page.getByRole("cell", { name: "Nombre Del Autor Secreto" })).toBeVisible();
+  // Las piezas van agrupadas por sección y cada sección está plegada.
+  await page.locator("summary", { hasText: "Miradas Económicas" }).click();
+  await expect(page.getByRole("cell", { name: "Nombre Del Autor Secreto" })).toBeVisible({ timeout: 30_000 });
+
+  // ------------------------------- una pieza por título en otra sección
+  // Las secciones que no se dictaminan reciben piezas con sólo su título;
+  // no son artículos y no necesitan PDF para publicar.
+  const datanomics = page.locator("details", { has: page.locator("summary", { hasText: "Datanomics" }) });
+  await datanomics.locator("summary").click();
+  await datanomics.locator('input[name="titulo"]').fill(PIEZA_TITULO);
+  await datanomics.locator('button:has-text("Agregar pieza")').click();
+  await expect(datanomics.getByText(PIEZA_TITULO)).toBeVisible({ timeout: 30_000 });
 
   // ------------------------------- en borrador, el público no ve nada de esto
   const enBorrador = await request.get(`/articulos/${slugEsperado}`);
@@ -85,6 +99,25 @@ test("un número se arma, se publica y sólo entonces es visible", async ({ page
   // Y el manuscrito privado tampoco se alcanza adivinando la ruta.
   const privado = await request.get(urlPrivadaSinFirmar(manuscrito));
   expect(privado.ok()).toBe(false);
+
+  // La página del número tampoco existe todavía.
+  expect((await request.get(`/ediciones/${NUMERO}`)).status()).toBe(404);
+
+  // ------------------------------------------- sin PDF final no se publica
+  await page.click('button:has-text("Publicar el número")');
+  await expect(page.getByText(/Falta el PDF de la edición final/)).toBeVisible({ timeout: 30_000 });
+
+  // El PDF final se sube aparte y no toca el PDF de la pieza: su enlace es el
+  // mismo antes y después, que es lo que mantiene vivos los QR impresos.
+  const pdfPiezaAntes = await page.getByRole("link", { name: "Ver PDF", exact: true }).getAttribute("href");
+  await page.setInputFiles('input[aria-label="PDF de la edición final"]', {
+    name: "numero-completo.pdf",
+    mimeType: "application/pdf",
+    buffer: Buffer.from(pdfBytes),
+  });
+  await page.click('button:has-text("Subir PDF final")');
+  await expect(page.getByText("PDF de la edición final actualizado.")).toBeVisible({ timeout: 60_000 });
+  expect(await page.getByRole("link", { name: "Ver PDF", exact: true }).getAttribute("href")).toBe(pdfPiezaAntes);
 
   // --------------------------------------------------------------- publicar
   await page.click('button:has-text("Publicar el número")');
@@ -118,6 +151,19 @@ test("un número se arma, se publica y sólo entonces es visible", async ({ page
   // El original sigue sin ser alcanzable: lo público es la copia.
   const siguePrivado = await request.get(urlPrivadaSinFirmar(manuscrito));
   expect(siguePrivado.ok()).toBe(false);
+
+  // ------------------------------------------ la página del número completo
+  await page.goto(`/ediciones/${NUMERO}`);
+  await expect(page.getByRole("heading", { level: 1, name: "Número de prueba" })).toBeVisible();
+  const pdfFinal = await page.getByRole("link", { name: "Abrir el PDF" }).getAttribute("href");
+  expect(pdfFinal).toContain(`/publicaciones/`);
+  expect((await request.get(pdfFinal!)).ok()).toBe(true);
+  // Y enlaza a la pieza por su dirección de siempre.
+  await expect(page.locator(`a[href="/articulos/${slugEsperado}"]`)).toHaveCount(1);
+  // Y enseña las piezas por sección: la de título va en Datanomics, sin enlace.
+  const seccionDatanomics = page.locator("section", { has: page.getByRole("heading", { name: "Datanomics" }) });
+  await expect(seccionDatanomics.getByText(PIEZA_TITULO)).toBeVisible();
+  await expect(seccionDatanomics.locator("a", { hasText: PIEZA_TITULO })).toHaveCount(0);
 });
 
 test("una pieza de muestra da página, pero sin PDF", async ({ page }) => {

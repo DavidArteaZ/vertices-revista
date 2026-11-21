@@ -269,6 +269,11 @@ export type Database = {
           fecha_limite_revisiones: string | null;
           hora_evento: string | null;
           cupo_invitados: number | null;
+          pdf_final_path: string | null;
+          portada_en_carrusel: boolean;
+          carrusel_portada_path: string | null;
+          carrusel_pliego_izq_path: string | null;
+          carrusel_pliego_der_path: string | null;
           activa: boolean;
         },
         {
@@ -283,6 +288,11 @@ export type Database = {
           fecha_limite_revisiones?: string | null;
           hora_evento?: string | null;
           cupo_invitados?: number | null;
+          pdf_final_path?: string | null;
+          portada_en_carrusel?: boolean;
+          carrusel_portada_path?: string | null;
+          carrusel_pliego_izq_path?: string | null;
+          carrusel_pliego_der_path?: string | null;
           activa?: boolean;
         }
       >;
@@ -341,6 +351,10 @@ export type Database = {
         }
       >;
       articulo_temas: Fila<{ articulo_id: number; tema_id: number }>;
+      edicion_piezas: Fila<
+        { id: number; edicion_id: number; seccion_id: number; titulo: string; created_at: string },
+        { id?: number; edicion_id: number; seccion_id: number; titulo: string; created_at?: string }
+      >;
       envio_eventos: Fila<
         {
           id: number;

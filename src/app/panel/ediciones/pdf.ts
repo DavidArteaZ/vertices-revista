@@ -23,6 +23,35 @@ export function rutaPublica(edicion: number, slug: string): string {
   return `${edicion}/${slug}-${randomUUID().slice(0, 8)}.pdf`;
 }
 
+/**
+ * El PDF de la edición final: el número entero en un documento. Mismo bucket y
+ * misma razón para el sufijo al azar que el de las piezas, pero con su propio
+ * prefijo para que nunca se confunda con el PDF de un artículo.
+ */
+export const PREFIJO_EDICION_FINAL = "edicion-final";
+
+export function rutaEdicionFinal(edicion: number): string {
+  return `${edicion}/${PREFIJO_EDICION_FINAL}-${randomUUID().slice(0, 8)}.pdf`;
+}
+
+/**
+ * Las tres imágenes de la parada de la edición en la portada. Mismo bucket y
+ * mismo sufijo al azar; el prefijo dice cuál es para que `fijarImagenCarrusel`
+ * sólo acepte la ruta que se firmó para ese hueco.
+ */
+export const HUECOS_CARRUSEL = ["portada", "pliego-izq", "pliego-der"] as const;
+export type HuecoCarrusel = (typeof HUECOS_CARRUSEL)[number];
+
+export const EXTENSION_IMAGEN: Record<string, string> = {
+  "image/jpeg": "jpg",
+  "image/png": "png",
+  "image/webp": "webp",
+};
+
+export function rutaCarrusel(edicion: number, hueco: HuecoCarrusel, mime: string): string {
+  return `${edicion}/carrusel-${hueco}-${randomUUID().slice(0, 8)}.${EXTENSION_IMAGEN[mime]}`;
+}
+
 export function urlPublica(ruta: string): string {
   return `${process.env.SUPABASE_URL}/storage/v1/object/public/${BUCKET_PUBLICO}/${ruta}`;
 }

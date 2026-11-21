@@ -12,6 +12,7 @@
     "conoce_al_equipo": "Conosci il team",
     "publica_tu_articulo": "Pubblica il tuo articolo",
     "menu": "Menu",
+    "ediciones": "Numeri",
     "temas": "Temi",
     "secciones": "Sezioni",
     "convocatoria": "Call for papers",
@@ -76,7 +77,13 @@
     "publicarse": "pubblicata",
     "publica_tu_articulo": "Pubblica il tuo articolo",
     "conoce_el_proceso": "Scopri il processo",
-    "subtitulo": "Il punto dove le idee si incontrano"
+    "subtitulo": "Il punto dove le idee si incontrano",
+    "edicion_n": "Edición {n}",
+    "numero_n": "Número {n}",
+    "ya_salio_la": "Ya salió la",
+    "ordinal_edicion": "{n, select, 1 {primera edición} 2 {segunda edición} 3 {tercera edición} 4 {cuarta edición} 5 {quinta edición} 6 {sexta edición} 7 {séptima edición} 8 {octava edición} 9 {novena edición} 10 {décima edición} other {edición {n}}}",
+    "leer_la_edicion": "Leer la edición",
+    "ver_sus_piezas": "Ver sus piezas"
   },
   "carrusel": {
     "articulos_destacados": "Articoli in evidenza",
@@ -673,5 +680,21 @@
     "la_convocatoria_esta_abierta": "La convocatoria está abierta.",
     "enviar_un_manuscrito": "Enviar un manuscrito",
     "no_encontramos_esa_pieza": "No encontramos esa pieza."
+  },
+  "edicion": {
+    "numero_n": "Número {n}",
+    "la_edicion_completa": "La edición completa",
+    "descargar_el_pdf": "Descargar el PDF",
+    "abrir_el_pdf": "Abrir el PDF",
+    "tu_navegador_no_muestra_el_pdf_aqui_abrelo_o_des_75ed": "Tu navegador no muestra el PDF aquí. Ábrelo o descárgalo con los botones de arriba.",
+    "en_este_numero": "En este número",
+    "volver_a_la_portada": "← Volver a la portada"
+  },
+  "ediciones": {
+    "ediciones": "Ediciones",
+    "la_revista": "La revista",
+    "numero_n": "Número {n}",
+    "todavia_no_hay_ediciones_publicadas": "Todavía no hay ediciones publicadas.",
+    "volver_a_la_portada": "← Volver a la portada"
   }
 }

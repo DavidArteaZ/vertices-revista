@@ -4,6 +4,7 @@ import "./movil.css";
 import "./portal-envios.css";
 import Portada from "@/components/landing/Portada";
 import { cargaArticulos } from "@/lib/datos/cargar-articulos";
+import { cargaEdicionPortada } from "@/lib/datos/cargar-edicion-portada";
 import { routing } from "@/i18n/rutas";
 
 /**
@@ -33,6 +34,6 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
   const { locale } = await params;
   setRequestLocale(locale);
 
-  const articulos = await cargaArticulos();
-  return <Portada articulos={articulos} />;
+  const [articulos, edicion] = await Promise.all([cargaArticulos(), cargaEdicionPortada()]);
+  return <Portada articulos={articulos} edicion={edicion} />;
 }

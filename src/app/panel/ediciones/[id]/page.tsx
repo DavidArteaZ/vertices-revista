@@ -3,13 +3,13 @@ import { sesion } from "@/lib/supabase/sesion";
 import { exigePersonal, Cabecera } from "../../guardia";
 import Accion from "../../Accion";
 import Invitados from "./Invitados";
-import PdfPieza from "./PdfPieza";
+import PiezasDelNumero from "./PiezasDelNumero";
+import PdfEdicion from "./PdfEdicion";
+import CarruselEdicion from "./CarruselEdicion";
 import { copiarManuscrito, motivoSinPdf, urlPublica } from "../pdf";
 import {
   adjuntar,
-  ajustarArticulo,
   guardarParametros,
-  quitarArticulo,
   publicar,
 } from "../acciones";
 
@@ -42,13 +42,13 @@ export default async function DetalleEdicion({ params }: { params: Promise<{ id:
 
   const publicada = edicion.estado === "publicada";
 
-  const [{ data: articulos }, { data: secciones }, { data: candidatos }, registros] = await Promise.all([
+  const [{ data: articulos }, { data: secciones }, { data: candidatos }, registros, { data: piezasTitulo }] = await Promise.all([
     sb
       .from("articulos")
       .select("id, titulo, autor, slug, minutos_lectura, destacado, pdf_publico_path, seccion_id, envio_id")
       .eq("edicion_id", edicionId)
       .order("id"),
-    sb.from("secciones").select("id, nombre_display"),
+    sb.from("secciones").select("id, nombre_display, slug, orden, publica"),
     sb
       .from("envios")
       .select("id, folio, titulo, decision_id, edicion_id, excepcion_publicacion")
@@ -59,6 +59,7 @@ export default async function DetalleEdicion({ params }: { params: Promise<{ id:
       .select("id, nombre, correo, perfil, invitado, created_at")
       .eq("edicion_id", edicionId)
       .order("created_at"),
+    sb.from("edicion_piezas").select("id, seccion_id, titulo").eq("edicion_id", edicionId).order("id"),
   ]);
 
   if (registros.error) {
@@ -82,8 +83,6 @@ export default async function DetalleEdicion({ params }: { params: Promise<{ id:
     if ("ruta" in copia) a.pdf_publico_path = copia.ruta;
     else fallosCopia.set(a.id, copia.motivo);
   }
-
-  const nombreSeccion = new Map((secciones ?? []).map((s) => [s.id, s.nombre_display]));
 
   const { data: aceptantes } = await sb
     .from("decisiones")
@@ -191,79 +190,40 @@ export default async function DetalleEdicion({ params }: { params: Promise<{ id:
       <Invitados edicion={edicionId} numero={edicion.numero} cupo={edicion.cupo_invitados} registros={registros.data ?? []} error={Boolean(registros.error)} />
 
       <h3>Piezas del número</h3>
+      <PiezasDelNumero
+        edicion={edicionId}
+        publicada={publicada}
+        secciones={secciones ?? []}
+        piezas={piezasTitulo ?? []}
+        articulos={(articulos ?? []).map((a) => ({
+          ...a,
+          pdf: a.pdf_publico_path ? urlPublica(a.pdf_publico_path) : null,
+          motivo: (a.envio_id ? motivoSinPdf(mimePrincipal.get(a.envio_id)) : null) ?? fallosCopia.get(a.id) ?? null,
+        }))}
+      />
+
+      <h3>PDF Edición Final</h3>
       <div className="tarjeta">
-        {(articulos ?? []).length === 0 ? (
-          <p className="nota" style={{ marginTop: 0 }}>Todavía no hay piezas convertidas en artículos.</p>
-        ) : (
-          <table>
-            <thead>
-              <tr>
-                <th>Título</th>
-                <th>Autoría</th>
-                <th>Sección</th>
-                <th>Lectura</th>
-                <th>Destacado</th>
-                <th>PDF</th>
-                <th />
-              </tr>
-            </thead>
-            <tbody>
-              {(articulos ?? []).map((a) => (
-                <tr key={a.id}>
-                  <td>{a.titulo}</td>
-                  <td>{a.autor}</td>
-                  <td>{nombreSeccion.get(a.seccion_id) ?? "—"}</td>
-                  <td colSpan={publicada ? 1 : 2}>
-                    {publicada ? (
-                      <>
-                        {a.minutos_lectura ?? "—"} min{a.destacado ? " · destacado" : ""}
-                      </>
-                    ) : (
-                      <Accion accion={ajustarArticulo} etiqueta="Guardar">
-                        <input type="hidden" name="articulo" value={a.id} />
-                        <input type="hidden" name="edicion" value={edicionId} />
-                        <div style={{ display: "flex", gap: 10, alignItems: "center", marginBottom: 8 }}>
-                          <input
-                            type="number"
-                            name="minutos"
-                            min={1}
-                            defaultValue={a.minutos_lectura ?? ""}
-                            style={{ width: 78 }}
-                            aria-label="Minutos de lectura"
-                          />
-                          <label style={{ textTransform: "none", letterSpacing: 0, margin: 0, display: "flex", gap: 6, fontSize: 13 }}>
-                            <input
-                              type="checkbox"
-                              name="destacado"
-                              defaultChecked={a.destacado}
-                              style={{ width: "auto" }}
-                            />
-                            Destacado
-                          </label>
-                        </div>
-                      </Accion>
-                    )}
-                  </td>
-                  <td>
-                    <PdfPieza
-                      articulo={a.id}
-                      url={a.pdf_publico_path ? urlPublica(a.pdf_publico_path) : null}
-                      motivo={(a.envio_id ? motivoSinPdf(mimePrincipal.get(a.envio_id)) : null) ?? fallosCopia.get(a.id) ?? null}
-                    />
-                  </td>
-                  <td style={{ textAlign: "right" }}>
-                    {!publicada && (
-                      <Accion accion={quitarArticulo} etiqueta="Quitar">
-                        <input type="hidden" name="articulo" value={a.id} />
-                        <input type="hidden" name="edicion" value={edicionId} />
-                      </Accion>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
+        <PdfEdicion
+          edicion={edicionId}
+          url={edicion.pdf_final_path ? urlPublica(edicion.pdf_final_path) : null}
+          enlacePublico={publicada ? `/ediciones/${edicion.numero}` : null}
+        />
+      </div>
+
+      <h3>Edición en la portada</h3>
+      <div className="tarjeta">
+        <CarruselEdicion
+          edicion={edicionId}
+          encendido={edicion.portada_en_carrusel}
+          activa={edicion.activa}
+          publicada={publicada}
+          imagenes={{
+            portada: edicion.carrusel_portada_path ? urlPublica(edicion.carrusel_portada_path) : null,
+            "pliego-izq": edicion.carrusel_pliego_izq_path ? urlPublica(edicion.carrusel_pliego_izq_path) : null,
+            "pliego-der": edicion.carrusel_pliego_der_path ? urlPublica(edicion.carrusel_pliego_der_path) : null,
+          }}
+        />
       </div>
 
       {!publicada && (
@@ -303,8 +263,9 @@ export default async function DetalleEdicion({ params }: { params: Promise<{ id:
           <div className="tarjeta">
             <p className="nota" style={{ marginTop: 0 }}>
               Enciende el número entero de una vez: sus artículos aparecen en el sitio
-              con el enlace a su PDF. Cada pieza necesita su PDF antes; las que se
-              enviaron en Word, su versión maquetada subida en su fila.
+              con el enlace a su PDF y el número completo queda en /ediciones/{edicion.numero}.
+              Cada pieza necesita su PDF antes (las que se enviaron en Word, su versión
+              maquetada subida en su fila) y el número necesita su PDF de edición final.
             </p>
             <Accion
               accion={publicar}
