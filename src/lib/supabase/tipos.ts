@@ -343,6 +343,10 @@ export type Database = {
         }
       >;
       articulo_temas: Fila<{ articulo_id: number; tema_id: number }>;
+      edicion_piezas: Fila<
+        { id: number; edicion_id: number; seccion_id: number; titulo: string; created_at: string },
+        { id?: number; edicion_id: number; seccion_id: number; titulo: string; created_at?: string }
+      >;
       envio_eventos: Fila<
         {
           id: number;

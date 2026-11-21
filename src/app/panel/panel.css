@@ -68,6 +68,27 @@ h3{
   padding:20px 22px; margin-bottom:18px;
 }
 
+/* Las secciones de un número: plegadas por omisión, con su flecha, para que
+   las ocho quepan en una pantalla y se abra sólo la que se está armando. */
+.seccion-plegable + .seccion-plegable{ border-top:1px solid var(--linea); }
+.seccion-plegable > summary{
+  cursor:pointer; list-style:none; padding:12px 0; font-weight:500;
+  display:flex; align-items:baseline; gap:6px;
+}
+.seccion-plegable > summary::-webkit-details-marker{ display:none; }
+.seccion-plegable > summary::before{
+  content:"▸"; display:inline-block; width:1em; color:var(--gris); transition:transform .15s;
+}
+.seccion-plegable[open] > summary::before{ transform:rotate(90deg); }
+.seccion-plegable__cuerpo{ padding:0 0 16px 1.4em; }
+.piezas-titulo{ list-style:none; margin:0 0 14px; padding:0; }
+.piezas-titulo li{
+  display:flex; justify-content:space-between; align-items:center; gap:12px;
+  padding:8px 0; border-bottom:1px solid var(--linea);
+}
+.piezas-titulo li form{ display:flex; align-items:center; gap:8px; }
+.piezas-titulo li .aviso{ margin:0; }
+
 /* El contenido que escribió el autor: etiqueta encima y texto debajo, en vez
    de la rejilla de dos columnas del bloque del manuscrito. Aquí no hay campos
    de una línea, hay crónicas de 900 palabras. */

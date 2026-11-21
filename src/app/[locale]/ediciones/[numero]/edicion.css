@@ -18,6 +18,13 @@
 .ed-titulo{ display:block; font:500 17px/1.35 var(--f-ui); color:var(--crema); }
 .ed-autor{ display:block; margin-top:4px; font:400 14px var(--f-sub); color:var(--gris); }
 .ed-piezas a:hover .ed-titulo{ color:var(--indigo); }
+.ed-piezas > .ceja{ margin-bottom:24px; }
+.ed-seccion + .ed-seccion{ margin-top:30px; }
+.ed-seccion h2{
+  font:600 13px var(--f-ui); letter-spacing:.14em; text-transform:uppercase;
+  color:var(--hueso); margin:0 0 4px;
+}
+.ed-sin-enlace{ padding:14px 0; }
 
 /* En teléfono el visor incrustado casi nunca funciona (iOS enseña una sola
  * página, Android ninguna): los botones de arriba hacen el trabajo. */

@@ -148,6 +148,13 @@ también su **PDF de edición final**, y entonces el número entero se ve en
 `/ediciones/<número>`. La lista de números publicados está en `/ediciones`.
 _Evitar_: issue, volumen.
 
+**Pieza por título**:
+Lo que entra a un número en una sección que el comité no dictamina (todas
+salvo Miradas Económicas y Horizonte Global). Sólo lleva título: no es un
+artículo, no tiene PDF ni página propia, y se ve en la página del número
+dentro de su sección. Vive en `edicion_piezas`.
+_Evitar_: llamarle artículo.
+
 **PDF de edición final**:
 El número completo maquetado en un solo documento. Se sube en el panel de la
 edición, aparte de los PDF de las piezas, y no cambia ni el PDF ni el enlace de
