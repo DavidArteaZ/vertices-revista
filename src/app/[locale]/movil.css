@@ -155,6 +155,19 @@ html[data-disp="movil"] .hero-etq span{ font-size:11px; }
 html[data-disp="movil"] .hero-edicion{ text-align:left; }
 html[data-disp="movil"] .hero-edicion p{ margin-bottom:12px; }
 
+/* --- capa 1b: la edición publicada --- */
+/* los pliegos se abren menos para caber en lo angosto y la portada manda */
+html[data-disp="movil"] #capaEdicion{
+  padding:calc(84px + env(safe-area-inset-top, 0px)) var(--m-lado) calc(var(--m-barra) + 18px);
+  gap:18px;
+}
+html[data-disp="movil"] .edicion-pliegos{ width:100%; height:min(42vh,360px); }
+html[data-disp="movil"] .edicion-pliego{ top:24%; height:56%; }
+html[data-disp="movil"] .edicion-pliego--izq{ right:40%; }
+html[data-disp="movil"] .edicion-pliego--der{ left:40%; }
+html[data-disp="movil"] .edicion-acciones{ width:100%; flex-direction:column; gap:10px; }
+html[data-disp="movil"] .edicion-acciones .boton{ display:block; text-align:center; padding:13px 18px; }
+
 /* --- capa 2: los 27 temas --- */
 /* la tarjeta de vidrio se queda: separa el texto de la constelación que late
    detrás, que sin ella se leería sobre los nodos */

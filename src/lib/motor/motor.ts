@@ -49,6 +49,8 @@ export type MotorOpciones = {
   recorrido: HTMLElement;
   capas: {
     hero: HTMLElement;
+    /** la parada de la edición publicada; null cuando el panel no la enciende */
+    edicion: HTMLElement | null;
     temas: HTMLElement;
     secciones: HTMLElement;
     cierre: HTMLElement;
@@ -158,6 +160,7 @@ export function crearMotor(o: MotorOpciones): Motor {
   const recorrido = o.recorrido;
   const velo = o.velo;
   const capaHero = o.capas.hero;
+  const capaEdicion = o.capas.edicion;
   const capaTemas = o.capas.temas;
   const capaSecciones = o.capas.secciones;
   const capaCierre = o.capas.cierre;
@@ -712,6 +715,10 @@ let fichaTimer = 0;
 function syncUI(u: number, tSec: number) {
   const vt = veloT();
   setCapa(capaHero, (1 - ss(0.05, 0.115, u)) * (1 - vt));
+  // la edición ocupa el tramo de partículas sueltas (PH.jitterEnd a
+  // PH.toNetEnd), que antes no tenía capa: entra cuando la palabra ya se fue y
+  // sale antes de que asome la constelación.
+  if (capaEdicion) setCapa(capaEdicion, ss(0.15, 0.19, u) * (1 - ss(0.34, 0.385, u)));
   setCapa(capaTemas, ss(0.40, 0.46, u) * (1 - ss(0.545, 0.60, u)));
   setCapa(capaSecciones, ss(0.645, 0.70, u) * (1 - ss(0.845, 0.885, u)));
   setCapa(capaCierre, ss(0.955, 0.99, u) * (1 - vt));
@@ -733,8 +740,17 @@ function syncUI(u: number, tSec: number) {
   }
 
   // riel de progreso
-  const activo = vt > 0.4 ? 3 : u < 0.28 ? 0 : u < 0.62 ? 1 : u < 0.93 ? 2 : 3;
-  rielBotones.forEach((b, i) => b.classList.toggle("activo", i === activo));
+  // Por nombre y no por posición: la parada de la edición sólo existe cuando
+  // el panel la enciende, y con ella los botones se recorren un lugar.
+  const activo =
+    vt > 0.4 ? "publica"
+    : capaEdicion && u < 0.14 ? "vertices"
+    : capaEdicion && u < 0.38 ? "edicion"
+    : u < 0.28 ? "vertices"
+    : u < 0.62 ? "temas"
+    : u < 0.93 ? "secciones"
+    : "publica";
+  rielBotones.forEach((b) => b.classList.toggle("activo", b.dataset.parada === activo));
 }
 
 let lastT = 0;

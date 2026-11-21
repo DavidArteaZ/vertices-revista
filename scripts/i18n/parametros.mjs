@@ -40,6 +40,9 @@ export const PARAMETRIZADOS = {
   "articulo.numero_n": ["n"],
   "edicion.numero_n": ["n"],
   "ediciones.numero_n": ["n"],
+  "lienzo.edicion_n": ["n"],
+  "lienzo.numero_n": ["n"],
+  "lienzo.ordinal_edicion": ["n"],
   "equipo.integrantes_de_area": ["area"],
 };
 

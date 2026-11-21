@@ -77,7 +77,13 @@
     "publicarse": "publicada",
     "publica_tu_articulo": "Publique seu artigo",
     "conoce_el_proceso": "Conheça o processo",
-    "subtitulo": "O ponto onde as ideias se encontram"
+    "subtitulo": "O ponto onde as ideias se encontram",
+    "edicion_n": "Edición {n}",
+    "numero_n": "Número {n}",
+    "ya_salio_la": "Ya salió la",
+    "ordinal_edicion": "{n, select, 1 {primera edición} 2 {segunda edición} 3 {tercera edición} 4 {cuarta edición} 5 {quinta edición} 6 {sexta edición} 7 {séptima edición} 8 {octava edición} 9 {novena edición} 10 {décima edición} other {edición {n}}}",
+    "leer_la_edicion": "Leer la edición",
+    "ver_sus_piezas": "Ver sus piezas"
   },
   "carrusel": {
     "articulos_destacados": "Artigos em destaque",

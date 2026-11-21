@@ -5,6 +5,7 @@ import Accion from "../../Accion";
 import Invitados from "./Invitados";
 import PiezasDelNumero from "./PiezasDelNumero";
 import PdfEdicion from "./PdfEdicion";
+import CarruselEdicion from "./CarruselEdicion";
 import { copiarManuscrito, motivoSinPdf, urlPublica } from "../pdf";
 import {
   adjuntar,
@@ -207,6 +208,21 @@ export default async function DetalleEdicion({ params }: { params: Promise<{ id:
           edicion={edicionId}
           url={edicion.pdf_final_path ? urlPublica(edicion.pdf_final_path) : null}
           enlacePublico={publicada ? `/ediciones/${edicion.numero}` : null}
+        />
+      </div>
+
+      <h3>Edición en la portada</h3>
+      <div className="tarjeta">
+        <CarruselEdicion
+          edicion={edicionId}
+          encendido={edicion.portada_en_carrusel}
+          activa={edicion.activa}
+          publicada={publicada}
+          imagenes={{
+            portada: edicion.carrusel_portada_path ? urlPublica(edicion.carrusel_portada_path) : null,
+            "pliego-izq": edicion.carrusel_pliego_izq_path ? urlPublica(edicion.carrusel_pliego_izq_path) : null,
+            "pliego-der": edicion.carrusel_pliego_der_path ? urlPublica(edicion.carrusel_pliego_der_path) : null,
+          }}
         />
       </div>
 

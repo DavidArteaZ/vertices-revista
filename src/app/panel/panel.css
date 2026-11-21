@@ -89,6 +89,33 @@ h3{
 .piezas-titulo li form{ display:flex; align-items:center; gap:8px; }
 .piezas-titulo li .aviso{ margin:0; }
 
+/* La edición en la portada: los tres huecos en el orden en que se ven
+   (pliego, portada, pliego) y el switch debajo. */
+.carrusel-huecos{ display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:18px; margin-bottom:18px; }
+@media (max-width:720px){ .carrusel-huecos{ grid-template-columns:1fr; } }
+.carrusel-hueco__nombre{ margin:0 0 8px; font-weight:500; }
+.carrusel-hueco__vista{
+  aspect-ratio:1600/1035; display:flex; align-items:center; justify-content:center;
+  border:1px dashed var(--linea); border-radius:8px; overflow:hidden; margin-bottom:8px;
+}
+.carrusel-hueco__vista img{ width:100%; height:100%; object-fit:contain; display:block; }
+.carrusel-switch{ display:flex; align-items:center; gap:14px; flex-wrap:wrap; }
+.interruptor{
+  display:inline-flex; align-items:center; gap:10px; min-height:44px; padding:0 4px;
+  background:none; border:0; cursor:pointer; font:500 14px var(--f-ui); color:inherit;
+}
+.interruptor:disabled{ cursor:not-allowed; opacity:.55; }
+.interruptor__riel{
+  width:42px; height:24px; border-radius:999px; background:var(--linea-fuerte, rgba(45,35,46,.45));
+  position:relative; transition:background .2s; flex:none;
+}
+.interruptor__bola{
+  position:absolute; top:3px; left:3px; width:18px; height:18px; border-radius:50%;
+  background:#fff; transition:transform .2s;
+}
+.interruptor--on .interruptor__riel{ background:var(--verde); }
+.interruptor--on .interruptor__bola{ transform:translateX(18px); }
+
 /* El contenido que escribió el autor: etiqueta encima y texto debajo, en vez
    de la rejilla de dos columnas del bloque del manuscrito. Aquí no hay campos
    de una línea, hay crónicas de 900 palabras. */

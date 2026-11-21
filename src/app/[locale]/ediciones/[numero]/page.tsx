@@ -115,7 +115,7 @@ export default async function Pagina({ params }: Props) {
           )}
 
           {edicion.porSeccion.length > 0 && (
-            <div className="ed-piezas">
+            <div className="ed-piezas" id="piezas">
               <p className="ceja">{t("en_este_numero")}</p>
               {edicion.porSeccion.map((s) => (
                 <section key={s.id} className="ed-seccion">

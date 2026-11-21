@@ -155,6 +155,12 @@ artículo, no tiene PDF ni página propia, y se ve en la página del número
 dentro de su sección. Vive en `edicion_piezas`.
 _Evitar_: llamarle artículo.
 
+**Edición en la portada**:
+Una parada del recorrido de la portada, entre la palabra y la constelación,
+que anuncia el número con su portada al centro y dos pliegos detrás. Se
+enciende con un switch en el panel de la edición y sólo se ve si esa edición
+es la activa, está publicada y tiene sus tres imágenes.
+
 **PDF de edición final**:
 El número completo maquetado en un solo documento. Se sube en el panel de la
 edición, aparte de los PDF de las piezas, y no cambia ni el PDF ni el enlace de

@@ -1,12 +1,14 @@
 "use client";
 
 import { useEffect, useRef, type ReactNode } from "react";
+import { Link } from "@/i18n/navegacion";
+import type { EdicionPortada } from "@/lib/datos/cargar-edicion-portada";
 import { useTranslations } from "next-intl";
 import { crearMotor, type Motor, type TipoNodo } from "@/lib/motor/motor";
 import { useCatalogo } from "@/i18n/catalogo";
 
-/* Los cuatro iconos de la barra de pestañas del teléfono, en el mismo orden
-   que las paradas del riel. En escritorio el punto de 7px se basta solo y
+/* Los iconos de la barra de pestañas del teléfono: uno por parada del riel,
+   por nombre. En escritorio el punto de 7px se basta solo y
    globals.css esconde el <svg>; abajo, convertido en pestaña, un punto no
    dice nada. El trazo, el relleno y el grosor los pone movil.css. */
 const ICONOS = [
@@ -22,6 +24,10 @@ const ICONOS = [
   </g>,
   <g key="secciones">
     <path d="M4 6.5h16M4 12h16M4 17.5h10" />
+  </g>,
+  <g key="edicion">
+    <path d="M12 6.5c-2-1.4-4.6-1.9-8-1.6v13c3.4-.3 6 .2 8 1.6 2-1.4 4.6-1.9 8-1.6v-13c-3.4-.3-6 .2-8 1.6Z" />
+    <path d="M12 6.5v13" />
   </g>,
   <g key="publica">
     <path d="M12 15.5V4.5M8.2 8.3 12 4.5l3.8 3.8" />
@@ -50,11 +56,14 @@ export default function Lienzo({
   onCerrarPanel,
   onVerIndice,
   carrusel,
+  edicion,
 }: {
   onAbrirPanel: (tipo: TipoNodo, label: string, label0: string) => void;
   onCerrarPanel: () => void;
   onVerIndice: () => void;
   carrusel: ReactNode;
+  /** La edición que se anuncia como parada del recorrido; null = sin parada. */
+  edicion: EdicionPortada | null;
 }) {
   const t = useTranslations("lienzo");
   const { traducir } = useCatalogo();
@@ -63,6 +72,7 @@ export default function Lienzo({
   const velo = useRef<HTMLDivElement>(null);
   const hero = useRef<HTMLDivElement>(null);
   const temas = useRef<HTMLDivElement>(null);
+  const capaEdicion = useRef<HTMLDivElement>(null);
   const secciones = useRef<HTMLDivElement>(null);
   const cierre = useRef<HTMLDivElement>(null);
   const ficha = useRef<HTMLDivElement>(null);
@@ -97,6 +107,7 @@ export default function Lienzo({
         recorrido: recorrido.current!,
         capas: {
           hero: hero.current!,
+          edicion: capaEdicion.current,
           temas: temas.current!,
           secciones: secciones.current!,
           cierre: cierre.current!,
@@ -127,10 +138,13 @@ export default function Lienzo({
       <div id="velo" ref={velo} aria-hidden="true"></div>
 
       <nav className="riel" ref={riel} aria-label={t("progreso_del_recorrido")}>
-        <button data-u="0" className="activo"><i><Icono i={0} /></i><span>{t("vertices")}</span></button>
-        <button data-u="0.48"><i><Icono i={1} /></i><span>{t("temas")}</span></button>
-        <button data-u="0.75"><i><Icono i={2} /></i><span>{t("secciones")}</span></button>
-        <button data-ir="convocatoria" className="riel--cta"><i><Icono i={3} /></i><span>{t("publica")}</span></button>
+        <button data-u="0" data-parada="vertices" className="activo"><i><Icono i={0} /></i><span>{t("vertices")}</span></button>
+        {edicion && (
+          <button data-u="0.26" data-parada="edicion"><i><Icono i={3} /></i><span>{t("edicion_n", { n: edicion.numero })}</span></button>
+        )}
+        <button data-u="0.48" data-parada="temas"><i><Icono i={1} /></i><span>{t("temas")}</span></button>
+        <button data-u="0.75" data-parada="secciones"><i><Icono i={2} /></i><span>{t("secciones")}</span></button>
+        <button data-ir="convocatoria" data-parada="publica" className="riel--cta"><i><Icono i={4} /></i><span>{t("publica")}</span></button>
       </nav>
 
       {/* capa 1: hero (el lienzo dibuja la palabra al centro; aqui solo margenes) */}
@@ -144,6 +158,32 @@ export default function Lienzo({
           </div>
         </div>
       </div>
+
+      {/* capa 1b: la edicion publicada, si el panel la encendio. Va en el
+          tramo en que las particulas flotan sueltas, entre la palabra y la
+          constelacion, asi que no le quita sitio a ninguna otra capa. */}
+      {edicion && (
+        <div className="capa" id="capaEdicion" ref={capaEdicion}>
+          <div className="edicion-bloque">
+            <p className="ceja">{t("numero_n", { n: edicion.numero })}</p>
+            <h2 className="titulo">{t("ya_salio_la")}{" "}<em>{t("ordinal_edicion", { n: edicion.numero })}</em>.</h2>
+          </div>
+          <div className="edicion-pliegos" aria-hidden="true">
+            {/* eslint-disable-next-line @next/next/no-img-element -- imagenes del bucket publico, ya optimizadas al exportar */}
+            <img className="edicion-pliego edicion-pliego--izq" src={edicion.pliegoIzq} alt="" />
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img className="edicion-pliego edicion-pliego--der" src={edicion.pliegoDer} alt="" />
+            <div className="edicion-portada">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={edicion.portada} alt="" />
+            </div>
+          </div>
+          <div className="edicion-acciones">
+            <Link className="boton boton--lleno" href={`/ediciones/${edicion.numero}`}>{t("leer_la_edicion")}</Link>
+            <Link className="boton" href={`/ediciones/${edicion.numero}#piezas`}>{t("ver_sus_piezas")}</Link>
+          </div>
+        </div>
+      )}
 
       {/* capa 2: constelacion de temas */}
       <div className="capa" id="capaTemas" ref={temas}>

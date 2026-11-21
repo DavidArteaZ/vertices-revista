@@ -207,6 +207,31 @@
   .titulo em{ font-style:italic; }
   .bajada{ margin:0 0 24px; max-width:46ch; color:var(--texto); }
 
+  /* capa 1b: la edición publicada (sólo si el panel la enciende). La portada
+     al centro y dos pliegos inclinados detrás, como en el keynote. La portada
+     se recorta por la izquierda: si se sube el pliego de portada y
+     contraportada, se ve sólo la portada; si se sube la portada sola, entera. */
+  #capaEdicion{
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    gap:clamp(18px,3.2vh,34px); padding:96px 5vw 44px; box-sizing:border-box;
+  }
+  .edicion-bloque{ text-align:center; }
+  .edicion-bloque .titulo{ margin:0; }
+  .edicion-pliegos{ position:relative; width:min(1000px,84vw); height:min(50vh,480px); flex:none; }
+  .edicion-portada{
+    position:absolute; left:50%; top:0; height:100%; aspect-ratio:800/1035;
+    transform:translateX(-50%); overflow:hidden; border-radius:4px;
+    box-shadow:0 34px 70px -22px rgba(45,35,46,.6), 0 4px 12px -4px rgba(45,35,46,.3);
+  }
+  .edicion-portada img{ width:100%; height:100%; object-fit:cover; object-position:left center; display:block; }
+  .edicion-pliego{
+    position:absolute; top:19%; height:69%; width:auto; border-radius:4px;
+    box-shadow:0 24px 48px -18px rgba(45,35,46,.45);
+  }
+  .edicion-pliego--izq{ right:46%; transform:rotate(-6deg); }
+  .edicion-pliego--der{ left:46%; transform:rotate(6deg); }
+  .edicion-acciones{ display:flex; gap:12px; flex-wrap:wrap; justify-content:center; }
+
   /* capa 3: secciones */
   .secciones-bloque{
     position:absolute; top:9vh; left:50%; transform:translateX(-50%);
