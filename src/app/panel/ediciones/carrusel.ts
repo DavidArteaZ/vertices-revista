@@ -23,6 +23,11 @@ const COLUMNA: Record<HuecoCarrusel, "carrusel_portada_path" | "carrusel_pliego_
   "pliego-der": "carrusel_pliego_der_path",
 };
 
+function falloLectura(edicion: number, error: string): Resultado {
+  console.error(JSON.stringify({ evento: "panel_carrusel_lectura_fallo", edicion, error }));
+  return { ok: false, mensaje: `La base no pudo leer la edición: ${error}` };
+}
+
 function refrescar(edicion: number) {
   revalidatePath(`/panel/ediciones/${edicion}`);
   // La portada se sirve estática (revalidate = 300); esto la rehace ya.
@@ -42,11 +47,14 @@ export async function fijarImagenCarrusel(datos: FormData): Promise<Resultado> {
 
   const columna = COLUMNA[hueco];
   const sb = await sesion();
-  const { data: fila } = await sb
+  const { data: fila, error: eLectura } = await sb
     .from("ediciones")
     .select("id, carrusel_portada_path, carrusel_pliego_izq_path, carrusel_pliego_der_path")
     .eq("id", edicion)
     .maybeSingle();
+  // Un fallo de la consulta (p. ej. columnas que faltan porque la migración no
+  // se aplicó) no es "no existe": se dice tal cual para poder arreglarlo.
+  if (eLectura) return falloLectura(edicion, eLectura.message);
   if (!fila) return { ok: false, mensaje: "No se encontró la edición." };
   const anterior = fila[columna];
 
@@ -75,11 +83,12 @@ export async function cambiarCarrusel(datos: FormData): Promise<Resultado> {
   const sb = await sesion();
 
   if (encender) {
-    const { data: e } = await sb
+    const { data: e, error: eLectura } = await sb
       .from("ediciones")
       .select("activa, estado, carrusel_portada_path, carrusel_pliego_izq_path, carrusel_pliego_der_path")
       .eq("id", edicion)
       .maybeSingle();
+    if (eLectura) return falloLectura(edicion, eLectura.message);
     if (!e) return { ok: false, mensaje: "No se encontró la edición." };
     if (!e.activa) return { ok: false, mensaje: "Sólo se puede encender en la edición activa." };
     if (e.estado !== "publicada") return { ok: false, mensaje: "Primero hay que publicar el número." };
