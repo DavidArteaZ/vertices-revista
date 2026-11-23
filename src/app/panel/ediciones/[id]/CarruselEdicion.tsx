@@ -18,6 +18,16 @@ const HUECOS: { hueco: Hueco; etiqueta: string; nota: string }[] = [
   { hueco: "pliego-der", etiqueta: "Pliego derecho", nota: "Dos páginas, horizontal" },
 ];
 
+/** Lo que Storage dijo al rechazar la subida, para enseñarlo en vez de adivinar. */
+async function motivoStorage(r: Response): Promise<string> {
+  try {
+    const cuerpo = (await r.json()) as { message?: string; error?: string };
+    return cuerpo.message ?? cuerpo.error ?? `HTTP ${r.status}`;
+  } catch {
+    return `HTTP ${r.status}`;
+  }
+}
+
 async function subir(edicion: number, hueco: Hueco, archivo: File): Promise<Resultado> {
   try {
     const firma = await fetch(`/api/panel/ediciones/${edicion}/carrusel`, {
@@ -34,7 +44,7 @@ async function subir(edicion: number, hueco: Hueco, archivo: File): Promise<Resu
     cuerpo.append("cacheControl", "3600");
     cuerpo.append("", archivo, archivo.name);
     const subida = await fetch(respuesta.url, { method: "PUT", body: cuerpo });
-    if (!subida.ok) return { ok: false, mensaje: "No se pudo subir la imagen." };
+    if (!subida.ok) return { ok: false, mensaje: `No se pudo subir la imagen: ${await motivoStorage(subida)}` };
 
     const datos = new FormData();
     datos.set("edicion", String(edicion));

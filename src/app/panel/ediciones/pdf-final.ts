@@ -21,12 +21,18 @@ export async function fijarPdfFinal(datos: FormData): Promise<Resultado> {
   const ruta = String(datos.get("ruta") ?? "");
 
   const sb = await sesion();
-  const { data: fila } = await sb
+  const { data: fila, error: eLectura } = await sb
     .from("ediciones")
     .select("id, numero, pdf_final_path")
     .eq("id", edicion)
     .maybeSingle();
 
+  // Un fallo de la consulta (p. ej. la columna falta porque la migración no se
+  // aplicó) no es "no existe": se dice tal cual para poder arreglarlo.
+  if (eLectura) {
+    console.error(JSON.stringify({ evento: "panel_pdf_final_lectura_fallo", edicion, error: eLectura.message }));
+    return { ok: false, mensaje: `La base no pudo leer la edición: ${eLectura.message}` };
+  }
   if (!fila) return { ok: false, mensaje: "No se encontró la edición." };
   if (!ruta.startsWith(`${fila.id}/${PREFIJO_EDICION_FINAL}-`) || !ruta.endsWith(".pdf")) {
     return { ok: false, mensaje: "La ruta del PDF no corresponde a esta edición." };

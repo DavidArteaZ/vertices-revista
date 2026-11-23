@@ -10,6 +10,16 @@ import { fijarPdfFinal } from "../pdf-final";
  * porque una Function de Vercel no acepta cuerpos de más de 4.5 MB.
  */
 
+/** Lo que Storage dijo al rechazar la subida, para enseñarlo en vez de adivinar. */
+async function motivoStorage(r: Response): Promise<string> {
+  try {
+    const cuerpo = (await r.json()) as { message?: string; error?: string };
+    return cuerpo.message ?? cuerpo.error ?? `HTTP ${r.status}`;
+  } catch {
+    return `HTTP ${r.status}`;
+  }
+}
+
 async function subir(edicion: number, archivo: File): Promise<Resultado> {
   try {
     const firma = await fetch(`/api/panel/ediciones/${edicion}/pdf`, {
@@ -28,7 +38,7 @@ async function subir(edicion: number, archivo: File): Promise<Resultado> {
     cuerpo.append("", archivo.slice(0, archivo.size, "application/pdf"), archivo.name);
 
     const subida = await fetch(respuesta.url, { method: "PUT", body: cuerpo });
-    if (!subida.ok) return { ok: false, mensaje: "No se pudo subir el PDF." };
+    if (!subida.ok) return { ok: false, mensaje: `No se pudo subir el PDF: ${await motivoStorage(subida)}` };
 
     const datos = new FormData();
     datos.set("edicion", String(edicion));
