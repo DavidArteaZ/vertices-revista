@@ -216,6 +216,7 @@ export default async function DetalleEdicion({ params }: { params: Promise<{ id:
         <CarruselEdicion
           edicion={edicionId}
           encendido={edicion.portada_en_carrusel}
+          primero={edicion.portada_edicion_primero}
           activa={edicion.activa}
           publicada={publicada}
           imagenes={{

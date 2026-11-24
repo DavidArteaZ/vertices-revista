@@ -2,7 +2,7 @@
 
 import { useActionState } from "react";
 import type { Resultado } from "../../acciones";
-import { cambiarCarrusel, fijarImagenCarrusel } from "../carrusel";
+import { cambiarCarrusel, cambiarPrimero, fijarImagenCarrusel } from "../carrusel";
 
 /**
  * La edición en la portada: las tres imágenes de la parada (portada al centro
@@ -87,18 +87,25 @@ function Imagen({ edicion, hueco, etiqueta, nota, url }: { edicion: number; huec
 export default function CarruselEdicion({
   edicion,
   encendido,
+  primero,
   activa,
   publicada,
   imagenes,
 }: {
   edicion: number;
   encendido: boolean;
+  /** Segundo switch: la portada abre en esta parada en vez de en Vértices. */
+  primero: boolean;
   activa: boolean;
   publicada: boolean;
   imagenes: Record<Hueco, string | null>;
 }) {
   const [estado, ejecutar, pendiente] = useActionState<Resultado | null, FormData>(
     async (_p, datos) => cambiarCarrusel(datos),
+    null,
+  );
+  const [estadoPrimero, ejecutarPrimero, pendientePrimero] = useActionState<Resultado | null, FormData>(
+    async (_p, datos) => cambiarPrimero(datos),
     null,
   );
 
@@ -141,6 +148,31 @@ export default function CarruselEdicion({
         )}
       </form>
       {estado?.mensaje && <p className={`aviso${estado.ok ? " aviso--ok" : ""}`}>{estado.mensaje}</p>}
+
+      <form action={ejecutarPrimero} className="carrusel-switch">
+        <input type="hidden" name="edicion" value={edicion} />
+        <input type="hidden" name="encender" value={primero ? "0" : "1"} />
+        <button
+          type="submit"
+          role="switch"
+          aria-checked={primero}
+          className={`interruptor${primero ? " interruptor--on" : ""}`}
+          disabled={pendientePrimero || (!primero && !encendido)}
+        >
+          <span className="interruptor__riel" aria-hidden="true"><span className="interruptor__bola" /></span>
+          {primero ? "Primera parada: la portada abre aquí" : "Ponerla en primer lugar"}
+        </button>
+        <p className="nota" style={{ margin: 0 }}>
+          {!encendido
+            ? "Se activa cuando la edición ya está en la portada."
+            : primero
+              ? "Al abrir la página se ve primero la edición; Vértices queda un scroll arriba."
+              : "Ahora va en segundo lugar, después de Vértices."}
+        </p>
+      </form>
+      {estadoPrimero?.mensaje && (
+        <p className={`aviso${estadoPrimero.ok ? " aviso--ok" : ""}`}>{estadoPrimero.mensaje}</p>
+      )}
     </div>
   );
 }

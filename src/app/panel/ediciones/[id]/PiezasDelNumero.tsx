@@ -112,6 +112,13 @@ export default function PiezasDelNumero({
   );
 }
 
+/**
+ * Autoría, minutos y destacado se pueden ajustar también con el número ya
+ * publicado: no cambian el slug ni la ruta del PDF, así que ningún enlace ni QR
+ * repartido se rompe. Quitar sí deja de ofrecerse, porque borraría una página
+ * pública. Los tres campos viven en celdas distintas y se suman al formulario
+ * de la última con el atributo `form`.
+ */
 function TablaArticulos({
   edicion,
   publicada,
@@ -130,53 +137,63 @@ function TablaArticulos({
           <th>Lectura</th>
           <th>Destacado</th>
           <th>PDF</th>
-          <th />
+          {!publicada && <th />}
         </tr>
       </thead>
       <tbody>
-        {articulos.map((a) => (
-          <tr key={a.id}>
-            <td>{a.titulo}</td>
-            <td>{a.autor}</td>
-            <td colSpan={publicada ? 1 : 2}>
-              {publicada ? (
-                <>
-                  {a.minutos_lectura ?? "—"} min{a.destacado ? " · destacado" : ""}
-                </>
-              ) : (
-                <Accion accion={ajustarArticulo} etiqueta="Guardar">
+        {articulos.map((a) => {
+          const form = `ajuste-${a.id}`;
+          return (
+            <tr key={a.id}>
+              <td>{a.titulo}</td>
+              <td>
+                <input
+                  form={form}
+                  type="text"
+                  name="autor"
+                  required
+                  maxLength={300}
+                  defaultValue={a.autor}
+                  aria-label="Autoría"
+                  style={{ minWidth: 180 }}
+                />
+                <span className="nota" style={{ display: "block", fontSize: 12 }}>Coautores separados por comas</span>
+              </td>
+              <td>
+                <input
+                  form={form}
+                  type="number"
+                  name="minutos"
+                  min={1}
+                  defaultValue={a.minutos_lectura ?? ""}
+                  style={{ width: 78 }}
+                  aria-label="Minutos de lectura"
+                />
+              </td>
+              <td>
+                <Accion id={form} accion={ajustarArticulo} etiqueta="Guardar">
                   <input type="hidden" name="articulo" value={a.id} />
                   <input type="hidden" name="edicion" value={edicion} />
-                  <div style={{ display: "flex", gap: 10, alignItems: "center", marginBottom: 8 }}>
-                    <input
-                      type="number"
-                      name="minutos"
-                      min={1}
-                      defaultValue={a.minutos_lectura ?? ""}
-                      style={{ width: 78 }}
-                      aria-label="Minutos de lectura"
-                    />
-                    <label style={{ textTransform: "none", letterSpacing: 0, margin: 0, display: "flex", gap: 6, fontSize: 13 }}>
-                      <input type="checkbox" name="destacado" defaultChecked={a.destacado} style={{ width: "auto" }} />
-                      Destacado
-                    </label>
-                  </div>
+                  <label style={{ textTransform: "none", letterSpacing: 0, margin: "0 0 8px", display: "flex", gap: 6, fontSize: 13 }}>
+                    <input type="checkbox" name="destacado" defaultChecked={a.destacado} style={{ width: "auto" }} />
+                    Destacado
+                  </label>
                 </Accion>
-              )}
-            </td>
-            <td>
-              <PdfPieza articulo={a.id} url={a.pdf} motivo={a.motivo} />
-            </td>
-            <td style={{ textAlign: "right" }}>
+              </td>
+              <td>
+                <PdfPieza articulo={a.id} url={a.pdf} motivo={a.motivo} />
+              </td>
               {!publicada && (
-                <Accion accion={quitarArticulo} etiqueta="Quitar">
-                  <input type="hidden" name="articulo" value={a.id} />
-                  <input type="hidden" name="edicion" value={edicion} />
-                </Accion>
+                <td style={{ textAlign: "right" }}>
+                  <Accion accion={quitarArticulo} etiqueta="Quitar">
+                    <input type="hidden" name="articulo" value={a.id} />
+                    <input type="hidden" name="edicion" value={edicion} />
+                  </Accion>
+                </td>
               )}
-            </td>
-          </tr>
-        ))}
+            </tr>
+          );
+        })}
       </tbody>
     </table>
   );

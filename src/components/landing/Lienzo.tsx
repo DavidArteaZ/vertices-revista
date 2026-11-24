@@ -35,6 +35,9 @@ const ICONOS = [
   </g>,
 ];
 
+/** Dónde está la parada de la edición en el recorrido (motor.ts, syncUI). */
+const U_EDICION = 0.26;
+
 const Icono = ({ i }: { i: number }) => (
   <svg viewBox="0 0 24 24" aria-hidden="true">{ICONOS[i]}</svg>
 );
@@ -79,6 +82,8 @@ export default function Lienzo({
   const fsNombre = useRef<HTMLHeadingElement>(null);
   const fsDesc = useRef<HTMLParagraphElement>(null);
   const riel = useRef<HTMLElement>(null);
+  // El motor se monta una sola vez; basta con el valor del primer render.
+  const edicionPrimero = useRef(edicion?.primero === true);
 
   // Los callbacks y el diccionario cambian de identidad entre renders; el
   // motor se monta una sola vez, así que los lee por referencia. La escritura
@@ -96,6 +101,17 @@ export default function Lienzo({
   useEffect(() => {
     let motor: Motor | undefined;
     let cancelado = false;
+
+    // El panel puede pedir que la portada abra en la parada de la edición.
+    // Se salta hasta ella antes de arrancar el motor, que lee la posición al
+    // montar; como las capas nacen ocultas, no asoma Vértices de paso. Sólo
+    // al entrar arriba y sin ancla: si el navegador restauró otra posición o
+    // la URL apunta a algo, gana eso. "instant" porque el html tiene
+    // scroll-behavior: smooth y con "auto" se vería el viaje.
+    if (edicionPrimero.current && window.scrollY === 0 && !location.hash && recorrido.current) {
+      const limite = Math.max(1, recorrido.current.offsetHeight - window.innerHeight);
+      window.scrollTo({ top: U_EDICION * limite, behavior: "instant" });
+    }
 
     // sampleTextPoints rasteriza "Vértices" para derivar cada partícula
     // (index.html:1189-1223). Montar antes de que carguen las tipografías
@@ -140,7 +156,7 @@ export default function Lienzo({
       <nav className="riel" ref={riel} aria-label={t("progreso_del_recorrido")}>
         <button data-u="0" data-parada="vertices" className="activo"><i><Icono i={0} /></i><span>{t("vertices")}</span></button>
         {edicion && (
-          <button data-u="0.26" data-parada="edicion"><i><Icono i={3} /></i><span>{t("edicion_n", { n: edicion.numero })}</span></button>
+          <button data-u={U_EDICION} data-parada="edicion"><i><Icono i={3} /></i><span>{t("edicion_n", { n: edicion.numero })}</span></button>
         )}
         <button data-u="0.48" data-parada="temas"><i><Icono i={1} /></i><span>{t("temas")}</span></button>
         <button data-u="0.75" data-parada="secciones"><i><Icono i={2} /></i><span>{t("secciones")}</span></button>

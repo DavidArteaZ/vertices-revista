@@ -7,6 +7,8 @@ export type EdicionPortada = {
   portada: string;
   pliegoIzq: string;
   pliegoDer: string;
+  /** La página abre directo en esta parada en vez de en la de Vértices. */
+  primero: boolean;
 };
 
 const urlDe = (ruta: string) => `${process.env.SUPABASE_URL}/storage/v1/object/public/publicaciones/${ruta}`;
@@ -20,7 +22,10 @@ const urlDe = (ruta: string) => `${process.env.SUPABASE_URL}/storage/v1/object/p
 export async function cargaEdicionPortada(): Promise<EdicionPortada | null> {
   const { data, error } = await publico()
     .from("ediciones")
-    .select("numero, estado, carrusel_portada_path, carrusel_pliego_izq_path, carrusel_pliego_der_path")
+    // `*` y no la lista de columnas: si el sitio se despliega antes de aplicar
+    // la migración del segundo switch, una columna nombrada que no existe
+    // haría fallar la consulta y la parada desaparecería de la portada.
+    .select("*")
     .eq("activa", true)
     .eq("portada_en_carrusel", true)
     .maybeSingle();
@@ -44,5 +49,6 @@ export async function cargaEdicionPortada(): Promise<EdicionPortada | null> {
     portada: urlDe(data.carrusel_portada_path),
     pliegoIzq: urlDe(data.carrusel_pliego_izq_path),
     pliegoDer: urlDe(data.carrusel_pliego_der_path),
+    primero: data.portada_edicion_primero === true,
   };
 }

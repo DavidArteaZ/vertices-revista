@@ -219,16 +219,28 @@ export async function ajustarArticulo(datos: FormData): Promise<Resultado> {
   const edicion = Number(datos.get("edicion") ?? 0);
   const minutos = Number(datos.get("minutos") ?? 0);
   const destacado = datos.get("destacado") === "on";
+  // Coautores van en el mismo texto, separados por comas: es lo que el sitio
+  // enseña tal cual. Sólo se ordenan los espacios para que no se cuelen dobles.
+  const autor = String(datos.get("autor") ?? "")
+    .split(",")
+    .map((n) => n.replace(/\s+/g, " ").trim())
+    .filter(Boolean)
+    .join(", ");
+  if (!autor) return { ok: false, mensaje: "La autoría no puede quedar vacía." };
+  if (autor.length > 300) return { ok: false, mensaje: "La autoría no puede pasar de 300 caracteres." };
 
   const sb = await sesion();
   const { error } = await sb
     .from("articulos")
-    .update({ minutos_lectura: minutos || null, destacado })
+    .update({ autor, minutos_lectura: minutos || null, destacado })
     .eq("id", articulo);
 
   if (error) return { ok: false, mensaje: error.message };
 
   revalidatePath(`/panel/ediciones/${edicion}`);
+  // Con el número publicado esto ya se ve en el sitio (carrusel, página del
+  // artículo y del número); la portada se sirve estática y no esperaría sola.
+  revalidatePath("/[locale]", "layout");
   return { ok: true, mensaje: "Guardado." };
 }
 
