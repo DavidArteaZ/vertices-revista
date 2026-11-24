@@ -271,6 +271,7 @@ export type Database = {
           cupo_invitados: number | null;
           pdf_final_path: string | null;
           portada_en_carrusel: boolean;
+          portada_edicion_primero: boolean;
           carrusel_portada_path: string | null;
           carrusel_pliego_izq_path: string | null;
           carrusel_pliego_der_path: string | null;
@@ -290,6 +291,7 @@ export type Database = {
           cupo_invitados?: number | null;
           pdf_final_path?: string | null;
           portada_en_carrusel?: boolean;
+          portada_edicion_primero?: boolean;
           carrusel_portada_path?: string | null;
           carrusel_pliego_izq_path?: string | null;
           carrusel_pliego_der_path?: string | null;

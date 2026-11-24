@@ -159,7 +159,9 @@ _Evitar_: llamarle artículo.
 Una parada del recorrido de la portada, entre la palabra y la constelación,
 que anuncia el número con su portada al centro y dos pliegos detrás. Se
 enciende con un switch en el panel de la edición y sólo se ve si esa edición
-es la activa, está publicada y tiene sus tres imágenes.
+es la activa, está publicada y tiene sus tres imágenes. Un segundo switch la
+pone **en primer lugar**: la página abre directo en esa parada y la de
+Vértices queda un scroll arriba; el orden del recorrido no cambia.
 
 **PDF de edición final**:
 El número completo maquetado en un solo documento. Se sube en el panel de la

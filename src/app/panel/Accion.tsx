@@ -16,6 +16,7 @@ export default function Accion({
   etiqueta,
   lleno,
   confirmar,
+  id,
 }: {
   accion: (datos: FormData) => Promise<Resultado>;
   children?: React.ReactNode;
@@ -23,6 +24,8 @@ export default function Accion({
   lleno?: boolean;
   /** Para lo que no se puede deshacer: grabar una decisión, enviar un dictamen. */
   confirmar?: string;
+  /** Para que campos en otras celdas de una tabla se sumen con `form={id}`. */
+  id?: string;
 }) {
   const [estado, ejecutar, pendiente] = useActionState<Resultado | null, FormData>(
     async (_previo, datos) => accion(datos),
@@ -31,6 +34,7 @@ export default function Accion({
 
   return (
     <form
+      id={id}
       action={ejecutar}
       onSubmit={(e) => {
         if (confirmar && !window.confirm(confirmar)) e.preventDefault();

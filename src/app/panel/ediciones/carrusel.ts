@@ -106,3 +106,40 @@ export async function cambiarCarrusel(datos: FormData): Promise<Resultado> {
   refrescar(edicion);
   return { ok: true, mensaje: encender ? "La edición ya aparece en la portada." : "La edición ya no aparece en la portada." };
 }
+
+/**
+ * El segundo switch: si la portada abre directo en la parada de la edición.
+ * Sólo se enciende con la parada encendida; apagarlo siempre se puede.
+ */
+export async function cambiarPrimero(datos: FormData): Promise<Resultado> {
+  if (!(await personal())) return NO_AUTORIZADO;
+
+  const edicion = Number(datos.get("edicion") ?? 0);
+  const encender = datos.get("encender") === "1";
+  if (!edicion) return { ok: false, mensaje: "Falta la edición." };
+
+  const sb = await sesion();
+
+  if (encender) {
+    const { data: e, error: eLectura } = await sb
+      .from("ediciones")
+      .select("portada_en_carrusel")
+      .eq("id", edicion)
+      .maybeSingle();
+    if (eLectura) return falloLectura(edicion, eLectura.message);
+    if (!e) return { ok: false, mensaje: "No se encontró la edición." };
+    if (!e.portada_en_carrusel) return { ok: false, mensaje: "Primero enciende la edición en la portada." };
+  }
+
+  const { error } = await sb.from("ediciones").update({ portada_edicion_primero: encender }).eq("id", edicion);
+  if (error) {
+    console.error(JSON.stringify({ evento: "panel_carrusel_primero_fallo", edicion, error: error.message }));
+    return { ok: false, mensaje: error.message };
+  }
+
+  refrescar(edicion);
+  return {
+    ok: true,
+    mensaje: encender ? "La portada ya abre en la edición." : "La portada vuelve a abrir en Vértices.",
+  };
+}
